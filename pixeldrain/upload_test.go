@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package main
+package pixeldrain
 
 import (
 	"context"
@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	TestFileName = "README.md"
+	TestFileName = "upload.go"
 )
 
 type mockServer struct {

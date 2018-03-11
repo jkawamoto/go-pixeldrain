@@ -22,35 +22,14 @@
 
 package main
 
-import (
-	"context"
-	"os"
+// Name defines the basename of this program.
+const Name = "pd"
 
-	"github.com/jkawamoto/go-pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/client/file"
-)
+// Version defines current version number.
+const Version = "0.1.0"
 
-// Upload the given file to PixelDrain with the given client and under the given context.
-// If cli is nil, the default client will be used. If a name is given, the uploaded file will be renamed name.
-// After the upload succeeds, an ID associated with the uploaded file will be returned.
-func Upload(ctx context.Context, cli *client.PixelDrain, fp *os.File, name string) (id string, err error) {
+// Author defines the author of this program.
+const Author = "Junpei Kawamoto"
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	if cli == nil {
-		cli = client.Default
-	}
-	if name == "" {
-		name = fp.Name()
-	}
-
-	res, err := cli.File.PostFile(file.NewPostFileParamsWithContext(ctx).WithFile(*fp).WithName(&name))
-	if err != nil {
-		return
-	}
-
-	id = res.Payload.ID
-	return
-
-}
+// Email defines an email address of the author.
+const Email = "kawamoto.junpei@gmail.com"
