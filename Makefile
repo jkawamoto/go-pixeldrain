@@ -3,7 +3,7 @@
 #
 VERSION = snapshot
 GHRFLAGS =
-.PHONY: build release
+.PHONY: build release get-deps test
 
 default: build
 
@@ -12,3 +12,9 @@ build:
 
 release:
 	ghr  -u jkawamoto $(GHRFLAGS) v$(VERSION) pkg/$(VERSION)
+
+get-deps:
+	go get -d -t -v .
+
+test:
+	go test -v ./...
