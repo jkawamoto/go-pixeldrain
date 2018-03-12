@@ -31,4 +31,5 @@ _testmain.go
 # External packages folder
 vendor/
 
-
+pkg/
+homebrew/
