@@ -116,18 +116,20 @@ func TestUpload(t *testing.T) {
 
 	id := "test-id"
 	cases := []struct {
-		name   string
+		file   string
 		rename string
+		expect string
 	}{
-		{name: TestFileName, rename: ""},
-		{name: "another-name", rename: "another-name"},
+		{file: TestFileName, rename: "", expect: TestFileName},
+		{file: TestFileName, rename: "another-expect", expect: "another-expect"},
+		{file: "../command/upload.go", rename: "", expect: TestFileName},
 	}
 
 	for _, c := range cases {
 
-		t.Run(fmt.Sprintf("name=%v,rename=%v", c.name, c.rename), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {
 
-			m, err := newMockServer(TestFileName, c.name, id)
+			m, err := newMockServer(c.file, c.expect, id)
 			if err != nil {
 				t.Fatal("Cannot prepare a mock server:", err)
 			}
@@ -144,7 +146,7 @@ func TestUpload(t *testing.T) {
 				Schemes:  []string{"http"},
 			})
 
-			fp, err := os.Open(TestFileName)
+			fp, err := os.Open(c.file)
 			if err != nil {
 				t.Fatal("Failed to open the file:", err)
 			}

@@ -25,13 +25,14 @@ package pixeldrain
 import (
 	"context"
 	"os"
+	"path/filepath"
 
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
 // Upload the given file to PixelDrain with the given client and under the given context.
-// If cli is nil, the default client will be used. If a name is given, the uploaded file will be renamed name.
+// If cli is nil, the default client will be used. If a name is given, the uploaded file will be renamed.
 // After the upload succeeds, an ID associated with the uploaded file will be returned.
 func Upload(ctx context.Context, cli *client.PixelDrain, fp *os.File, name string) (id string, err error) {
 
@@ -42,7 +43,7 @@ func Upload(ctx context.Context, cli *client.PixelDrain, fp *os.File, name strin
 		cli = client.Default
 	}
 	if name == "" {
-		name = fp.Name()
+		name = filepath.Base(fp.Name())
 	}
 
 	res, err := cli.File.PostFile(file.NewPostFileParamsWithContext(ctx).WithFile(*fp).WithName(&name))
