@@ -28,3 +28,7 @@ install:
   - dep ensure
 script:
   - go test -v ./...
+notifications:
+  slack:
+    rooms:
+      secure: Re3k88FXBasj/39o6twM8AMduJPP2pdX/hT+T+zcZzkp/Sdfr6djSHcINYVOJEDvpP4uGBaWKjIecbxV1wPpb19Xh/J2DXio6LVEggXUO4tHb2Ub+Y5PNE03km6neXtwPVQdeFGqh/sbogFcU6A9UcFSYXlJwjcJngeyd77k7M1ooZN9NB8Uctfu0FYFc/TwOmFMMAAQEooIc+f82HMyCRhdaGE0MM9+GcXbL+ZYylGKUnrNUOioDV/ted+Rs2gwFpY2E8y8aTokGFPPu2mDEMxMeeIarcNDdCVegW6Q9s3wRlDhxd+fA4ySN6+uojP1QH0gL+LHIgijo3AQhPdtreEntIWgg8RWBvmVKix0DejTTRxpsagr96BCt8bQHr7MiYEUaTozEMkAqCdWyvaXZT6l3I2VonRqqqvNL+dsxxhtSyM/GlwczaQWOrr241a2rckriBCQprB0K1vtt0I/ghIrPESawbfk9NWZyaYDrDmyIrZp7fkCdFm6qzX79GagxIt7DAjAjm5ULTcUK+MSNoY2z1mZ+JHxWTnMQ0djlaB0wFn5TcEhh3h5WbkMEYY6cbgzRh0QtRPe8vkd5xzAthE8tk1CdMnbJj9ddczwIN4ZFrwyZcSjKHZbbpxugt3+6/8geqbPhNikfC1Ucpxjb1ObZkhflaAvN7bxJd0Z3KY=
