@@ -30,7 +30,7 @@ func CmdCreateList(c *cli.Context) (err error) {
 		return cli.NewExitError(err, 2)
 	}
 
-	fmt.Printf("https://sia.pixeldrain.com/l/%s\n", id)
+	fmt.Println(fmt.Sprintf("https://sia.pixeldrain.com/l/%s", id))
 	return
 
 }
