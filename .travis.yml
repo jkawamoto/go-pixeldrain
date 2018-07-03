@@ -1,7 +1,40 @@
+#
+# .travis.yml
+#
+# Copyright (c) 2018 Junpei Kawamoto
+#
+# This software is released under the MIT License.
+#
+# http://opensource.org/licenses/mit-license.php
+#
 language: go
 go:
-- tip
+  - "1.10"
+env:
+  secure: YCp/7gvgxPffTjrBTmMyMZKtL2DbrXub+kJGa56OGz5EhFw7JXDtTKiEn6U3pKRaJJPNLbM4Q86cpI/Q7iqbxKrd7IzrHsxUjaDxHxrRwN5LypWfH7cY71StNnvQpruLS+eTnYiXAKOkXFDbqkOhgOMlTZ04fWJmGEqI6jnaGHE0JHbWtCCiOgBoKP6Cpy0CFWYPSiIy13OppWaPSGaa+SuI/6HCmqtM9pp2tM5ut6H7JoSMINaSr2vZ9Nnwx7pDGSjgDslLkg2US6y4jkgOUbqbw+JQKMlf5ZgGJmwWkDsMosooey30t+iHWZ1JV6aVyuacA38lXWv4tt3I12LlNYabgIUFeNHmnb584Osd9xFKLSuejEGGnn017E+r71MG0JXGeRvPMnpisMAHfD6unRACKK8F0mnaVPbEaUu5e5dNkH61i5k+0GEEQ1r/oAHz8+9sdFz1ARcfSTlxFR9HLR6lkEY8RGApTAltmDscYfM1sdoN1PsSY9ih8+kfyq8xCS5YhYU2ADYaS4pVS7P06TNAFciDbe76SCHGuKd8pcsZE6yKVU0aL6b+QrFKycEokd6GauJrjavCXtuIwWA0KQrE0rzqrhc4fU3tv2sEzVovdURdhiK93z5fZwwrmdA66feMewr2QH5oRbeRuUded6Kl9qqUsNf4S7vJgVYUqGQ=
+before_install:
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 install:
-- make get-deps
+  - dep ensure
 script:
-- make test
+  - go test -v ./...
+before_deploy:
+  - go get github.com/laher/goxc
+  - go get github.com/tcnksm/ghr
+  - sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+  - export PATH="$HOME/.linuxbrew/bin:$HOME/.linuxbrew/sbin:$PATH"
+  - brew tap jkawamoto/fgo
+  - brew install fgo
+  - cd homebrew; git checkout master; cd -
+deploy:
+  provider: script
+  script: fgo build $TRAVIS_TAG
+  skip_cleanup: true
+  on:
+    tags: true
+after_deploy:
+  - cd homebrew; git commit -a -m "$TRAVIS_TAG" && git push --quiet "https://${GITHUB_TOKEN}@github.com/jkawamoto/homebrew-pixeldrain.git" master >/dev/null 2>&1
+notifications:
+  slack:
+    rooms:
+      secure: Re3k88FXBasj/39o6twM8AMduJPP2pdX/hT+T+zcZzkp/Sdfr6djSHcINYVOJEDvpP4uGBaWKjIecbxV1wPpb19Xh/J2DXio6LVEggXUO4tHb2Ub+Y5PNE03km6neXtwPVQdeFGqh/sbogFcU6A9UcFSYXlJwjcJngeyd77k7M1ooZN9NB8Uctfu0FYFc/TwOmFMMAAQEooIc+f82HMyCRhdaGE0MM9+GcXbL+ZYylGKUnrNUOioDV/ted+Rs2gwFpY2E8y8aTokGFPPu2mDEMxMeeIarcNDdCVegW6Q9s3wRlDhxd+fA4ySN6+uojP1QH0gL+LHIgijo3AQhPdtreEntIWgg8RWBvmVKix0DejTTRxpsagr96BCt8bQHr7MiYEUaTozEMkAqCdWyvaXZT6l3I2VonRqqqvNL+dsxxhtSyM/GlwczaQWOrr241a2rckriBCQprB0K1vtt0I/ghIrPESawbfk9NWZyaYDrDmyIrZp7fkCdFm6qzX79GagxIt7DAjAjm5ULTcUK+MSNoY2z1mZ+JHxWTnMQ0djlaB0wFn5TcEhh3h5WbkMEYY6cbgzRh0QtRPe8vkd5xzAthE8tk1CdMnbJj9ddczwIN4ZFrwyZcSjKHZbbpxugt3+6/8geqbPhNikfC1Ucpxjb1ObZkhflaAvN7bxJd0Z3KY=

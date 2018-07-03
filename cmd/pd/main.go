@@ -1,5 +1,3 @@
-// The MIT License (MIT)
-//
 // Copyright (c) 2018 Junpei Kawamoto
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,14 +20,27 @@
 
 package main
 
-// Name defines the basename of this program.
-const Name = "pd"
+import (
+	"os"
 
-// Version defines current version number.
-const Version = "0.1.0"
+	"github.com/urfave/cli"
+)
 
-// Author defines the author of this program.
-const Author = "Junpei Kawamoto"
+func main() {
 
-// Email defines an email address of the author.
-const Email = "kawamoto.junpei@gmail.com"
+	app := cli.NewApp()
+	app.Name = Name
+	app.Version = Version
+	app.Author = Author
+	app.Email = Email
+	app.Usage = "Pixeldrain client"
+
+	app.Flags = GlobalFlags
+	app.Commands = Commands
+	app.CommandNotFound = CommandNotFound
+	app.EnableBashCompletion = true
+	app.Copyright = ""
+
+	app.Run(os.Args)
+
+}

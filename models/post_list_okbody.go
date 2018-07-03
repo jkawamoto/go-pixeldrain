@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -44,6 +46,7 @@ func (m *PostListOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *PostListOKBody) UnmarshalBinary(b []byte) error {
 	var res PostListOKBody
+	fmt.Println(string(b))
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
