@@ -20,6 +20,13 @@ import (
 // CreateList sends a list creation request via the given client with the given title, description, and items.
 func CreateList(ctx context.Context, cli *client.PixelDrain, title, description string, items []string) (id string, err error) {
 
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	if cli == nil {
+		cli = client.Default
+	}
+
 	res, err := cli.List.PostList(list.NewPostListParamsWithContext(ctx).WithList(
 		&models.PostListParamsBody{
 			Title:       &title,

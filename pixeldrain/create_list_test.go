@@ -104,7 +104,7 @@ func TestCreateList(t *testing.T) {
 	} else {
 		for i, f := range ParseListItems(files) {
 			if item := mock.Files[i]; item.ID != f.ID || item.Description != f.Description {
-				t.Errorf("item %v was %+v but expected %+v", i, item)
+				t.Errorf("item %v was %+v but expected %+v", i, item, f)
 			}
 		}
 	}
