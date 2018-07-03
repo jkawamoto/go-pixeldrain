@@ -1,5 +1,3 @@
-// The MIT License (MIT)
-//
 // Copyright (c) 2018 Junpei Kawamoto
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,14 +20,39 @@
 
 package main
 
-// Name defines the basename of this program.
-const Name = "pd"
+import (
+	"fmt"
+	"os"
 
-// Version defines current version number.
-const Version = "0.1.0"
+	"github.com/jkawamoto/go-pixeldrain/command"
+	"github.com/urfave/cli"
+)
 
-// Author defines the author of this program.
-const Author = "Junpei Kawamoto"
+// GlobalFlags manages global flags.
+var GlobalFlags []cli.Flag
 
-// Email defines an email address of the author.
-const Email = "kawamoto.junpei@gmail.com"
+// Commands manage sub commands.
+var Commands = []cli.Command{
+	{
+		Name:        "upload",
+		Usage:       "Upload a file",
+		Description: "upload a file to PixelDrain",
+		ArgsUsage:   "<file path>",
+		Action:      command.CmdUpload,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "n, name",
+				Usage: "rename the uploaded file to `NAME`",
+			},
+		},
+	},
+}
+
+// CommandNotFound shows error message and exit when a given command is not found.
+func CommandNotFound(c *cli.Context, command string) {
+
+	fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
+	cli.ShowAppHelp(c)
+	os.Exit(2)
+
+}
