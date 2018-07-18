@@ -35,7 +35,7 @@ import (
 	"testing"
 
 	"github.com/jkawamoto/go-pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
 const (
@@ -104,11 +104,11 @@ func (m *mockServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	body := models.PostFileOKBody{
+	res.WriteHeader(http.StatusCreated)
+	json.NewEncoder(res).Encode(&file.UploadFileCreatedBody{
 		ID:      m.id,
 		Success: true,
-	}
-	json.NewEncoder(res).Encode(&body)
+	})
 
 }
 

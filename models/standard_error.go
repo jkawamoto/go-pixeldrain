@@ -38,17 +38,14 @@ func (m *StandardError) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMessage(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateSuccess(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateValue(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/jkawamoto/go-pixeldrain/models"
+	models "github.com/jkawamoto/go-pixeldrain/models"
 )
 
 // GetFileIDThumbnailReader is a Reader for the GetFileIDThumbnail structure.

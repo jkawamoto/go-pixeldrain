@@ -6,6 +6,8 @@ package file
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -25,67 +27,6 @@ type Client struct {
 }
 
 /*
-DeleteFileID deletes a file
-
-Deletes a file. Only works when the users owns the file.
-*/
-func (a *Client) DeleteFileID(params *DeleteFileIDParams) (*DeleteFileIDOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewDeleteFileIDParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DeleteFileID",
-		Method:             "DELETE",
-		PathPattern:        "/file/{id}",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &DeleteFileIDReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*DeleteFileIDOK), nil
-
-}
-
-/*
-GetFileID downloads a file
-
-Returns the full file associated with the ID. Supports byte range requests.
-
-*/
-func (a *Client) GetFileID(params *GetFileIDParams) (*GetFileIDOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetFileIDParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetFileID",
-		Method:             "GET",
-		PathPattern:        "/file/{id}",
-		ProducesMediaTypes: []string{"application/json", "application/octet-stream"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &GetFileIDReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetFileIDOK), nil
-
-}
-
-/*
 GetFileIDDownload downloads a file
 
 Same as GET /file/{id}, but with File Transfer HTTP headers. Will trigger a save file dialog when opened in a web browser.  Also supports byte range requests.
@@ -102,7 +43,7 @@ func (a *Client) GetFileIDDownload(params *GetFileIDDownloadParams) (*GetFileIDD
 		Method:             "GET",
 		PathPattern:        "/file/{id}/download",
 		ProducesMediaTypes: []string{"application/json", "application/octet-stream"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetFileIDDownloadReader{formats: a.formats},
@@ -113,37 +54,6 @@ func (a *Client) GetFileIDDownload(params *GetFileIDDownloadParams) (*GetFileIDD
 		return nil, err
 	}
 	return result.(*GetFileIDDownloadOK), nil
-
-}
-
-/*
-GetFileIDInfo retrieves information of a file
-
-Returns information about one or more files. You can also put a comma separated list of file IDs in the URL and it will return an array of file info, instead of a single object.
-
-*/
-func (a *Client) GetFileIDInfo(params *GetFileIDInfoParams) (*GetFileIDInfoOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetFileIDInfoParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetFileIDInfo",
-		Method:             "GET",
-		PathPattern:        "/file/{id}/info",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &GetFileIDInfoReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetFileIDInfoOK), nil
 
 }
 
@@ -164,7 +74,7 @@ func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams) (*GetFileI
 		Method:             "GET",
 		PathPattern:        "/file/{id}/thumbnail",
 		ProducesMediaTypes: []string{"application/json", "image/png"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetFileIDThumbnailReader{formats: a.formats},
@@ -179,32 +89,124 @@ func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams) (*GetFileI
 }
 
 /*
-PostFile uploads a file
+DeleteFile deletes a file
 
-Upload a file.
+Deletes a file. Only works when the users owns the file.
 */
-func (a *Client) PostFile(params *PostFileParams) (*PostFileOK, error) {
+func (a *Client) DeleteFile(params *DeleteFileParams) (*DeleteFileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPostFileParams()
+		params = NewDeleteFileParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PostFile",
-		Method:             "POST",
-		PathPattern:        "/file",
+		ID:                 "deleteFile",
+		Method:             "DELETE",
+		PathPattern:        "/file/{id}",
 		ProducesMediaTypes: []string{"application/json", "text/plain"},
-		ConsumesMediaTypes: []string{"multipart/form-data"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
-		Reader:             &PostFileReader{formats: a.formats},
+		Reader:             &DeleteFileReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*PostFileOK), nil
+	return result.(*DeleteFileOK), nil
+
+}
+
+/*
+DownloadFile downloads a file
+
+Returns the full file associated with the ID. Supports byte range requests.
+
+*/
+func (a *Client) DownloadFile(params *DownloadFileParams, writer io.Writer) (*DownloadFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDownloadFileParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "downloadFile",
+		Method:             "GET",
+		PathPattern:        "/file/{id}",
+		ProducesMediaTypes: []string{"application/json", "application/octet-stream"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &DownloadFileReader{formats: a.formats, writer: writer},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*DownloadFileOK), nil
+
+}
+
+/*
+GetFileInfo retrieves information of a file
+
+Returns information about one or more files. You can also put a comma separated list of file IDs in the URL and it will return an array of file info, instead of a single object.
+
+*/
+func (a *Client) GetFileInfo(params *GetFileInfoParams) (*GetFileInfoOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetFileInfoParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getFileInfo",
+		Method:             "GET",
+		PathPattern:        "/file/{id}/info",
+		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetFileInfoReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetFileInfoOK), nil
+
+}
+
+/*
+UploadFile uploads a file
+
+Upload a file.
+*/
+func (a *Client) UploadFile(params *UploadFileParams) (*UploadFileCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUploadFileParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "uploadFile",
+		Method:             "POST",
+		PathPattern:        "/file",
+		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ConsumesMediaTypes: []string{"multipart/form-data"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &UploadFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UploadFileCreated), nil
 
 }
 
