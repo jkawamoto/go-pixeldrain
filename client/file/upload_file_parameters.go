@@ -7,7 +7,6 @@ package file
 
 import (
 	"net/http"
-	"os"
 	"time"
 
 	"golang.org/x/net/context"
@@ -19,14 +18,14 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewPostFileParams creates a new PostFileParams object
+// NewUploadFileParams creates a new UploadFileParams object
 // with the default values initialized.
-func NewPostFileParams() *PostFileParams {
+func NewUploadFileParams() *UploadFileParams {
 	var (
 		descriptionDefault = string("Pixeldrain File")
 		nameDefault        = string("Name of file param")
 	)
-	return &PostFileParams{
+	return &UploadFileParams{
 		Description: &descriptionDefault,
 		Name:        &nameDefault,
 
@@ -34,14 +33,14 @@ func NewPostFileParams() *PostFileParams {
 	}
 }
 
-// NewPostFileParamsWithTimeout creates a new PostFileParams object
+// NewUploadFileParamsWithTimeout creates a new UploadFileParams object
 // with the default values initialized, and the ability to set a timeout on a request
-func NewPostFileParamsWithTimeout(timeout time.Duration) *PostFileParams {
+func NewUploadFileParamsWithTimeout(timeout time.Duration) *UploadFileParams {
 	var (
 		descriptionDefault = string("Pixeldrain File")
 		nameDefault        = string("Name of file param")
 	)
-	return &PostFileParams{
+	return &UploadFileParams{
 		Description: &descriptionDefault,
 		Name:        &nameDefault,
 
@@ -49,14 +48,14 @@ func NewPostFileParamsWithTimeout(timeout time.Duration) *PostFileParams {
 	}
 }
 
-// NewPostFileParamsWithContext creates a new PostFileParams object
+// NewUploadFileParamsWithContext creates a new UploadFileParams object
 // with the default values initialized, and the ability to set a context for a request
-func NewPostFileParamsWithContext(ctx context.Context) *PostFileParams {
+func NewUploadFileParamsWithContext(ctx context.Context) *UploadFileParams {
 	var (
 		descriptionDefault = string("Pixeldrain File")
 		nameDefault        = string("Name of file param")
 	)
-	return &PostFileParams{
+	return &UploadFileParams{
 		Description: &descriptionDefault,
 		Name:        &nameDefault,
 
@@ -64,24 +63,24 @@ func NewPostFileParamsWithContext(ctx context.Context) *PostFileParams {
 	}
 }
 
-// NewPostFileParamsWithHTTPClient creates a new PostFileParams object
+// NewUploadFileParamsWithHTTPClient creates a new UploadFileParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
-func NewPostFileParamsWithHTTPClient(client *http.Client) *PostFileParams {
+func NewUploadFileParamsWithHTTPClient(client *http.Client) *UploadFileParams {
 	var (
 		descriptionDefault = string("Pixeldrain File")
 		nameDefault        = string("Name of file param")
 	)
-	return &PostFileParams{
+	return &UploadFileParams{
 		Description: &descriptionDefault,
 		Name:        &nameDefault,
 		HTTPClient:  client,
 	}
 }
 
-/*PostFileParams contains all the parameters to send to the API endpoint
-for the post file operation typically these are written to a http.Request
+/*UploadFileParams contains all the parameters to send to the API endpoint
+for the upload file operation typically these are written to a http.Request
 */
-type PostFileParams struct {
+type UploadFileParams struct {
 
 	/*Description
 	  Description of the file
@@ -92,7 +91,7 @@ type PostFileParams struct {
 	  Multipart file to upload
 
 	*/
-	File os.File
+	File runtime.NamedReadCloser
 	/*Name
 	  Name of the file to upload
 
@@ -104,74 +103,74 @@ type PostFileParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the post file params
-func (o *PostFileParams) WithTimeout(timeout time.Duration) *PostFileParams {
+// WithTimeout adds the timeout to the upload file params
+func (o *UploadFileParams) WithTimeout(timeout time.Duration) *UploadFileParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the post file params
-func (o *PostFileParams) SetTimeout(timeout time.Duration) {
+// SetTimeout adds the timeout to the upload file params
+func (o *UploadFileParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the post file params
-func (o *PostFileParams) WithContext(ctx context.Context) *PostFileParams {
+// WithContext adds the context to the upload file params
+func (o *UploadFileParams) WithContext(ctx context.Context) *UploadFileParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the post file params
-func (o *PostFileParams) SetContext(ctx context.Context) {
+// SetContext adds the context to the upload file params
+func (o *UploadFileParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the post file params
-func (o *PostFileParams) WithHTTPClient(client *http.Client) *PostFileParams {
+// WithHTTPClient adds the HTTPClient to the upload file params
+func (o *UploadFileParams) WithHTTPClient(client *http.Client) *UploadFileParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the post file params
-func (o *PostFileParams) SetHTTPClient(client *http.Client) {
+// SetHTTPClient adds the HTTPClient to the upload file params
+func (o *UploadFileParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithDescription adds the description to the post file params
-func (o *PostFileParams) WithDescription(description *string) *PostFileParams {
+// WithDescription adds the description to the upload file params
+func (o *UploadFileParams) WithDescription(description *string) *UploadFileParams {
 	o.SetDescription(description)
 	return o
 }
 
-// SetDescription adds the description to the post file params
-func (o *PostFileParams) SetDescription(description *string) {
+// SetDescription adds the description to the upload file params
+func (o *UploadFileParams) SetDescription(description *string) {
 	o.Description = description
 }
 
-// WithFile adds the file to the post file params
-func (o *PostFileParams) WithFile(file os.File) *PostFileParams {
+// WithFile adds the file to the upload file params
+func (o *UploadFileParams) WithFile(file runtime.NamedReadCloser) *UploadFileParams {
 	o.SetFile(file)
 	return o
 }
 
-// SetFile adds the file to the post file params
-func (o *PostFileParams) SetFile(file os.File) {
+// SetFile adds the file to the upload file params
+func (o *UploadFileParams) SetFile(file runtime.NamedReadCloser) {
 	o.File = file
 }
 
-// WithName adds the name to the post file params
-func (o *PostFileParams) WithName(name *string) *PostFileParams {
+// WithName adds the name to the upload file params
+func (o *UploadFileParams) WithName(name *string) *UploadFileParams {
 	o.SetName(name)
 	return o
 }
 
-// SetName adds the name to the post file params
-func (o *PostFileParams) SetName(name *string) {
+// SetName adds the name to the upload file params
+func (o *UploadFileParams) SetName(name *string) {
 	o.Name = name
 }
 
 // WriteToRequest writes these params to a swagger request
-func (o *PostFileParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+func (o *UploadFileParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
@@ -195,7 +194,7 @@ func (o *PostFileParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 	}
 
 	// form file param file
-	if err := r.SetFileParam("file", &o.File); err != nil {
+	if err := r.SetFileParam("file", o.File); err != nil {
 		return err
 	}
 

@@ -25,62 +25,62 @@ type Client struct {
 }
 
 /*
-GetListID returns information about a file list and the files in it
+CreateFileList creates a list of files that can be viewed together on the file viewer page
 
-Returns information about a file list and the files in it.
+Creates a list of files that can be viewed together on the file viewer page.
 */
-func (a *Client) GetListID(params *GetListIDParams) (*GetListIDOK, error) {
+func (a *Client) CreateFileList(params *CreateFileListParams) (*CreateFileListCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetListIDParams()
+		params = NewCreateFileListParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetListID",
-		Method:             "GET",
-		PathPattern:        "/list/{id}",
+		ID:                 "createFileList",
+		Method:             "POST",
+		PathPattern:        "/list",
 		ProducesMediaTypes: []string{"application/json", "text/plain"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
-		Reader:             &GetListIDReader{formats: a.formats},
+		Reader:             &CreateFileListReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetListIDOK), nil
+	return result.(*CreateFileListCreated), nil
 
 }
 
 /*
-PostList creates a list of files that can be viewed together on the file viewer page
+GetFileList returns information about a file list and the files in it
 
-Creates a list of files that can be viewed together on the file viewer page.
+Returns information about a file list and the files in it.
 */
-func (a *Client) PostList(params *PostListParams) (*PostListOK, error) {
+func (a *Client) GetFileList(params *GetFileListParams) (*GetFileListOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPostListParams()
+		params = NewGetFileListParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PostList",
-		Method:             "POST",
-		PathPattern:        "/list",
+		ID:                 "getFileList",
+		Method:             "GET",
+		PathPattern:        "/list/{id}",
 		ProducesMediaTypes: []string{"application/json", "text/plain"},
-		ConsumesMediaTypes: []string{"application/json", "test/plain"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
-		Reader:             &PostListReader{formats: a.formats},
+		Reader:             &GetFileListReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*PostListOK), nil
+	return result.(*GetFileListOK), nil
 
 }
 

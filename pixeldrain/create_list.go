@@ -14,7 +14,6 @@ import (
 
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/client/list"
-	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 // CreateList sends a list creation request via the given client with the given title, description, and items.
@@ -27,8 +26,8 @@ func CreateList(ctx context.Context, cli *client.PixelDrain, title, description 
 		cli = client.Default
 	}
 
-	res, err := cli.List.PostList(list.NewPostListParamsWithContext(ctx).WithList(
-		&models.PostListParamsBody{
+	res, err := cli.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
+		list.CreateFileListBody{
 			Title:       &title,
 			Description: description,
 			Files:       ParseListItems(items),
@@ -44,11 +43,11 @@ func CreateList(ctx context.Context, cli *client.PixelDrain, title, description 
 }
 
 // ParseListItems parses the given list of list specifications and returns a PostListParamsBodyFiles instance.
-func ParseListItems(values []string) (res models.PostListParamsBodyFiles) {
+func ParseListItems(values []string) (res []*list.FilesItems0) {
 
 	for _, v := range values {
 		c := strings.SplitN(v, ":", 2)
-		item := &models.PostListParamsBodyFilesItems{
+		item := &list.FilesItems0{
 			ID: c[0],
 		}
 		if len(c) != 1 {

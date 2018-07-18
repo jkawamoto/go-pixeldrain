@@ -39,9 +39,6 @@ func NewHTTPClient(formats strfmt.Registry) *PixelDrain {
 // using a customizable transport config.
 func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PixelDrain {
 	// ensure nullable parameters have default
-	if formats == nil {
-		formats = strfmt.Default
-	}
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
 	}
@@ -53,6 +50,11 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Pix
 
 // New creates a new pixel drain client
 func New(transport runtime.ClientTransport, formats strfmt.Registry) *PixelDrain {
+	// ensure nullable parameters have default
+	if formats == nil {
+		formats = strfmt.Default
+	}
+
 	cli := new(PixelDrain)
 	cli.Transport = transport
 
