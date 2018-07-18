@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/jkawamoto/go-pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
@@ -27,7 +28,7 @@ type mockListServer struct {
 	ID          string
 	Description string
 	Title       string
-	Files       models.PostListParamsBodyFiles
+	Files       []*list.FilesItems0
 }
 
 func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -48,7 +49,7 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var body models.PostListParamsBody
+	var body list.CreateFileListBody
 	err = body.UnmarshalBinary(raw)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
@@ -62,7 +63,8 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	m.Title = *body.Title
 	m.Files = body.Files
 
-	json.NewEncoder(res).Encode(&models.PostListOKBody{
+	res.WriteHeader(http.StatusCreated)
+	json.NewEncoder(res).Encode(&list.CreateFileListCreatedBody{
 		ID:      m.ID,
 		Success: true,
 	})
@@ -115,32 +117,32 @@ func TestParseListItems(t *testing.T) {
 
 	cases := []struct {
 		Input    []string
-		Expected models.PostListParamsBodyFiles
+		Expected []*list.FilesItems0
 	}{
 		{
 			Input: []string{"ID"},
-			Expected: models.PostListParamsBodyFiles{
-				&models.PostListParamsBodyFilesItems{ID: "ID"},
+			Expected: []*list.FilesItems0{
+				{ID: "ID"},
 			},
 		},
 		{
 			Input: []string{"ID:description"},
-			Expected: models.PostListParamsBodyFiles{
-				&models.PostListParamsBodyFilesItems{ID: "ID", Description: "description"},
+			Expected: []*list.FilesItems0{
+				{ID: "ID", Description: "description"},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2"},
-			Expected: models.PostListParamsBodyFiles{
-				&models.PostListParamsBodyFilesItems{ID: "ID", Description: "description"},
-				&models.PostListParamsBodyFilesItems{ID: "id2"},
+			Expected: []*list.FilesItems0{
+				{ID: "ID", Description: "description"},
+				{ID: "id2"},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2:desc2"},
-			Expected: models.PostListParamsBodyFiles{
-				&models.PostListParamsBodyFilesItems{ID: "ID", Description: "description"},
-				&models.PostListParamsBodyFilesItems{ID: "id2", Description: "desc2"},
+			Expected: []*list.FilesItems0{
+				{ID: "ID", Description: "description"},
+				{ID: "id2", Description: "desc2"},
 			},
 		},
 	}

@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-openapi/runtime"
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
@@ -46,7 +47,8 @@ func Upload(ctx context.Context, cli *client.PixelDrain, fp *os.File, name strin
 		name = filepath.Base(fp.Name())
 	}
 
-	res, err := cli.File.PostFile(file.NewPostFileParamsWithContext(ctx).WithFile(*fp).WithName(&name))
+	res, err := cli.File.UploadFile(
+		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, fp)).WithName(&name))
 	if err != nil {
 		return
 	}
