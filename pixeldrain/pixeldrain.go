@@ -17,10 +17,13 @@ import (
 	"os"
 )
 
+const downloadEndpoint = "https://sia.pixeldrain.com/api/file/"
+
 type Pixeldrain struct {
-	Client *client.PixelDrain
-	Stdout io.WriteCloser
-	Stderr io.WriteCloser
+	Client           *client.PixelDrain
+	Stdout           io.WriteCloser
+	Stderr           io.WriteCloser
+	downloadEndpoint string
 }
 
 func New() *Pixeldrain {
@@ -34,9 +37,10 @@ func New() *Pixeldrain {
 	}
 
 	return &Pixeldrain{
-		Client: cli,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Client:           cli,
+		Stdout:           os.Stdout,
+		Stderr:           os.Stderr,
+		downloadEndpoint: downloadEndpoint,
 	}
 
 }
