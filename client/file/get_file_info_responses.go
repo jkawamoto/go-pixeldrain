@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 
@@ -109,19 +111,15 @@ swagger:model GetFileInfoOKBody
 type GetFileInfoOKBody struct {
 
 	// Timestamp of last viewed time
-	DateLastView float64 `json:"date_last_view,omitempty"`
+	// Format: date-time
+	DateLastView strfmt.DateTime `json:"date_last_view,omitempty"`
 
 	// Timestamp of uploaded time
-	DateUpload float64 `json:"date_upload,omitempty"`
+	// Format: date-time
+	DateUpload strfmt.DateTime `json:"date_upload,omitempty"`
 
 	// Description of the file
 	Description string `json:"description,omitempty"`
-
-	// Name of the file
-	FileName string `json:"file_name,omitempty"`
-
-	// Size of the file in Bytes
-	FileSize float64 `json:"file_size,omitempty"`
 
 	// ID of the newly uploaded file
 	ID string `json:"id,omitempty"`
@@ -132,6 +130,12 @@ type GetFileInfoOKBody struct {
 	// MIME type of the file
 	MimeType string `json:"mime_type,omitempty"`
 
+	// Name of the file
+	Name string `json:"name,omitempty"`
+
+	// Size of the file in Bytes
+	Size int64 `json:"size,omitempty"`
+
 	// success
 	Success bool `json:"success,omitempty"`
 
@@ -139,11 +143,50 @@ type GetFileInfoOKBody struct {
 	Thumbnail string `json:"thumbnail,omitempty"`
 
 	// Amount of unique file views
-	Views float64 `json:"views,omitempty"`
+	Views int64 `json:"views,omitempty"`
 }
 
 // Validate validates this get file info o k body
 func (o *GetFileInfoOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDateLastView(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDateUpload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetFileInfoOKBody) validateDateLastView(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DateLastView) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("getFileInfoOK"+"."+"date_last_view", "body", "date-time", o.DateLastView.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetFileInfoOKBody) validateDateUpload(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DateUpload) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("getFileInfoOK"+"."+"date_upload", "body", "date-time", o.DateUpload.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

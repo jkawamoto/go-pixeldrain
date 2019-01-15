@@ -29,7 +29,7 @@ type Client struct {
 /*
 GetFileIDDownload downloads a file
 
-Same as GET /file/{id}, but with File Transfer HTTP headers. Will trigger a save file dialog when opened in a web browser.  Also supports byte range requests.
+Same as GET /file/{id}, but with File Transfer HTTP headers. Will trigger a save file dialog when opened in a web browser. Also supports byte range requests.
 
 */
 func (a *Client) GetFileIDDownload(params *GetFileIDDownloadParams) (*GetFileIDDownloadOK, error) {

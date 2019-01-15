@@ -62,7 +62,7 @@ for the create file list operation typically these are written to a http.Request
 type CreateFileListParams struct {
 
 	/*List
-	  POST body should be a JSON object, example below.  A list can contain maximally 5000 files. If you try to add more the request will fail.
+	  POST body should be a JSON object, example below. A list can contain maximally 5000 files. If you try to add more the request will fail.
 
 
 	*/
