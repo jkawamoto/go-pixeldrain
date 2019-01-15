@@ -36,6 +36,18 @@ var Commands = []cli.Command{
 			},
 		},
 	}, {
+		Name:        "download",
+		Usage:       "Download a file",
+		Description: "download a file from PixelDrain",
+		ArgsUsage:   "<file ID | URL>",
+		Action:      command.CmdDownload,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "o, output",
+				Usage: "output the downloaded file into `DIR`",
+			},
+		},
+	}, {
 		Name:        "create-list",
 		Usage:       "Create a list consisting of uploaded files",
 		Description: "create a list consisting of given file IDs",
@@ -57,7 +69,9 @@ var Commands = []cli.Command{
 // CommandNotFound shows error message and exit when a given command is not found.
 func CommandNotFound(c *cli.Context, command string) {
 
+	//noinspection GoUnhandledErrorResult
 	fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
+	//noinspection GoUnhandledErrorResult
 	cli.ShowAppHelp(c)
 	os.Exit(2)
 
