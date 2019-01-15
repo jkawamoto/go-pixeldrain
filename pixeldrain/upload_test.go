@@ -42,6 +42,7 @@ func newMockServer(file, name, id string) (m *mockServer, err error) {
 	if err != nil {
 		return
 	}
+	//noinspection GoUnhandledErrorResult
 	defer fp.Close()
 
 	data, err := ioutil.ReadAll(fp)
@@ -67,6 +68,7 @@ func (m *mockServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if v := req.FormValue("name"); v != m.name {
 		res.WriteHeader(http.StatusBadRequest)
+		//noinspection GoUnhandledErrorResult
 		fmt.Fprintf(res, "given file name is %v, want %v", v, m.name)
 		return
 	}
@@ -74,25 +76,31 @@ func (m *mockServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	fp, _, err := req.FormFile("file")
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
+		//noinspection GoUnhandledErrorResult
 		fmt.Fprintln(res, "cannot get the file:", err.Error())
 		return
 	}
+	//noinspection GoUnhandledErrorResult
 	defer fp.Close()
 
 	data, err := ioutil.ReadAll(fp)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
+		//noinspection GoUnhandledErrorResult
 		fmt.Fprintln(res, "Cannot read the uploaded file:", err.Error())
 		return
 	}
 
 	if !reflect.DeepEqual(data, m.expected) {
 		res.WriteHeader(http.StatusInternalServerError)
+		//noinspection GoUnhandledErrorResult
 		fmt.Fprintln(res, "Uploaded file is broken")
 		return
 	}
 
+	res.Header().Set(ContentType, "application/json")
 	res.WriteHeader(http.StatusCreated)
+	//noinspection GoUnhandledErrorResult
 	json.NewEncoder(res).Encode(&file.UploadFileCreatedBody{
 		ID:      m.id,
 		Success: true,
@@ -139,6 +147,7 @@ func TestUpload(t *testing.T) {
 			if err != nil {
 				t.Fatal("Failed to open the file:", err)
 			}
+			//noinspection GoUnhandledErrorResult
 			defer fp.Close()
 
 			res, err := pd.Upload(context.Background(), fp, c.rename)
