@@ -30,6 +30,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 // Upload the given file to PixelDrain with the given client and under the given context.
@@ -47,8 +48,16 @@ func Upload(ctx context.Context, cli *client.PixelDrain, fp *os.File, name strin
 		name = filepath.Base(fp.Name())
 	}
 
+	info, err := fp.Stat()
+	if err != nil {
+		return
+	}
+	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES)
+	bar.Start()
+	defer bar.Finish()
+
 	res, err := cli.File.UploadFile(
-		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, fp)).WithName(&name))
+		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, bar.NewProxyReader(fp))).WithName(&name))
 	if err != nil {
 		return
 	}

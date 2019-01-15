@@ -111,6 +111,12 @@
   revision = "60711f1a8329503b04e1c88535f419d0bb440bff"
 
 [[projects]]
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  revision = "3ee7d812e62a0804a7d0a324e0249ca2db3476d3"
+  version = "v0.0.4"
+
+[[projects]]
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
@@ -127,6 +133,12 @@
   name = "golang.org/x/net"
   packages = ["idna"]
   revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "2be51725563103c17124a318f1745b66f2347acb"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -151,6 +163,12 @@
   version = "v0.3.0"
 
 [[projects]]
+  name = "gopkg.in/cheggaaa/pb.v1"
+  packages = ["."]
+  revision = "1cc5bbe20449079337944d56292c7383510c534c"
+  version = "v1.0.27"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
@@ -159,6 +177,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c50f933ca64182139b42e897ece3c7e9fe2cfd5282086c24bc6ca510fc785dab"
+  inputs-digest = "821cf97e39b63bb0d279c492aa548ca6b5c83912e27bdc9c29366fe9682a9c9c"
   solver-name = "gps-cdcl"
   solver-version = 1
