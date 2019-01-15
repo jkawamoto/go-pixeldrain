@@ -1,10 +1,12 @@
-// commands.go
-//
-// Copyright (c) 2018 Junpei Kawamoto
-//
-// This software is released under the MIT License.
-//
-// http://opensource.org/licenses/mit-license.php
+/*
+ * commands.go
+ *
+ * Copyright (c) 2018-2019 Junpei Kawamoto
+ *
+ * This software is released under the MIT License.
+ *
+ * http://opensource.org/licenses/mit-license.php
+ */
 
 package main
 
@@ -12,7 +14,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jkawamoto/go-pixeldrain/command"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
 	"github.com/urfave/cli"
 )
 
