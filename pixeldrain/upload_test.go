@@ -1,24 +1,12 @@
-// The MIT License (MIT)
-//
-// Copyright (c) 2018 Junpei Kawamoto
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+/*
+ * upload_test.go
+ *
+ * Copyright (c) 2018-2019 Junpei Kawamoto
+ *
+ * This software is released under the MIT License.
+ *
+ * http://opensource.org/licenses/mit-license.php
+ */
 
 package pixeldrain
 
@@ -122,7 +110,7 @@ func TestUpload(t *testing.T) {
 	}{
 		{file: TestFileName, rename: "", expect: TestFileName},
 		{file: TestFileName, rename: "another-expect", expect: "another-expect"},
-		{file: "../command/upload.go", rename: "", expect: TestFileName},
+		{file: "../cmd/pd/command/upload.go", rename: "", expect: TestFileName},
 	}
 
 	for _, c := range cases {
@@ -136,11 +124,12 @@ func TestUpload(t *testing.T) {
 			server := httptest.NewServer(m)
 			defer server.Close()
 
+			pd := New()
 			u, err := url.Parse(server.URL)
 			if err != nil {
 				t.Fatal("Cannot parse a URL:", err)
 			}
-			cli := client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+			pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 				Host:     u.Host,
 				BasePath: "/",
 				Schemes:  []string{"http"},
@@ -152,7 +141,7 @@ func TestUpload(t *testing.T) {
 			}
 			defer fp.Close()
 
-			res, err := Upload(context.Background(), cli, fp, c.rename)
+			res, err := pd.Upload(context.Background(), fp, c.rename)
 			if err != nil {
 				t.Fatal("failed to upload a file:", err.Error())
 			}

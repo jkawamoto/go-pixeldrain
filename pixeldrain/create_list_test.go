@@ -1,10 +1,12 @@
-// create_list_test.go
-//
-// Copyright (c) 2018 Junpei Kawamoto
-//
-// This software is released under the MIT License.
-//
-// http://opensource.org/licenses/mit-license.php
+/*
+ * create_list_test.go
+ *
+ * Copyright (c) 2018-2019 Junpei Kawamoto
+ *
+ * This software is released under the MIT License.
+ *
+ * http://opensource.org/licenses/mit-license.php
+ */
 
 package pixeldrain
 
@@ -80,11 +82,12 @@ func TestCreateList(t *testing.T) {
 	server := httptest.NewServer(mock)
 	defer server.Close()
 
+	pd := New()
 	u, err := url.Parse(server.URL)
 	if err != nil {
 		t.Fatal("Cannot parse a URL:", err)
 	}
-	cli := client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+	pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 		Host:     u.Host,
 		BasePath: "/",
 		Schemes:  []string{"http"},
@@ -93,7 +96,7 @@ func TestCreateList(t *testing.T) {
 	title := "sample-title"
 	description := "sample-description"
 	files := []string{"file1:file1.txt", "file2:file2.dat"}
-	id, err := CreateList(context.Background(), cli, title, description, files)
+	id, err := pd.CreateList(context.Background(), title, description, files)
 	if err != nil {
 		t.Fatal("CreateList returned an error:", err)
 	}
@@ -104,7 +107,7 @@ func TestCreateList(t *testing.T) {
 	if len(mock.Files) != len(files) {
 		t.Errorf("the mock server received %v items but sent %v items", len(mock.Files), len(files))
 	} else {
-		for i, f := range ParseListItems(files) {
+		for i, f := range parseListItems(files) {
 			if item := mock.Files[i]; item.ID != f.ID || item.Description != f.Description {
 				t.Errorf("item %v was %+v but expected %+v", i, item, f)
 			}
@@ -149,7 +152,7 @@ func TestParseListItems(t *testing.T) {
 
 	for i, c := range cases {
 		t.Run(fmt.Sprintf("case-%v", i), func(t *testing.T) {
-			res := ParseListItems(c.Input)
+			res := parseListItems(c.Input)
 			if len(res) != len(c.Expected) {
 				t.Errorf("got %v items but want %v", len(res), len(c.Expected))
 			} else {

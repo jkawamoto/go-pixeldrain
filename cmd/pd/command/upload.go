@@ -32,7 +32,7 @@ func CmdUpload(c *cli.Context) (err error) {
 	}
 	defer fp.Close()
 
-	id, err := pixeldrain.Upload(context.Background(), nil, fp, c.String("name"))
+	id, err := pixeldrain.New().Upload(context.Background(), fp, c.String("name"))
 	if err != nil {
 		return cli.NewExitError(err, 2)
 	}

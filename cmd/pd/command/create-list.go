@@ -25,8 +25,8 @@ func CmdCreateList(c *cli.Context) (err error) {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	id, err := pixeldrain.CreateList(
-		context.Background(), nil, c.String("title"), c.String("description"),
+	id, err := pixeldrain.New().CreateList(
+		context.Background(), c.String("title"), c.String("description"),
 		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
 		return cli.NewExitError(err, 2)
