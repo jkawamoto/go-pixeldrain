@@ -12,12 +12,12 @@ package pixeldrain
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-
 	"github.com/go-openapi/runtime"
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 	"gopkg.in/cheggaaa/pb.v1"
+	"io"
+	"os"
+	"path/filepath"
 )
 
 // Upload the given file to PixelDrain under the given context.
@@ -41,8 +41,17 @@ func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (id 
 	bar.Start()
 	defer bar.Finish()
 
+	return pd.UploadRaw(ctx, bar.NewProxyReader(fp), name)
+
+}
+
+func (pd *Pixeldrain) UploadRaw(ctx context.Context, r io.Reader, name string) (id string, err error) {
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	res, err := pd.Client.File.UploadFile(
-		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, bar.NewProxyReader(fp))).WithName(&name))
+		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, r)).WithName(&name))
 	if err != nil {
 		return
 	}

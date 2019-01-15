@@ -163,3 +163,41 @@ func TestUpload(t *testing.T) {
 	}
 
 }
+
+func TestUploadRaw(t *testing.T) {
+
+	id := "test-id"
+	m, err := newMockServer(TestFileName, TestFileName, id)
+	if err != nil {
+		t.Fatal("Cannot prepare a mock server:", err)
+	}
+	server := httptest.NewServer(m)
+	defer server.Close()
+
+	pd := New()
+	u, err := url.Parse(server.URL)
+	if err != nil {
+		t.Fatal("Cannot parse a URL:", err)
+	}
+	pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+		Host:     u.Host,
+		BasePath: "/",
+		Schemes:  []string{"http"},
+	})
+
+	fp, err := os.Open(TestFileName)
+	if err != nil {
+		t.Fatal("Failed to open the file:", err)
+	}
+	//noinspection GoUnhandledErrorResult
+	defer fp.Close()
+
+	res, err := pd.UploadRaw(context.Background(), fp, TestFileName)
+	if err != nil {
+		t.Fatal("failed to upload a file:", err.Error())
+	}
+	if res != id {
+		t.Errorf("received ID = %v, want %v", res, id)
+	}
+
+}
