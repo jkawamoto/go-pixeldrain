@@ -11,6 +11,7 @@
 package pixeldrain
 
 import (
+	httpTransport "github.com/go-openapi/runtime/client"
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"io"
 	"os"
@@ -18,12 +19,24 @@ import (
 
 type Pixeldrain struct {
 	Client *client.PixelDrain
-	Stderr io.Writer
+	Stdout io.WriteCloser
+	Stderr io.WriteCloser
 }
 
 func New() *Pixeldrain {
+
+	cli := client.Default
+
+	switch transport := cli.Transport.(type) {
+	case *httpTransport.Runtime:
+		transport.Transport = newTransporter(transport.Transport)
+		cli.SetTransport(transport)
+	}
+
 	return &Pixeldrain{
-		Client: client.Default,
+		Client: cli,
+		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	}
+
 }
