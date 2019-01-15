@@ -26,15 +26,32 @@ func CmdUpload(c *cli.Context) (err error) {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	fp, err := os.Open(c.Args().First())
-	if err != nil {
-		return cli.NewExitError(err, 1)
-	}
-	defer fp.Close()
+	var id string
+	pd := pixeldrain.New()
+	ctx := context.Background()
+	if c.Args().First() == "-" {
 
-	id, err := pixeldrain.New().Upload(context.Background(), fp, c.String("name"))
-	if err != nil {
-		return cli.NewExitError(err, 2)
+		id, err = pd.UploadRaw(ctx, os.Stdin, c.String("name"))
+
+	} else {
+
+		fp, err := os.Open(c.Args().First())
+		if err != nil {
+			return cli.NewExitError(err, 1)
+		}
+		defer func() {
+			//noinspection SpellCheckingInspection
+			cerr := fp.Close()
+			if cerr != nil {
+				err = fmt.Errorf("failed to close: %v, the original error was %v", cerr, err)
+			}
+		}()
+
+		id, err = pd.Upload(ctx, fp, c.String("name"))
+		if err != nil {
+			return cli.NewExitError(err, 2)
+		}
+
 	}
 
 	fmt.Println(fmt.Sprintf("https://sia.pixeldrain.com/api/file/%s", id))
