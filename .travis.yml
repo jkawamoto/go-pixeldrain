@@ -1,7 +1,7 @@
 #
 # .travis.yml
 #
-# Copyright (c) 2018 Junpei Kawamoto
+# Copyright (c) 2018-2019 Junpei Kawamoto
 #
 # This software is released under the MIT License.
 #
@@ -9,7 +9,7 @@
 #
 language: go
 go:
-  - "1.10"
+  - "1.11.4"
 env:
   secure: YCp/7gvgxPffTjrBTmMyMZKtL2DbrXub+kJGa56OGz5EhFw7JXDtTKiEn6U3pKRaJJPNLbM4Q86cpI/Q7iqbxKrd7IzrHsxUjaDxHxrRwN5LypWfH7cY71StNnvQpruLS+eTnYiXAKOkXFDbqkOhgOMlTZ04fWJmGEqI6jnaGHE0JHbWtCCiOgBoKP6Cpy0CFWYPSiIy13OppWaPSGaa+SuI/6HCmqtM9pp2tM5ut6H7JoSMINaSr2vZ9Nnwx7pDGSjgDslLkg2US6y4jkgOUbqbw+JQKMlf5ZgGJmwWkDsMosooey30t+iHWZ1JV6aVyuacA38lXWv4tt3I12LlNYabgIUFeNHmnb584Osd9xFKLSuejEGGnn017E+r71MG0JXGeRvPMnpisMAHfD6unRACKK8F0mnaVPbEaUu5e5dNkH61i5k+0GEEQ1r/oAHz8+9sdFz1ARcfSTlxFR9HLR6lkEY8RGApTAltmDscYfM1sdoN1PsSY9ih8+kfyq8xCS5YhYU2ADYaS4pVS7P06TNAFciDbe76SCHGuKd8pcsZE6yKVU0aL6b+QrFKycEokd6GauJrjavCXtuIwWA0KQrE0rzqrhc4fU3tv2sEzVovdURdhiK93z5fZwwrmdA66feMewr2QH5oRbeRuUded6Kl9qqUsNf4S7vJgVYUqGQ=
 before_install:
