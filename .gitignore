@@ -29,6 +29,4 @@ _testmain.go
 *.out
 
 # External packages folder
-vendor/
-
 pkg/

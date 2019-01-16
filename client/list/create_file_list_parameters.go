@@ -6,10 +6,9 @@ package list
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"net/http"
 	"time"
-
-	"golang.org/x/net/context"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -63,7 +62,7 @@ for the create file list operation typically these are written to a http.Request
 type CreateFileListParams struct {
 
 	/*List
-	  POST body should be a JSON object, example below.  A list can contain maximally 5000 files. If you try to add more the request will fail.
+	  POST body should be a JSON object, example below. A list can contain maximally 5000 files. If you try to add more the request will fail.
 
 
 	*/

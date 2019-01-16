@@ -1,10 +1,12 @@
-// commands.go
-//
-// Copyright (c) 2018 Junpei Kawamoto
-//
-// This software is released under the MIT License.
-//
-// http://opensource.org/licenses/mit-license.php
+/*
+ * commands.go
+ *
+ * Copyright (c) 2018-2019 Junpei Kawamoto
+ *
+ * This software is released under the MIT License.
+ *
+ * http://opensource.org/licenses/mit-license.php
+ */
 
 package main
 
@@ -12,7 +14,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jkawamoto/go-pixeldrain/command"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
 	"github.com/urfave/cli"
 )
 
@@ -31,6 +33,18 @@ var Commands = []cli.Command{
 			cli.StringFlag{
 				Name:  "n, name",
 				Usage: "rename the uploaded file to `NAME`",
+			},
+		},
+	}, {
+		Name:        "download",
+		Usage:       "Download a file",
+		Description: "download a file from PixelDrain",
+		ArgsUsage:   "<file ID | URL>",
+		Action:      command.CmdDownload,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "o, output",
+				Usage: "output the downloaded file into `DIR`",
 			},
 		},
 	}, {
@@ -55,7 +69,9 @@ var Commands = []cli.Command{
 // CommandNotFound shows error message and exit when a given command is not found.
 func CommandNotFound(c *cli.Context, command string) {
 
+	//noinspection GoUnhandledErrorResult
 	fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
+	//noinspection GoUnhandledErrorResult
 	cli.ShowAppHelp(c)
 	os.Exit(2)
 
