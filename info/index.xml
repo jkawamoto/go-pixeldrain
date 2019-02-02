@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Infos on A PixelDrain Client</title>
+    <link>https://jkawamoto.github.io/go-pixeldrain/info/</link>
+    <description>Recent content in Infos on A PixelDrain Client</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 16 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://jkawamoto.github.io/go-pixeldrain/info/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Licenses</title>
+      <link>https://jkawamoto.github.io/go-pixeldrain/info/licenses/</link>
+      <pubDate>Wed, 16 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://jkawamoto.github.io/go-pixeldrain/info/licenses/</guid>
+      <description>This software is released under the MIT License.
+ The MIT License (MIT)
+Copyright &amp;copy; 2018-2019 Junpei Kawamoto
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &amp;ldquo;Software&amp;rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</description>
+    </item>
+    
+  </channel>
+</rss>

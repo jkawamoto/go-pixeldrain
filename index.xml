@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A PixelDrain Client</title>
+    <link>https://jkawamoto.github.io/go-pixeldrain/</link>
+    <description>Recent content on A PixelDrain Client</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 16 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://jkawamoto.github.io/go-pixeldrain/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A PixelDrain Client</title>
+      <link>https://jkawamoto.github.io/go-pixeldrain/readme/</link>
+      <pubDate>Wed, 16 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://jkawamoto.github.io/go-pixeldrain/readme/</guid>
+      <description>Usage Upload a file upload command uploads a file to Pixeldrain and shows a URL to it.
+$ pd upload &amp;lt;file path&amp;gt;  The uploaded file has the same name as the given file. -n and --name options overwrite the file names.
+If uploading file is given via STDIN, use - instead of a file path. In this case either -n or --name option is mandatory.</description>
+    </item>
+    
+    <item>
+      <title>Licenses</title>
+      <link>https://jkawamoto.github.io/go-pixeldrain/info/licenses/</link>
+      <pubDate>Wed, 16 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://jkawamoto.github.io/go-pixeldrain/info/licenses/</guid>
+      <description>This software is released under the MIT License.
+ The MIT License (MIT)
+Copyright &amp;copy; 2018-2019 Junpei Kawamoto
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &amp;ldquo;Software&amp;rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</description>
+    </item>
+    
+  </channel>
+</rss>

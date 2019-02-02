@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+  <head prefix="og: http://ogp.me/ns#">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <base href="https://jkawamoto.github.io/go-pixeldrain/" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="generator" content="Hugo 0.53" />
+  <title>A PixelDrain Client: share files with decentralized cloud storage.</title>
+
+  <meta name="author" content="Junpei Kawamoto" />
+  
+  <meta name="description" content="Share files with PixelDrain, a decentralized cloud storage service based on Sia network. " />
+  
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://jkawamoto.github.io/go-pixeldrain/readme/"/>
+  <meta property="og:title" content="A PixelDrain Client: share files with decentralized cloud storage." />
+  
+  <meta name="og:description" content="Share files with PixelDrain, a decentralized cloud storage service based on Sia network. " />
+  
+  <meta property="og:site_name" content="A PixelDrain Client: share files with decentralized cloud storage." />
+  <meta property="og:image" content="https://jkawamoto.github.io/go-pixeldrain/img/image.png" />
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@junkawamoto" />
+
+  
+  
+  <link rel="icon" href="https://jkawamoto.github.io/go-pixeldrain/favicon.ico" />
+  
+  
+  
+  
+  
+  <link rel="apple-touch-icon" href="https://jkawamoto.github.io/go-pixeldrain/img/apple-icon-152x152.png" sizes="152x152" />
+  
+  
+  <link rel="icon" type="image/png" href="https://jkawamoto.github.io/go-pixeldrain/img/android-chrome-192x192.png" sizes="192x192" />
+  
+
+  
+  <link href="https://jkawamoto.github.io/go-pixeldrain/css/bootstrap.min.css" rel="stylesheet" />
+
+  
+  <link href="https://jkawamoto.github.io/go-pixeldrain/css/landing-page.css" rel="stylesheet" />
+
+  
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+
+  <style>
+    .navbar {
+    border-color: #e7e7e7;
+}
+
+.content-section-a,
+footer,
+.navbar {
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+.navbar a:link,
+.navbar-default .navbar-nav>li>a {
+  color: #777;
+}
+
+.navbar a:hover,
+.navbar-default .navbar-nav>li>a:hover {
+  color: rgb(51, 51, 51);
+}
+
+.content-section-b {
+  background-color: white;
+  color: #333;
+}
+
+body {
+  color: rgb(51, 51, 51);
+}
+
+.header-container h1,
+.header-container h2,
+.header-container h3,
+.header-container h4 {
+  color: rgb(51, 51, 51);
+}
+
+  </style>
+</head>
+
+  <body>
+    
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-4734862314145555",
+        enable_page_level_ads: true
+      });
+    </script>
+    
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header page-scroll">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="page-scroll navbar-brand" href="#intro">A PixelDrain Client</a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        
+        <li><a class="page-scroll" href=https://github.com/jkawamoto/go-pixeldrain>Github</a></li>
+        
+        
+        <li>
+          <a class="page-scroll" href=https://www.jkawamoto.info/>
+            Junpei Kawamoto
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    
+<section id="services">
+  <div class="content-section-a">
+    <div class="container">
+      <div class="row">
+        <div>
+          <hr class="section-heading-spacer">
+          <div class="clearfix"></div>
+          <h2 class="section-heading">A PixelDrain Client</h2>
+          
+
+<p><a href="./info/licenses/"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="MIT License" /></a>
+<a href="https://travis-ci.org/jkawamoto/go-pixeldrain"><img src="https://travis-ci.org/jkawamoto/go-pixeldrain.svg?branch=master" alt="Build Status" /></a>
+<a href="https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.3.0"><img src="https://img.shields.io/badge/release-0.3.0-brightgreen.svg" alt="Release" /></a></p>
+
+<h2 id="usage">Usage</h2>
+
+<h3 id="upload-a-file">Upload a file</h3>
+
+<p><code>upload</code> command uploads a file to Pixeldrain and shows a URL to it.</p>
+
+<pre><code class="language-shell">$ pd upload &lt;file path&gt;
+</code></pre>
+
+<p>The uploaded file has the same name as the given file.
+<code>-n</code> and <code>--name</code> options overwrite the file names.</p>
+
+<p>If uploading file is given via STDIN, use <code>-</code> instead of a file path.
+In this case either <code>-n</code> or <code>--name</code> option is mandatory.</p>
+
+<p>For example, this command reads <code>file1.txt</code> and uploads it with name <code>uploaded.txt</code>:</p>
+
+<pre><code class="language-shell">$ cat file1.txt | pd upload --name uploaded.txt -
+</code></pre>
+
+<h3 id="download-a-file">Download a file</h3>
+
+<p><code>download</code> command downloads a file from Pixeldrain and writes it to STDOUT.</p>
+
+<pre><code class="language-shell">$ pd download &lt;file ID | URL&gt;
+</code></pre>
+
+<p>If <code>-o</code> option is given with a directory path, the downloaded file is stored in
+the directory instead of writing to STDOUT.</p>
+
+<p>For example, this command downloads a file <code>abcdefg</code> in <code>~/Download</code>:</p>
+
+<pre><code class="language-shell">$ pd download abcdefg -o ~/Download
+</code></pre>
+
+<h3 id="upload-download-a-directory">Upload/Download a directory</h3>
+
+<p>This application supports uploading a file from STDIN and downloading a file to STDOUT.
+With <code>tar</code> command, it&rsquo;s also able to upload/download directories.
+For example, this command uploads <code>~/Documents</code> directory:</p>
+
+<pre><code class="language-shell">$ tar zcf - ~/Documents | pd upload -n documents.tar.gz -
+</code></pre>
+
+<p>and this command downloads the file:</p>
+
+<pre><code class="language-shell">$ pd download &lt;file id&gt; | tar zxf - -C ~/Downloads
+</code></pre>
+
+<h2 id="installation">Installation</h2>
+
+<p>If you&rsquo;re a Homebrew or Linuxbrew user, you can install this app by the following commands:</p>
+
+<pre><code>$ brew tap jkawamoto/pixeldrain
+$ brew install pixeldrain
+</code></pre>
+
+<p>To build the newest version, use go get command:</p>
+
+<pre><code>$ go get github.com/jkawamoto/go-pixeldrain
+</code></pre>
+
+<p>Otherwise, compiled binaries are also available in <a href="https://github.com/jkawamoto/go-pixeldrain/releases">Github</a>.</p>
+
+<h2 id="license">License</h2>
+
+<p>This software is released under the MIT License, see <a href="./info/licenses/">LICENSE</a>.</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- Footer -->
+<footer>
+  
+<div class="container">
+  <ins class="adsbygoogle"
+       style="display:inline-block;width:336px;height:280px"
+       data-ad-client="ca-pub-4734862314145555"
+       data-ad-slot="4875187824"></ins>
+  <script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+  <ins class="adsbygoogle"
+       style="display:inline-block;width:336px;height:280px"
+       data-ad-client="ca-pub-4734862314145555"
+       data-ad-slot="4875187824"></ins>
+  <script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <p class="copyright text-muted small">
+          Copyright &copy; Junpei Kawamoto All Rights Reserved.
+        </p>
+      </div>
+      <div class="col-md-4">
+        Built with <a href="http://gohugo.io">Hugo</a> and the
+        <a href="https://github.com/jkawamoto/github-project-landing-page">Github project Page</a>
+        theme.
+      </div>
+    </div>
+  </div>
+</footer>
+
+    <!-- jQuery CDN -->
+<script src="js/jquery-2.2.0.min.js"></script>
+
+<!-- Plugin JavaScript -->
+<script src="js/jquery.easing-1.3.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="js/landing-page.js"></script>
+
+
+<!-- Google Analytics -->
+<script>
+ (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new
+   Date();a=s.createElement(o),
+   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+ })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ ga('create', 'UA-82315630-1', 'auto');
+ ga('send', 'pageview');
+</script>
+
+
+
+<!-- highlight.js Configuration -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/agate.min.css" type="text/css" />
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+<!-- AddThis Configuration -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-57f529147128b1fb"></script>
+
+
+  </body>
+</html>
