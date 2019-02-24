@@ -1,3 +1,8 @@
+## 0.3.1 (2019-02-24)
+### Fixed
+- the client to use their new host address
+
+
 ## 0.3.0 (2019-01-15)
 ### Update
 - implement `download` command 

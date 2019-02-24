@@ -14,7 +14,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 
+	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pixeldrain"
 	"github.com/urfave/cli"
 )
@@ -54,7 +56,7 @@ func CmdUpload(c *cli.Context) (err error) {
 
 	}
 
-	fmt.Println(fmt.Sprintf("https://sia.pixeldrain.com/api/file/%s", id))
+	fmt.Println(fmt.Sprintf("https://%v", path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)))
 	return
 
 }

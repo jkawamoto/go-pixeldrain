@@ -18,6 +18,9 @@ install:
   - dep ensure
 script:
   - go test -v ./...
+  - go build -o pd $(pwd)/cmd/pd/*.go
+  - ./pd upload CHANGELOG.md | xargs ./pd download -o /tmp
+  - diff CHANGELOG.md /tmp/CHANGELOG.md
 before_deploy:
   - go get github.com/laher/goxc
   - go get github.com/tcnksm/ghr
