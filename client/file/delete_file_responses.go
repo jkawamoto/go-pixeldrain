@@ -33,29 +33,15 @@ func (o *DeleteFileReader) ReadResponse(response runtime.ClientResponse, consume
 		}
 		return result, nil
 
-	case 401:
-		result := NewDeleteFileUnauthorized()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 403:
-		result := NewDeleteFileForbidden()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 404:
-		result := NewDeleteFileNotFound()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewDeleteFileDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -88,82 +74,33 @@ func (o *DeleteFileOK) readResponse(response runtime.ClientResponse, consumer ru
 	return nil
 }
 
-// NewDeleteFileUnauthorized creates a DeleteFileUnauthorized with default headers values
-func NewDeleteFileUnauthorized() *DeleteFileUnauthorized {
-	return &DeleteFileUnauthorized{}
-}
-
-/*DeleteFileUnauthorized handles this case with default header values.
-
-Unauthorized
-*/
-type DeleteFileUnauthorized struct {
-	Payload *models.StandardError
-}
-
-func (o *DeleteFileUnauthorized) Error() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileUnauthorized  %+v", 401, o.Payload)
-}
-
-func (o *DeleteFileUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(models.StandardError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
+// NewDeleteFileDefault creates a DeleteFileDefault with default headers values
+func NewDeleteFileDefault(code int) *DeleteFileDefault {
+	return &DeleteFileDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewDeleteFileForbidden creates a DeleteFileForbidden with default headers values
-func NewDeleteFileForbidden() *DeleteFileForbidden {
-	return &DeleteFileForbidden{}
-}
+/*DeleteFileDefault handles this case with default header values.
 
-/*DeleteFileForbidden handles this case with default header values.
-
-Forbidden
+Error Response
 */
-type DeleteFileForbidden struct {
+type DeleteFileDefault struct {
+	_statusCode int
+
 	Payload *models.StandardError
 }
 
-func (o *DeleteFileForbidden) Error() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileForbidden  %+v", 403, o.Payload)
+// Code gets the status code for the delete file default response
+func (o *DeleteFileDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *DeleteFileForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(models.StandardError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
+func (o *DeleteFileDefault) Error() string {
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default  %+v", o._statusCode, o.Payload)
 }
 
-// NewDeleteFileNotFound creates a DeleteFileNotFound with default headers values
-func NewDeleteFileNotFound() *DeleteFileNotFound {
-	return &DeleteFileNotFound{}
-}
-
-/*DeleteFileNotFound handles this case with default header values.
-
-Not Found
-*/
-type DeleteFileNotFound struct {
-	Payload *models.StandardError
-}
-
-func (o *DeleteFileNotFound) Error() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileNotFound  %+v", 404, o.Payload)
-}
-
-func (o *DeleteFileNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteFileDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.StandardError)
 

@@ -22,7 +22,7 @@ type StandardError struct {
 
 	// message
 	// Required: true
-	Message *string `json:"message"`
+	Message string `json:"message"`
 
 	// success
 	// Required: true
@@ -30,7 +30,7 @@ type StandardError struct {
 
 	// value
 	// Required: true
-	Value *string `json:"value"`
+	Value string `json:"value"`
 }
 
 // Validate validates this standard error

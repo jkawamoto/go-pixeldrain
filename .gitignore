@@ -25,6 +25,8 @@ _testmain.go
 *.test
 *.prof
 
+*-e
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

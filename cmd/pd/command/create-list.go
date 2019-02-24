@@ -13,7 +13,9 @@ package command
 import (
 	"context"
 	"fmt"
+	"path"
 
+	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pixeldrain"
 	"github.com/urfave/cli"
 )
@@ -32,7 +34,7 @@ func CmdCreateList(c *cli.Context) (err error) {
 		return cli.NewExitError(err, 2)
 	}
 
-	fmt.Println(fmt.Sprintf("https://sia.pixeldrain.com/l/%s", id))
+	fmt.Println(fmt.Sprintf("https://%v", path.Join(client.DefaultHost, "l", id)))
 	return
 
 }
