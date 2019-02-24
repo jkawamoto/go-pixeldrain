@@ -35,15 +35,15 @@ func (o *GetFileInfoReader) ReadResponse(response runtime.ClientResponse, consum
 		}
 		return result, nil
 
-	case 404:
-		result := NewGetFileInfoNotFound()
+	default:
+		result := NewGetFileInfoDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
 		return nil, result
-
-	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -76,24 +76,33 @@ func (o *GetFileInfoOK) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-// NewGetFileInfoNotFound creates a GetFileInfoNotFound with default headers values
-func NewGetFileInfoNotFound() *GetFileInfoNotFound {
-	return &GetFileInfoNotFound{}
+// NewGetFileInfoDefault creates a GetFileInfoDefault with default headers values
+func NewGetFileInfoDefault(code int) *GetFileInfoDefault {
+	return &GetFileInfoDefault{
+		_statusCode: code,
+	}
 }
 
-/*GetFileInfoNotFound handles this case with default header values.
+/*GetFileInfoDefault handles this case with default header values.
 
-Not Found
+Error Response
 */
-type GetFileInfoNotFound struct {
+type GetFileInfoDefault struct {
+	_statusCode int
+
 	Payload *models.StandardError
 }
 
-func (o *GetFileInfoNotFound) Error() string {
-	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfoNotFound  %+v", 404, o.Payload)
+// Code gets the status code for the get file info default response
+func (o *GetFileInfoDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *GetFileInfoNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetFileInfoDefault) Error() string {
+	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfo default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetFileInfoDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.StandardError)
 

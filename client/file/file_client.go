@@ -27,37 +27,6 @@ type Client struct {
 }
 
 /*
-GetFileIDDownload downloads a file
-
-Same as GET /file/{id}, but with File Transfer HTTP headers. Will trigger a save file dialog when opened in a web browser. Also supports byte range requests.
-
-*/
-func (a *Client) GetFileIDDownload(params *GetFileIDDownloadParams) (*GetFileIDDownloadOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetFileIDDownloadParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetFileIDDownload",
-		Method:             "GET",
-		PathPattern:        "/file/{id}/download",
-		ProducesMediaTypes: []string{"application/json", "application/octet-stream"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &GetFileIDDownloadReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetFileIDDownloadOK), nil
-
-}
-
-/*
 GetFileIDThumbnail gets a thumbnail image representing the file
 
 Returns a PNG thumbnail image representing the file. The thumbnail is always 100*100 px. If the source file is parsable by imagemagick the thumbnail will be generated from the file, if not it will be a generic mime type icon.

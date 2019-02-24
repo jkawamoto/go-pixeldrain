@@ -36,22 +36,15 @@ func (o *CreateFileListReader) ReadResponse(response runtime.ClientResponse, con
 		}
 		return result, nil
 
-	case 413:
-		result := NewCreateFileListRequestEntityTooLarge()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 422:
-		result := NewCreateFileListUnprocessableEntity()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewCreateFileListDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -84,53 +77,33 @@ func (o *CreateFileListCreated) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-// NewCreateFileListRequestEntityTooLarge creates a CreateFileListRequestEntityTooLarge with default headers values
-func NewCreateFileListRequestEntityTooLarge() *CreateFileListRequestEntityTooLarge {
-	return &CreateFileListRequestEntityTooLarge{}
-}
-
-/*CreateFileListRequestEntityTooLarge handles this case with default header values.
-
-Payload too large
-*/
-type CreateFileListRequestEntityTooLarge struct {
-	Payload *models.StandardError
-}
-
-func (o *CreateFileListRequestEntityTooLarge) Error() string {
-	return fmt.Sprintf("[POST /list][%d] createFileListRequestEntityTooLarge  %+v", 413, o.Payload)
-}
-
-func (o *CreateFileListRequestEntityTooLarge) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(models.StandardError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
+// NewCreateFileListDefault creates a CreateFileListDefault with default headers values
+func NewCreateFileListDefault(code int) *CreateFileListDefault {
+	return &CreateFileListDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewCreateFileListUnprocessableEntity creates a CreateFileListUnprocessableEntity with default headers values
-func NewCreateFileListUnprocessableEntity() *CreateFileListUnprocessableEntity {
-	return &CreateFileListUnprocessableEntity{}
-}
+/*CreateFileListDefault handles this case with default header values.
 
-/*CreateFileListUnprocessableEntity handles this case with default header values.
-
-Unprocessable Entity
+Error Response
 */
-type CreateFileListUnprocessableEntity struct {
+type CreateFileListDefault struct {
+	_statusCode int
+
 	Payload *models.StandardError
 }
 
-func (o *CreateFileListUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /list][%d] createFileListUnprocessableEntity  %+v", 422, o.Payload)
+// Code gets the status code for the create file list default response
+func (o *CreateFileListDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *CreateFileListUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CreateFileListDefault) Error() string {
+	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CreateFileListDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.StandardError)
 

@@ -33,29 +33,15 @@ func (o *UploadFileReader) ReadResponse(response runtime.ClientResponse, consume
 		}
 		return result, nil
 
-	case 413:
-		result := NewUploadFileRequestEntityTooLarge()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 422:
-		result := NewUploadFileUnprocessableEntity()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
-	case 500:
-		result := NewUploadFileInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewUploadFileDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -88,82 +74,33 @@ func (o *UploadFileCreated) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-// NewUploadFileRequestEntityTooLarge creates a UploadFileRequestEntityTooLarge with default headers values
-func NewUploadFileRequestEntityTooLarge() *UploadFileRequestEntityTooLarge {
-	return &UploadFileRequestEntityTooLarge{}
-}
-
-/*UploadFileRequestEntityTooLarge handles this case with default header values.
-
-Payload Too Large
-*/
-type UploadFileRequestEntityTooLarge struct {
-	Payload *models.StandardError
-}
-
-func (o *UploadFileRequestEntityTooLarge) Error() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFileRequestEntityTooLarge  %+v", 413, o.Payload)
-}
-
-func (o *UploadFileRequestEntityTooLarge) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(models.StandardError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
+// NewUploadFileDefault creates a UploadFileDefault with default headers values
+func NewUploadFileDefault(code int) *UploadFileDefault {
+	return &UploadFileDefault{
+		_statusCode: code,
 	}
-
-	return nil
 }
 
-// NewUploadFileUnprocessableEntity creates a UploadFileUnprocessableEntity with default headers values
-func NewUploadFileUnprocessableEntity() *UploadFileUnprocessableEntity {
-	return &UploadFileUnprocessableEntity{}
-}
+/*UploadFileDefault handles this case with default header values.
 
-/*UploadFileUnprocessableEntity handles this case with default header values.
-
-Unprocessable Entity
+Error Response
 */
-type UploadFileUnprocessableEntity struct {
+type UploadFileDefault struct {
+	_statusCode int
+
 	Payload *models.StandardError
 }
 
-func (o *UploadFileUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFileUnprocessableEntity  %+v", 422, o.Payload)
+// Code gets the status code for the upload file default response
+func (o *UploadFileDefault) Code() int {
+	return o._statusCode
 }
 
-func (o *UploadFileUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(models.StandardError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
+func (o *UploadFileDefault) Error() string {
+	return fmt.Sprintf("[POST /file][%d] uploadFile default  %+v", o._statusCode, o.Payload)
 }
 
-// NewUploadFileInternalServerError creates a UploadFileInternalServerError with default headers values
-func NewUploadFileInternalServerError() *UploadFileInternalServerError {
-	return &UploadFileInternalServerError{}
-}
-
-/*UploadFileInternalServerError handles this case with default header values.
-
-Internal Server Error
-*/
-type UploadFileInternalServerError struct {
-	Payload *models.StandardError
-}
-
-func (o *UploadFileInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFileInternalServerError  %+v", 500, o.Payload)
-}
-
-func (o *UploadFileInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UploadFileDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.StandardError)
 
