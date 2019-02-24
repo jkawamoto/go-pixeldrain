@@ -20,7 +20,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/go-openapi/swag"
 	"github.com/jkawamoto/go-pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/models"
@@ -38,15 +37,17 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Add("Content-type", "application/json")
 	if req.URL.Path != "/list" {
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(models.StandardError{Message: swag.String("received a wrong request")})
+		//noinspection GoUnhandledErrorResult
+		json.NewEncoder(res).Encode(models.StandardError{Message: "received a wrong request"})
 		return
 	}
 
 	raw, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
+		//noinspection GoUnhandledErrorResult
 		json.NewEncoder(res).Encode(models.StandardError{
-			Message: swag.String(fmt.Sprintln("failed to parse the request:", err)),
+			Message: fmt.Sprintln("failed to parse the request:", err),
 		})
 		return
 	}
@@ -55,8 +56,9 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	err = body.UnmarshalBinary(raw)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
+		//noinspection GoUnhandledErrorResult
 		json.NewEncoder(res).Encode(models.StandardError{
-			Message: swag.String(fmt.Sprintln("failed to parse the request:", err)),
+			Message: fmt.Sprintln("failed to parse the request:", err),
 		})
 		return
 	}
@@ -66,6 +68,7 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	m.Files = body.Files
 
 	res.WriteHeader(http.StatusCreated)
+	//noinspection GoUnhandledErrorResult
 	json.NewEncoder(res).Encode(&list.CreateFileListCreatedBody{
 		ID:      m.ID,
 		Success: true,
