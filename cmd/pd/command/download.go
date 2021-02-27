@@ -14,24 +14,24 @@ import (
 
 	"github.com/urfave/cli"
 
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 )
 
-func CmdDownload(c *cli.Context) (err error) {
-
+func CmdDownload(c *cli.Context) error {
 	if c.NArg() != 1 {
-		fmt.Println(fmt.Sprintf("expected 1 argument. (%d given)", c.NArg()))
+		_, _ = fmt.Printf("expected 1 argument. (%d given)\n", c.NArg())
 		return cli.ShowSubcommandHelp(c)
 	}
 
 	url := c.Args().First()
 	dir := c.String("output")
 
-	err = pixeldrain.New().Download(context.Background(), url, dir)
+	err := pixeldrain.New().Download(context.Background(), url, dir)
 	if err != nil {
-		return cli.NewExitError(err, 2)
+		return cli.NewExitError(err, status.APIError)
 	}
 
-	return
-
+	return nil
 }

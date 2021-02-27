@@ -10,52 +10,55 @@ package command
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/urfave/cli"
 
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-func CmdUpload(c *cli.Context) (err error) {
-
+func CmdUpload(c *cli.Context) error {
 	if c.NArg() != 1 {
-		fmt.Println(fmt.Sprintf("expected 1 argument. (%d given)", c.NArg()))
+		_, _ = fmt.Printf("expected 1 argument. (%d given)\n", c.NArg())
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	var id string
 	pd := pixeldrain.New()
 	ctx := context.Background()
 	if c.Args().First() == "-" {
-
-		id, err = pd.UploadRaw(ctx, os.Stdin, c.String("name"))
-
-	} else {
-
-		fp, err := os.Open(c.Args().First())
+		id, err := pd.UploadRaw(ctx, os.Stdin, c.String("name"))
 		if err != nil {
-			return cli.NewExitError(err, 1)
+			return cli.NewExitError(err, status.APIError)
 		}
-		defer func() {
-			//noinspection SpellCheckingInspection
-			cerr := fp.Close()
-			if cerr != nil {
-				err = fmt.Errorf("failed to close: %v, the original error was %v", cerr, err)
-			}
-		}()
-
-		id, err = pd.Upload(ctx, fp, c.String("name"))
-		if err != nil {
-			return cli.NewExitError(err, 2)
-		}
-
+		printID(id)
+		return nil
 	}
 
-	fmt.Println(fmt.Sprintf("https://%v", path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)))
-	return
+	fp, err := os.Open(c.Args().First())
+	if err != nil {
+		return cli.NewExitError(err, status.InvalidArgument)
+	}
+	defer func() {
+		if e := fp.Close(); e != nil && !errors.Is(err, os.ErrClosed) {
+			err = multierror.Append(err, e)
+		}
+	}()
 
+	id, err := pd.Upload(ctx, fp, c.String("name"))
+	if err != nil {
+		return cli.NewExitError(err, status.APIError)
+	}
+
+	printID(id)
+	return nil
+}
+
+func printID(id string) {
+	_, _ = fmt.Printf("https://%v\n", path.Join(client.DefaultHost, client.DefaultBasePath, "file", id))
 }

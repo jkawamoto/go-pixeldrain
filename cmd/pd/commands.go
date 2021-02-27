@@ -14,8 +14,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
 	"github.com/urfave/cli"
+
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
 // GlobalFlags manages global flags.
@@ -68,11 +70,7 @@ var Commands = []cli.Command{
 
 // CommandNotFound shows error message and exit when a given command is not found.
 func CommandNotFound(c *cli.Context, command string) {
-
-	//noinspection GoUnhandledErrorResult
-	fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
-	//noinspection GoUnhandledErrorResult
-	cli.ShowAppHelp(c)
-	os.Exit(2)
-
+	_, _ = fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
+	_ = cli.ShowAppHelp(c)
+	os.Exit(status.InvalidCommand)
 }

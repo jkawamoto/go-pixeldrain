@@ -15,14 +15,15 @@ import (
 
 	"github.com/urfave/cli"
 
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-func CmdCreateList(c *cli.Context) (err error) {
-
+func CmdCreateList(c *cli.Context) error {
 	if c.NArg() == 0 {
-		fmt.Println("expected at least 1 argument.")
+		_, _ = fmt.Println("expected at least 1 argument.")
 		return cli.ShowSubcommandHelp(c)
 	}
 
@@ -30,10 +31,9 @@ func CmdCreateList(c *cli.Context) (err error) {
 		context.Background(), c.String("title"), c.String("description"),
 		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
-		return cli.NewExitError(err, 2)
+		return cli.NewExitError(err, status.APIError)
 	}
 
-	fmt.Println(fmt.Sprintf("https://%v", path.Join(client.DefaultHost, "l", id)))
-	return
-
+	_, _ = fmt.Printf("https://%v\n", path.Join(client.DefaultHost, "l", id))
+	return nil
 }
