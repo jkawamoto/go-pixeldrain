@@ -1,12 +1,10 @@
-/*
- * upload.go
- *
- * Copyright (c) 2018-2019 Junpei Kawamoto
- *
- * This software is released under the MIT License.
- *
- * http://opensource.org/licenses/mit-license.php
- */
+// upload.go
+//
+// Copyright (c) 2018-2021 Junpei Kawamoto
+//
+// This software is released under the MIT License.
+//
+// http://opensource.org/licenses/mit-license.php
 
 package command
 
@@ -16,9 +14,10 @@ import (
 	"os"
 	"path"
 
-	"github.com/jkawamoto/go-pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/pixeldrain"
 	"github.com/urfave/cli"
+
+	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
 func CmdUpload(c *cli.Context) (err error) {
