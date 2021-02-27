@@ -1,0 +1,31 @@
+repos:
+  - repo: https://github.com/tekwizely/pre-commit-golang
+    rev: v0.8.1
+    hooks:
+      - id: go-fmt
+        args:
+          - -w
+      - id: go-test-mod
+      - id: go-imports
+        args:
+          - -w
+          - -local
+          - github.com/jkawamoto
+      - id: golangci-lint-mod
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      - id: end-of-file-fixer
+        exclude: ^\.bumpversion\.cfg$
+      - id: trailing-whitespace
+      - id: detect-aws-credentials
+      - id: detect-private-key
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-go
+    rev: v1.0.1
+    hooks:
+      - id: checkmake
