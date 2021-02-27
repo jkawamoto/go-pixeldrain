@@ -24,7 +24,6 @@ func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 }
 
 func TestTransporter(t *testing.T) {
-
 	cases := []struct {
 		receive string
 		expect  string
@@ -51,12 +50,10 @@ func TestTransporter(t *testing.T) {
 			if err != nil {
 				t.Fatal("RoundTrip returns an error:", err)
 			}
-			if ctype := res.Header.Get(ContentType); ctype != c.expect {
-				t.Errorf("content-type is %v, expected %v", ctype, c.expect)
+			if cType := res.Header.Get(ContentType); cType != c.expect {
+				t.Errorf("content-type is %v, expected %v", cType, c.expect)
 			}
 
 		})
-
 	}
-
 }

@@ -18,6 +18,8 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
@@ -27,26 +29,27 @@ type mockListServer struct {
 	ID          string
 	Description string
 	Title       string
-	Files       []*list.FilesItems0
+	Files       []*list.CreateFileListParamsBodyFilesItems0
 }
 
 func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-
 	res.Header().Add("Content-type", "application/json")
 	if req.URL.Path != "/list" {
 		res.WriteHeader(http.StatusBadRequest)
-		//noinspection GoUnhandledErrorResult
-		json.NewEncoder(res).Encode(models.StandardError{Message: "received a wrong request"})
+		if err := json.NewEncoder(res).Encode(models.StandardError{Message: swag.String("received a wrong request")}); err != nil {
+			panic(err)
+		}
 		return
 	}
 
 	raw, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
-		//noinspection GoUnhandledErrorResult
-		json.NewEncoder(res).Encode(models.StandardError{
-			Message: fmt.Sprintln("failed to parse the request:", err),
-		})
+		if err := json.NewEncoder(res).Encode(models.StandardError{
+			Message: swag.String(fmt.Sprintln("failed to parse the request:", err)),
+		}); err != nil {
+			panic(err)
+		}
 		return
 	}
 
@@ -54,10 +57,11 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	err = body.UnmarshalBinary(raw)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
-		//noinspection GoUnhandledErrorResult
-		json.NewEncoder(res).Encode(models.StandardError{
-			Message: fmt.Sprintln("failed to parse the request:", err),
-		})
+		if err := json.NewEncoder(res).Encode(models.StandardError{
+			Message: swag.String(fmt.Sprintln("failed to parse the request:", err)),
+		}); err != nil {
+			panic(err)
+		}
 		return
 	}
 
@@ -66,17 +70,15 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	m.Files = body.Files
 
 	res.WriteHeader(http.StatusCreated)
-	//noinspection GoUnhandledErrorResult
-	json.NewEncoder(res).Encode(&list.CreateFileListCreatedBody{
+	if err := json.NewEncoder(res).Encode(&list.CreateFileListCreatedBody{
 		ID:      m.ID,
 		Success: true,
-	})
-	return
-
+	}); err != nil {
+		panic(err)
+	}
 }
 
 func TestCreateList(t *testing.T) {
-
 	mock := &mockListServer{
 		ID: "sample-id",
 	}
@@ -114,37 +116,35 @@ func TestCreateList(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestParseListItems(t *testing.T) {
-
 	cases := []struct {
 		Input    []string
-		Expected []*list.FilesItems0
+		Expected []*list.CreateFileListParamsBodyFilesItems0
 	}{
 		{
 			Input: []string{"ID"},
-			Expected: []*list.FilesItems0{
+			Expected: []*list.CreateFileListParamsBodyFilesItems0{
 				{ID: "ID"},
 			},
 		},
 		{
 			Input: []string{"ID:description"},
-			Expected: []*list.FilesItems0{
+			Expected: []*list.CreateFileListParamsBodyFilesItems0{
 				{ID: "ID", Description: "description"},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2"},
-			Expected: []*list.FilesItems0{
+			Expected: []*list.CreateFileListParamsBodyFilesItems0{
 				{ID: "ID", Description: "description"},
 				{ID: "id2"},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2:desc2"},
-			Expected: []*list.FilesItems0{
+			Expected: []*list.CreateFileListParamsBodyFilesItems0{
 				{ID: "ID", Description: "description"},
 				{ID: "id2", Description: "desc2"},
 			},
@@ -165,5 +165,4 @@ func TestParseListItems(t *testing.T) {
 			}
 		})
 	}
-
 }

@@ -27,7 +27,6 @@ type Pixeldrain struct {
 }
 
 func New() *Pixeldrain {
-
 	cli := client.Default
 
 	switch transport := cli.Transport.(type) {
@@ -42,5 +41,4 @@ func New() *Pixeldrain {
 		Stderr:           os.Stderr,
 		downloadEndpoint: downloadEndpoint,
 	}
-
 }

@@ -16,11 +16,7 @@ import (
 )
 
 // CreateList sends a list creation request with the given title, description, and items.
-func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (id string, err error) {
-
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
+func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (string, error) {
 	res, err := pd.Client.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
 		list.CreateFileListBody{
 			Title:       &title,
@@ -29,26 +25,24 @@ func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string,
 		},
 	))
 	if err != nil {
-		return
+		return "", err
 	}
 
-	id = res.Payload.ID
-	return
-
+	return res.Payload.ID, nil
 }
 
 // parseListItems parses the given list of list specifications and returns a PostListParamsBodyFiles instance.
-func parseListItems(values []string) (res []*list.FilesItems0) {
-
-	for _, v := range values {
+func parseListItems(values []string) []*list.CreateFileListParamsBodyFilesItems0 {
+	res := make([]*list.CreateFileListParamsBodyFilesItems0, len(values))
+	for i, v := range values {
 		c := strings.SplitN(v, ":", 2)
-		item := &list.FilesItems0{
+		item := &list.CreateFileListParamsBodyFilesItems0{
 			ID: c[0],
 		}
 		if len(c) != 1 {
 			item.Description = c[1]
 		}
-		res = append(res, item)
+		res[i] = item
 	}
-	return
+	return res
 }

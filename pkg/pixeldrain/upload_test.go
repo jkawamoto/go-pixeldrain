@@ -11,6 +11,7 @@ package pixeldrain
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,37 +29,38 @@ const (
 	TestFileName = "upload.go"
 )
 
-type mockServer struct {
+type mockHandler struct {
 	expected []byte
 	id       string
 	name     string
 }
 
-func newMockServer(file, name, id string) (m *mockServer, err error) {
+func newMockHandler(t *testing.T, file, name, id string) *mockHandler {
+	t.Helper()
 
 	fp, err := os.Open(file)
 	if err != nil {
-		return
+		t.Fatal(err)
 	}
-	//noinspection GoUnhandledErrorResult
-	defer fp.Close()
+	defer func() {
+		if err := fp.Close(); err != nil {
+			t.Error(err)
+		}
+	}()
 
 	data, err := ioutil.ReadAll(fp)
 	if err != nil {
-		return
+		t.Fatal(err)
 	}
 
-	m = &mockServer{
+	return &mockHandler{
 		expected: data,
 		id:       id,
 		name:     name,
 	}
-	return
-
 }
 
-func (m *mockServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-
+func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/file" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -66,48 +68,54 @@ func (m *mockServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if v := req.FormValue("name"); v != m.name {
 		res.WriteHeader(http.StatusBadRequest)
-		//noinspection GoUnhandledErrorResult
-		fmt.Fprintf(res, "given file name is %v, want %v", v, m.name)
+		if _, err := fmt.Fprintf(res, "given file name is %v, want %v", v, m.name); err != nil {
+			panic(err)
+		}
 		return
 	}
 
 	fp, _, err := req.FormFile("file")
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
-		//noinspection GoUnhandledErrorResult
-		fmt.Fprintln(res, "cannot get the file:", err.Error())
+		if _, err := fmt.Fprintln(res, "cannot get the file:", err.Error()); err != nil {
+			panic(err)
+		}
 		return
 	}
-	//noinspection GoUnhandledErrorResult
-	defer fp.Close()
+	defer func() {
+		if err := fp.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	data, err := ioutil.ReadAll(fp)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
-		//noinspection GoUnhandledErrorResult
-		fmt.Fprintln(res, "Cannot read the uploaded file:", err.Error())
+		if _, err := fmt.Fprintln(res, "Cannot read the uploaded file:", err.Error()); err != nil {
+			panic(err)
+		}
 		return
 	}
 
 	if !reflect.DeepEqual(data, m.expected) {
 		res.WriteHeader(http.StatusInternalServerError)
-		//noinspection GoUnhandledErrorResult
-		fmt.Fprintln(res, "Uploaded file is broken")
+		if _, err := fmt.Fprintln(res, "Uploaded file is broken"); err != nil {
+			panic(err)
+		}
 		return
 	}
 
 	res.Header().Set(ContentType, "application/json")
 	res.WriteHeader(http.StatusCreated)
-	//noinspection GoUnhandledErrorResult
-	json.NewEncoder(res).Encode(&file.UploadFileCreatedBody{
+	if err := json.NewEncoder(res).Encode(&file.UploadFileCreatedBody{
 		ID:      m.id,
 		Success: true,
-	})
-
+	}); err != nil {
+		panic(err)
+	}
 }
 
 func TestUpload(t *testing.T) {
-
 	id := "test-id"
 	cases := []struct {
 		file   string
@@ -116,18 +124,11 @@ func TestUpload(t *testing.T) {
 	}{
 		{file: TestFileName, rename: "", expect: TestFileName},
 		{file: TestFileName, rename: "another-expect", expect: "another-expect"},
-		{file: "../cmd/pd/command/upload.go", rename: "", expect: TestFileName},
+		{file: "../../cmd/pd/command/upload.go", rename: "", expect: TestFileName},
 	}
-
 	for _, c := range cases {
-
 		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {
-
-			m, err := newMockServer(c.file, c.expect, id)
-			if err != nil {
-				t.Fatal("Cannot prepare a mock server:", err)
-			}
-			server := httptest.NewServer(m)
+			server := httptest.NewServer(newMockHandler(t, c.file, c.expect, id))
 			defer server.Close()
 
 			pd := New()
@@ -145,8 +146,11 @@ func TestUpload(t *testing.T) {
 			if err != nil {
 				t.Fatal("Failed to open the file:", err)
 			}
-			//noinspection GoUnhandledErrorResult
-			defer fp.Close()
+			defer func() {
+				if err := fp.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+					t.Error(err)
+				}
+			}()
 
 			res, err := pd.Upload(context.Background(), fp, c.rename)
 			if err != nil {
@@ -155,21 +159,13 @@ func TestUpload(t *testing.T) {
 			if res != id {
 				t.Errorf("received ID = %v, want %v", res, id)
 			}
-
 		})
-
 	}
-
 }
 
 func TestUploadRaw(t *testing.T) {
-
 	id := "test-id"
-	m, err := newMockServer(TestFileName, TestFileName, id)
-	if err != nil {
-		t.Fatal("Cannot prepare a mock server:", err)
-	}
-	server := httptest.NewServer(m)
+	server := httptest.NewServer(newMockHandler(t, TestFileName, TestFileName, id))
 	defer server.Close()
 
 	pd := New()
@@ -187,8 +183,11 @@ func TestUploadRaw(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed to open the file:", err)
 	}
-	//noinspection GoUnhandledErrorResult
-	defer fp.Close()
+	defer func() {
+		if err := fp.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+			t.Error(err)
+		}
+	}()
 
 	res, err := pd.UploadRaw(context.Background(), fp, TestFileName)
 	if err != nil {
@@ -197,5 +196,4 @@ func TestUploadRaw(t *testing.T) {
 	if res != id {
 		t.Errorf("received ID = %v, want %v", res, id)
 	}
-
 }

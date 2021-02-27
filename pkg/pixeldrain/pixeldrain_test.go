@@ -16,7 +16,6 @@ import (
 )
 
 func TestNew(t *testing.T) {
-
 	pd := New()
 	if pd.Client != client.Default {
 		t.Errorf("Client is %v, expects %v", pd.Client, client.Default)
@@ -24,5 +23,4 @@ func TestNew(t *testing.T) {
 	if pd.Stderr != os.Stderr {
 		t.Errorf("Stderr is %v, expects %v", pd.Stderr, os.Stderr)
 	}
-
 }

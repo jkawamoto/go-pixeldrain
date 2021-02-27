@@ -21,20 +21,16 @@ type transporter struct {
 }
 
 // newTransporter creates a transporter which wraps a given transporter.
-func newTransporter(transport http.RoundTripper) (res *transporter) {
-
-	res = &transporter{
+func newTransporter(transport http.RoundTripper) *transporter {
+	return &transporter{
 		RoundTripper: transport,
 	}
-	return
-
 }
 
-func (t *transporter) RoundTrip(req *http.Request) (res *http.Response, err error) {
-
-	res, err = t.RoundTripper.RoundTrip(req)
+func (t *transporter) RoundTrip(req *http.Request) (*http.Response, error) {
+	res, err := t.RoundTripper.RoundTrip(req)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if strings.HasPrefix(res.Header.Get(ContentType), "text/plain") {
@@ -42,6 +38,5 @@ func (t *transporter) RoundTrip(req *http.Request) (res *http.Response, err erro
 		res.Header.Set(ContentType, "application/json")
 	}
 
-	return
-
+	return res, nil
 }

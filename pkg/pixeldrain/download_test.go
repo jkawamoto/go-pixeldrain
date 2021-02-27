@@ -26,25 +26,20 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
 
-type mockDownloadServer struct {
+type mockDownloadHandler struct {
 	ID   string
 	File string
 }
 
-func newDownloadMockServer(id, file string) (m http.Handler, err error) {
-
-	m = &mockDownloadServer{
+func newMockDownloadHandler(id, file string) http.Handler {
+	return &mockDownloadHandler{
 		ID:   id,
 		File: file,
 	}
-	return
-
 }
 
-func (m *mockDownloadServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-
+func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set(ContentType, "application/json")
-
 	if !strings.HasPrefix(req.URL.Path, "/file") {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -56,51 +51,45 @@ func (m *mockDownloadServer) ServeHTTP(res http.ResponseWriter, req *http.Reques
 	}
 
 	if strings.HasSuffix(req.URL.Path, "/info") {
-
 		info, err := os.Stat(m.File)
 		if err != nil {
 			res.WriteHeader(http.StatusNotFound)
 			return
 		}
-
 		res.WriteHeader(http.StatusOK)
-		//noinspection GoUnhandledErrorResult
-		json.NewEncoder(res).Encode(&file.GetFileInfoOKBody{
+		if err := json.NewEncoder(res).Encode(&file.GetFileInfoOKBody{
 			Success: true,
 			ID:      m.ID,
 			Name:    m.File,
 			Size:    info.Size(),
-		})
-
+		}); err != nil {
+			panic(err)
+		}
 	} else {
-
 		fp, err := os.Open(m.File)
 		if err != nil {
 			res.WriteHeader(http.StatusNotFound)
 			return
 		}
-		//noinspection GoUnhandledErrorResult
-		defer fp.Close()
+		defer func() {
+			if err := fp.Close(); err != nil {
+				panic(err)
+			}
+		}()
 
 		res.WriteHeader(http.StatusOK)
-		//noinspection GoUnhandledErrorResult
-		io.Copy(res, fp)
-
+		if _, err := io.Copy(res, fp); err != nil {
+			panic(err)
+		}
 	}
-
 }
 
 func TestDownload(t *testing.T) {
-
 	id := "abcde"
 	filename := "./download.go"
 
 	t.Run("stdout", func(t *testing.T) {
-		m, err := newDownloadMockServer(id, filename)
-		if err != nil {
-			t.Fatal("Cannot prepare a mock server:", err)
-		}
-		server := httptest.NewServer(m)
+		server := httptest.NewServer(newMockDownloadHandler(id, filename))
 		defer server.Close()
 
 		pd := New()
@@ -120,8 +109,11 @@ func TestDownload(t *testing.T) {
 			t.Fatal("Failed to create a temporal filename", err)
 		}
 		pd.Stdout = tmp
-		//noinspection GoUnhandledErrorResult
-		defer tmp.Close()
+		defer func() {
+			if err := tmp.Close(); err != nil {
+				t.Error(err)
+			}
+		}()
 
 		err = pd.Download(context.Background(), fmt.Sprint(downloadEndpoint, id), "")
 		if err != nil {
@@ -142,11 +134,7 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("dir", func(t *testing.T) {
-		m, err := newDownloadMockServer(id, filename)
-		if err != nil {
-			t.Fatal("Cannot prepare a mock server:", err)
-		}
-		server := httptest.NewServer(m)
+		server := httptest.NewServer(newMockDownloadHandler(id, filename))
 		defer server.Close()
 
 		pd := New()
@@ -183,5 +171,4 @@ func TestDownload(t *testing.T) {
 			t.Error("Downloaded filename is broken")
 		}
 	})
-
 }

@@ -23,18 +23,14 @@ import (
 // Upload the given file to PixelDrain under the given context.
 // If a name is given, the uploaded file will be renamed.
 // After the upload succeeds, an ID associated with the uploaded file will be returned.
-func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (id string, err error) {
-
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
+func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (string, error) {
 	if name == "" {
 		name = filepath.Base(fp.Name())
 	}
 
 	info, err := fp.Stat()
 	if err != nil {
-		return
+		return "", err
 	}
 	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES)
 	bar.Output = pd.Stderr
@@ -42,21 +38,14 @@ func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (id 
 	defer bar.Finish()
 
 	return pd.UploadRaw(ctx, bar.NewProxyReader(fp), name)
-
 }
 
-func (pd *Pixeldrain) UploadRaw(ctx context.Context, r io.Reader, name string) (id string, err error) {
-
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
+func (pd *Pixeldrain) UploadRaw(ctx context.Context, r io.Reader, name string) (string, error) {
 	res, err := pd.Client.File.UploadFile(
 		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, r)).WithName(&name))
 	if err != nil {
-		return
+		return "", err
 	}
 
-	id = res.Payload.ID
-	return
-
+	return res.Payload.ID, nil
 }
