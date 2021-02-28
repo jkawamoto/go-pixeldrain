@@ -29,3 +29,10 @@ repos:
     rev: v1.0.1
     hooks:
       - id: checkmake
+  - repo: local
+    hooks:
+      - id: circleci_config_validate
+        name: CircleCI config validate
+        entry: circleci config validate
+        language: python_venv
+        files: ^\.circleci/config\.yml$
