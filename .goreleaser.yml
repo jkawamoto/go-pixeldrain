@@ -1,0 +1,42 @@
+project_name: pd
+builds:
+  - main: ./cmd/pd
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: checksums.txt
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^chore:"
+      - "^docs:"
+      - "^test:"
+      - "^Bump"
+      - "^Merge"
+brews:
+  - name: pixeldrain
+    homepage: https://jkawamoto.github.io/go-pixeldrain/
+    description: "Share files with decentralized cloud storage."
+    license: "MIT"
+    tap:
+      owner: jkawamoto
+      name: homebrew-pixeldrain
+nfpms:
+  - package_name: pixeldrain
+    homepage: https://jkawamoto.github.io/go-pixeldrain/
+    description: "Share files with decentralized cloud storage."
+    license: "MIT"
+    formats:
+      - apk
+      - deb
+      - rpm

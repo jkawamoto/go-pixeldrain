@@ -1,0 +1,64 @@
+version: "2.1"
+orbs:
+  go: circleci/go@1.5.0
+  codecov: codecov/codecov@1.1.3
+jobs:
+  test:
+    executor:
+      name: go/default
+      tag: "1.15"
+    steps:
+      - checkout
+      - go/mod-download-cached
+      - go/test:
+          covermode: atomic
+          failfast: true
+          race: true
+      - codecov/upload:
+          file: cover-source.out
+  release:
+    executor:
+      name: go/default
+      tag: "1.15"
+    steps:
+      - checkout
+      - run:
+          name: Release
+          command: bash <(curl -sL https://git.io/goreleaser) release
+  tag:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Setup git
+          command: |
+            git config --global user.email "kawamoto.junpei@gmail.com"
+            git config --global user.name "Deploy Bot"
+      - run:
+          name: Tag and push
+          command: |
+            if git log -1 --oneline | grep -E "Merge pull request.*/(release|hotfix)/v.*"; then
+              VERSION=$(git log -1 --oneline | sed -e "s/.*\(v.*\)$/\1/g")
+              git tag $VERSION
+              git push origin --tags
+              git checkout -b develop origin/develop
+              git merge --no-ff -m "Merge tag '$VERSION' into develop" $VERSION
+              git push origin develop
+            fi
+workflows:
+  main:
+    jobs:
+      - test
+      - release:
+          context: github
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - tag:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

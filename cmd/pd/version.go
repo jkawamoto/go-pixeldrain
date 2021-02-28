@@ -12,7 +12,7 @@ package main
 const Name = "pd"
 
 // Version defines current version number.
-const Version = "0.3.1"
+const Version = "0.4.0"
 
 // Author defines the author of this program.
 const Author = "Junpei Kawamoto"

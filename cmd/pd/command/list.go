@@ -1,4 +1,4 @@
-// download.go
+// create-list.go
 //
 // Copyright (c) 2018-2021 Junpei Kawamoto
 //
@@ -11,27 +11,29 @@ package command
 import (
 	"context"
 	"fmt"
+	"path"
 
 	"github.com/urfave/cli"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-func CmdDownload(c *cli.Context) error {
-	if c.NArg() != 1 {
-		_, _ = fmt.Printf("expected 1 argument. (%d given)\n", c.NArg())
+func CmdCreateList(c *cli.Context) error {
+	if c.NArg() == 0 {
+		_, _ = fmt.Println("expected at least 1 argument.")
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	url := c.Args().First()
-	dir := c.String("output")
-
-	err := pixeldrain.New().Download(context.Background(), url, dir)
+	id, err := pixeldrain.New().CreateList(
+		context.Background(), c.String("title"), c.String("description"),
+		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
 		return cli.NewExitError(err, status.APIError)
 	}
 
+	_, _ = fmt.Printf("https://%v\n", path.Join(client.DefaultHost, "l", id))
 	return nil
 }

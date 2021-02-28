@@ -9,13 +9,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli"
 )
 
 func main() {
-
 	app := cli.NewApp()
 	app.Name = Name
 	app.Version = Version
@@ -27,8 +27,7 @@ func main() {
 	app.Commands = Commands
 	app.CommandNotFound = CommandNotFound
 	app.EnableBashCompletion = true
-	app.Copyright = "Junpei Kawamoto <kawamoto.junpei@gmail.com>"
+	app.Copyright = fmt.Sprintf("%v <%v>", Author, Email)
 
 	_ = app.Run(os.Args)
-
 }

@@ -1,7 +1,8 @@
 # A Pixeldrain client
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
-[![Build Status](https://travis-ci.org/jkawamoto/go-pixeldrain.svg?branch=master)](https://travis-ci.org/jkawamoto/go-pixeldrain)
-[![Release](https://img.shields.io/badge/release-0.3.1-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.3.1)
+[![CircleCI](https://circleci.com/gh/jkawamoto/go-pixeldrain.svg?style=svg)](https://circleci.com/gh/jkawamoto/go-pixeldrain)
+[![codecov](https://codecov.io/gh/jkawamoto/go-pixeldrain/branch/master/graph/badge.svg?token=ppX3MVIqWA)](https://codecov.io/gh/jkawamoto/go-pixeldrain)
+[![Release](https://img.shields.io/badge/release-0.4.0-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.4.0)
 
 
 ## Usage
@@ -14,7 +15,7 @@ $ pd upload <file path>
 ```
 
 The uploaded file has the same name as the given file.
-`-n` and `--name` options overwrite the file names. 
+`-n` and `--name` options overwrite the file names.
 
 
 If uploading file is given via STDIN, use `-` instead of a file path.
@@ -27,7 +28,7 @@ $ cat file1.txt | pd upload --name uploaded.txt -
 ```
 
 
-### Download a file 
+### Download a file
 `download` command downloads a file from Pixeldrain and writes it to STDOUT.
 
 ```shell-session
@@ -42,18 +43,18 @@ For example, this command downloads a file `abcdefg` in `~/Download`:
 $ pd download abcdefg -o ~/Download
 ```
 
-### Upload/Download a directory 
+### Upload/Download a directory
 This application supports uploading a file from STDIN and downloading a file to STDOUT.
-With `tar` command, it's also able to upload/download directories. 
+With `tar` command, it's also able to upload/download directories.
 For example, this command uploads `~/Documents` directory:
 
 ```shell-session
 $ tar zcf - ~/Documents | pd upload -n documents.tar.gz -
 ```
 
-and this command downloads the file: 
+and this command downloads the file:
 
-```shell-session 
+```shell-session
 $ pd download <file id> | tar zxf - -C ~/Downloads
 ```
 

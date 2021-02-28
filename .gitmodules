@@ -1,3 +1,0 @@
-[submodule "homebrew"]
-	path = homebrew
-	url = https://github.com/jkawamoto/homebrew-pixeldrain.git
