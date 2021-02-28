@@ -2,7 +2,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![CircleCI](https://circleci.com/gh/jkawamoto/go-pixeldrain.svg?style=svg)](https://circleci.com/gh/jkawamoto/go-pixeldrain)
 [![codecov](https://codecov.io/gh/jkawamoto/go-pixeldrain/branch/master/graph/badge.svg?token=ppX3MVIqWA)](https://codecov.io/gh/jkawamoto/go-pixeldrain)
-[![Release](https://img.shields.io/badge/release-0.3.1-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.3.1)
+[![Release](https://img.shields.io/badge/release-0.4.0-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.4.0)
 
 
 ## Usage
