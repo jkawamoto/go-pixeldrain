@@ -31,11 +31,8 @@ func TestTransporter(t *testing.T) {
 		{receive: "text/plain charset=utf8", expect: "application/json"},
 		{receive: "image/png", expect: "image/png"},
 	}
-
 	for _, c := range cases {
-
 		t.Run(c.receive, func(t *testing.T) {
-
 			mock := &mockRoundTripper{
 				Response: &http.Response{
 					Status:     "OK",
@@ -53,7 +50,6 @@ func TestTransporter(t *testing.T) {
 			if cType := res.Header.Get(ContentType); cType != c.expect {
 				t.Errorf("content-type is %v, expected %v", cType, c.expect)
 			}
-
 		})
 	}
 }

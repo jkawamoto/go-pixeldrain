@@ -34,7 +34,6 @@ func (t *transporter) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	if strings.HasPrefix(res.Header.Get(ContentType), "text/plain") {
-		res.Header.Del(ContentType)
 		res.Header.Set(ContentType, "application/json")
 	}
 

@@ -32,7 +32,7 @@ func CmdUpload(c *cli.Context) error {
 	pd := pixeldrain.New()
 	ctx := context.Background()
 	if c.Args().First() == "-" {
-		id, err := pd.UploadRaw(ctx, os.Stdin, c.String("name"))
+		id, err := pd.Upload(ctx, os.Stdin, c.String("name"))
 		if err != nil {
 			return cli.Exit(err, status.APIError)
 		}

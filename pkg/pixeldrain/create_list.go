@@ -10,6 +10,7 @@ package pixeldrain
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
@@ -25,6 +26,10 @@ func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string,
 		},
 	))
 	if err != nil {
+		var e ErrorResponse
+		if errors.As(err, &e) {
+			return "", NewAPIError(e)
+		}
 		return "", err
 	}
 

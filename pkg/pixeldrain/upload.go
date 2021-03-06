@@ -10,7 +10,7 @@ package pixeldrain
 
 import (
 	"context"
-	"io"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -32,18 +32,22 @@ func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (str
 	if err != nil {
 		return "", err
 	}
+
 	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES)
 	bar.Output = pd.Stderr
 	bar.Start()
 	defer bar.Finish()
 
-	return pd.UploadRaw(ctx, bar.NewProxyReader(fp), name)
-}
-
-func (pd *Pixeldrain) UploadRaw(ctx context.Context, r io.Reader, name string) (string, error) {
 	res, err := pd.Client.File.UploadFile(
-		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, r)).WithName(&name))
+		file.NewUploadFileParamsWithContext(ctx).
+			WithFile(runtime.NamedReader(name, bar.NewProxyReader(fp))).
+			WithName(&name),
+	)
 	if err != nil {
+		var e ErrorResponse
+		if errors.As(err, &e) {
+			return "", NewAPIError(e)
+		}
 		return "", err
 	}
 

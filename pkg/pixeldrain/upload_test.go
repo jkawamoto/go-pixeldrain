@@ -21,8 +21,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
 )
 
 const (
@@ -61,6 +64,7 @@ func newMockHandler(t *testing.T, file, name, id string) *mockHandler {
 }
 
 func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set(ContentType, "application/json")
 	if req.URL.Path != "/file" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -68,7 +72,9 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if v := req.FormValue("name"); v != m.name {
 		res.WriteHeader(http.StatusBadRequest)
-		if _, err := fmt.Fprintf(res, "given file name is %v, want %v", v, m.name); err != nil {
+		if err := json.NewEncoder(res).Encode(&models.StandardError{
+			Message: swag.String(fmt.Sprintf("given file name is %v, want %v", v, m.name)),
+		}); err != nil {
 			panic(err)
 		}
 		return
@@ -77,13 +83,15 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	fp, _, err := req.FormFile("file")
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
-		if _, err := fmt.Fprintln(res, "cannot get the file:", err.Error()); err != nil {
+		if err := json.NewEncoder(res).Encode(&models.StandardError{
+			Message: swag.String(fmt.Sprint("cannot get the file:", err)),
+		}); err != nil {
 			panic(err)
 		}
 		return
 	}
 	defer func() {
-		if err := fp.Close(); err != nil {
+		if err := fp.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
 			panic(err)
 		}
 	}()
@@ -91,7 +99,9 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	data, err := ioutil.ReadAll(fp)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
-		if _, err := fmt.Fprintln(res, "Cannot read the uploaded file:", err.Error()); err != nil {
+		if err := json.NewEncoder(res).Encode(&models.StandardError{
+			Message: swag.String(fmt.Sprint("Cannot read the uploaded file:", err)),
+		}); err != nil {
 			panic(err)
 		}
 		return
@@ -99,13 +109,14 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if !reflect.DeepEqual(data, m.expected) {
 		res.WriteHeader(http.StatusInternalServerError)
-		if _, err := fmt.Fprintln(res, "Uploaded file is broken"); err != nil {
+		if err := json.NewEncoder(res).Encode(&models.StandardError{
+			Message: swag.String("Uploaded file is broken"),
+		}); err != nil {
 			panic(err)
 		}
 		return
 	}
 
-	res.Header().Set(ContentType, "application/json")
 	res.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(res).Encode(&file.UploadFileCreatedBody{
 		ID:      m.id,
@@ -119,12 +130,12 @@ func TestUpload(t *testing.T) {
 	id := "test-id"
 	cases := []struct {
 		file   string
-		rename string
+		name   string
 		expect string
 	}{
-		{file: TestFileName, rename: "", expect: TestFileName},
-		{file: TestFileName, rename: "another-expect", expect: "another-expect"},
-		{file: "../../cmd/pd/command/upload.go", rename: "", expect: TestFileName},
+		{file: TestFileName, name: "", expect: TestFileName},
+		{file: TestFileName, name: "another-expect", expect: "another-expect"},
+		{file: "../../cmd/pd/command/upload.go", name: "", expect: TestFileName},
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {
@@ -152,48 +163,13 @@ func TestUpload(t *testing.T) {
 				}
 			}()
 
-			res, err := pd.Upload(context.Background(), fp, c.rename)
+			res, err := pd.Upload(context.Background(), fp, c.name)
 			if err != nil {
-				t.Fatal("failed to upload a file:", err.Error())
+				t.Fatal("failed to upload a file:", err)
 			}
 			if res != id {
 				t.Errorf("received ID = %v, want %v", res, id)
 			}
 		})
-	}
-}
-
-func TestUploadRaw(t *testing.T) {
-	id := "test-id"
-	server := httptest.NewServer(newMockHandler(t, TestFileName, TestFileName, id))
-	defer server.Close()
-
-	pd := New()
-	u, err := url.Parse(server.URL)
-	if err != nil {
-		t.Fatal("Cannot parse a URL:", err)
-	}
-	pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
-		Host:     u.Host,
-		BasePath: "/",
-		Schemes:  []string{"http"},
-	})
-
-	fp, err := os.Open(TestFileName)
-	if err != nil {
-		t.Fatal("Failed to open the file:", err)
-	}
-	defer func() {
-		if err := fp.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
-			t.Error(err)
-		}
-	}()
-
-	res, err := pd.UploadRaw(context.Background(), fp, TestFileName)
-	if err != nil {
-		t.Fatal("failed to upload a file:", err.Error())
-	}
-	if res != id {
-		t.Errorf("received ID = %v, want %v", res, id)
 	}
 }

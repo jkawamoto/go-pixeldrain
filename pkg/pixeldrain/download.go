@@ -10,6 +10,7 @@ package pixeldrain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -29,6 +30,10 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 
 	info, err := pd.Client.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id))
 	if err != nil {
+		var e ErrorResponse
+		if errors.As(err, &e) {
+			return NewAPIError(e)
+		}
 		return err
 	}
 

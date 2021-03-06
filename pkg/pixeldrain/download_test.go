@@ -11,6 +11,7 @@ package pixeldrain
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -72,7 +73,7 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 			return
 		}
 		defer func() {
-			if err := fp.Close(); err != nil {
+			if err := fp.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
 				panic(err)
 			}
 		}()
