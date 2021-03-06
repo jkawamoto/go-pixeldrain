@@ -1,6 +1,6 @@
 // version.go
 //
-// Copyright (c) 2018-2019 Junpei Kawamoto
+// Copyright (c) 2018-2021 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -13,9 +13,3 @@ const Name = "pd"
 
 // Version defines current version number.
 const Version = "0.4.0"
-
-// Author defines the author of this program.
-const Author = "Junpei Kawamoto"
-
-// Email defines an email address of the author.
-const Email = "kawamoto.junpei@gmail.com"

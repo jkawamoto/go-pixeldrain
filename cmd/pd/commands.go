@@ -1,12 +1,10 @@
-/*
- * commands.go
- *
- * Copyright (c) 2018-2019 Junpei Kawamoto
- *
- * This software is released under the MIT License.
- *
- * http://opensource.org/licenses/mit-license.php
- */
+// commands.go
+//
+// Copyright (c) 2018-2021 Junpei Kawamoto
+//
+// This software is released under the MIT License.
+//
+// http://opensource.org/licenses/mit-license.php
 
 package main
 
@@ -14,7 +12,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
@@ -24,7 +22,7 @@ import (
 var GlobalFlags []cli.Flag
 
 // Commands manage sub commands.
-var Commands = []cli.Command{
+var Commands = []*cli.Command{
 	{
 		Name:        "upload",
 		Usage:       "Upload a file",
@@ -32,9 +30,10 @@ var Commands = []cli.Command{
 		ArgsUsage:   "<file path>",
 		Action:      command.CmdUpload,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "n, name",
-				Usage: "rename the uploaded file to `NAME`",
+			&cli.StringFlag{
+				Name:    "name",
+				Aliases: []string{"n"},
+				Usage:   "rename the uploaded file to `NAME`",
 			},
 		},
 	}, {
@@ -44,9 +43,10 @@ var Commands = []cli.Command{
 		ArgsUsage:   "<file ID | URL>",
 		Action:      command.CmdDownload,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "o, output",
-				Usage: "output the downloaded file into `DIR`",
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage:   "output the downloaded file into `DIR`",
 			},
 		},
 	}, {
@@ -56,11 +56,12 @@ var Commands = []cli.Command{
 		ArgsUsage:   "fileID[:description]...",
 		Action:      command.CmdCreateList,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "t, title",
-				Usage: "specify the `TITLE` of this list",
+			&cli.StringFlag{
+				Name:    "title",
+				Aliases: []string{"t"},
+				Usage:   "specify the `TITLE` of this list",
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "description",
 				Usage: "specify the description of this list",
 			},
@@ -68,9 +69,9 @@ var Commands = []cli.Command{
 	},
 }
 
-// CommandNotFound shows error message and exit when a given command is not found.
-func CommandNotFound(c *cli.Context, command string) {
+// commandNotFound shows error message and exit when a given command is not found.
+func commandNotFound(c *cli.Context, command string) {
 	_, _ = fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
-	_ = cli.ShowAppHelp(c)
+	//_ = cli.ShowAppHelp(c)
 	os.Exit(status.InvalidCommand)
 }

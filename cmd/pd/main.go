@@ -1,6 +1,6 @@
 // main.go
 //
-// Copyright (c) 2018-2019 Junpei Kawamoto
+// Copyright (c) 2018-2021 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -9,25 +9,27 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = Name
 	app.Version = Version
-	app.Author = Author
-	app.Email = Email
+	app.Authors = []*cli.Author{
+		{
+			Name:  "Junpei Kawamoto",
+			Email: "kawamoto.junpei@gmail.com",
+		},
+	}
 	app.Usage = "Pixeldrain client"
 
 	app.Flags = GlobalFlags
 	app.Commands = Commands
-	app.CommandNotFound = CommandNotFound
+	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
-	app.Copyright = fmt.Sprintf("%v <%v>", Author, Email)
 
 	_ = app.Run(os.Args)
 }

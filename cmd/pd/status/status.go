@@ -15,4 +15,6 @@ const (
 	InvalidArgument
 	// APIError is the exit code if an API request fails.
 	APIError
+	// IOError is the exit code if an IO error happens.
+	IOError
 )

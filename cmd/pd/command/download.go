@@ -12,10 +12,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
-
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 )
 
@@ -30,7 +29,7 @@ func CmdDownload(c *cli.Context) error {
 
 	err := pixeldrain.New().Download(context.Background(), url, dir)
 	if err != nil {
-		return cli.NewExitError(err, status.APIError)
+		return cli.Exit(err, status.APIError)
 	}
 
 	return nil
