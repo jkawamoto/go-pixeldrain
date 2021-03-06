@@ -14,6 +14,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	// Name defines the basename of this program.
+	Name = "pd"
+	// Version defines current version number.
+	Version = "0.4.0"
+)
+
 func main() {
 	app := cli.NewApp()
 	app.Name = Name
