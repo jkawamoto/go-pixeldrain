@@ -9,7 +9,6 @@
 package command
 
 import (
-	"context"
 	"fmt"
 	"path"
 
@@ -27,7 +26,7 @@ func CmdCreateList(c *cli.Context) error {
 	}
 
 	id, err := pixeldrain.New().CreateList(
-		context.Background(), c.String("title"), c.String("description"),
+		c.Context, c.String("title"), c.String("description"),
 		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
 		return cli.Exit(err, status.APIError)

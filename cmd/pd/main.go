@@ -9,6 +9,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -38,5 +39,5 @@ func main() {
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
 
-	_ = app.Run(os.Args)
+	_ = app.RunContext(context.Background(), os.Args)
 }

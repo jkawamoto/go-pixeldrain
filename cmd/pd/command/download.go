@@ -9,7 +9,6 @@
 package command
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/urfave/cli/v2"
@@ -27,7 +26,7 @@ func CmdDownload(c *cli.Context) error {
 	url := c.Args().First()
 	dir := c.String("output")
 
-	err := pixeldrain.New().Download(context.Background(), url, dir)
+	err := pixeldrain.New().Download(c.Context, url, dir)
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}

@@ -9,7 +9,6 @@
 package command
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -42,9 +41,8 @@ func CmdUpload(c *cli.Context) error {
 	}
 
 	pd := pixeldrain.New()
-	ctx := context.Background()
 	if c.Args().First() == "-" {
-		id, err := pd.Upload(ctx, &renamedFile{File: os.Stdin, name: c.String("name")})
+		id, err := pd.Upload(c.Context, &renamedFile{File: os.Stdin, name: c.String("name")})
 		if err != nil {
 			return cli.Exit(err, status.APIError)
 		}
@@ -64,7 +62,7 @@ func CmdUpload(c *cli.Context) error {
 		}
 	}()
 
-	id, err := pd.Upload(ctx, &renamedFile{File: fp, name: c.String("name")})
+	id, err := pd.Upload(c.Context, &renamedFile{File: fp, name: c.String("name")})
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}
