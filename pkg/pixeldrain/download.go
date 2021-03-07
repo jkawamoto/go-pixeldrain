@@ -37,9 +37,9 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 		return err
 	}
 
-	fp := pd.Stdout
+	out := pd.Stdout
 	if dir != "" {
-		fp, err = os.OpenFile(filepath.Join(dir, info.Payload.Name), os.O_CREATE|os.O_WRONLY, 0644)
+		fp, err := os.OpenFile(filepath.Join(dir, info.Payload.Name), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
 		}
@@ -48,6 +48,7 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 				err = multierror.Append(err, e)
 			}
 		}()
+		out = fp
 	}
 
 	bar := pb.New(int(info.Payload.Size)).SetUnits(pb.U_BYTES)
@@ -65,6 +66,6 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 		}
 	}()
 
-	_, err = io.Copy(io.MultiWriter(fp, bar), res.Body)
+	_, err = io.Copy(io.MultiWriter(out, bar), res.Body)
 	return err
 }

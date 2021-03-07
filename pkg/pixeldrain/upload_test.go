@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -130,12 +131,10 @@ func TestUpload(t *testing.T) {
 	id := "test-id"
 	cases := []struct {
 		file   string
-		name   string
 		expect string
 	}{
-		{file: TestFileName, name: "", expect: TestFileName},
-		{file: TestFileName, name: "another-expect", expect: "another-expect"},
-		{file: "../../cmd/pd/command/upload.go", name: "", expect: TestFileName},
+		{file: TestFileName, expect: TestFileName},
+		{file: "../../cmd/pd/command/upload.go", expect: TestFileName},
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {
@@ -143,6 +142,7 @@ func TestUpload(t *testing.T) {
 			defer server.Close()
 
 			pd := New()
+			pd.Stderr = io.Discard
 			u, err := url.Parse(server.URL)
 			if err != nil {
 				t.Fatal("Cannot parse a URL:", err)
@@ -163,7 +163,7 @@ func TestUpload(t *testing.T) {
 				}
 			}()
 
-			res, err := pd.Upload(context.Background(), fp, c.name)
+			res, err := pd.Upload(context.Background(), fp)
 			if err != nil {
 				t.Fatal("failed to upload a file:", err)
 			}

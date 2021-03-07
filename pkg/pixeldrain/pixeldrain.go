@@ -21,8 +21,8 @@ const downloadEndpoint = "https://sia.pixeldrain.com/api/file/"
 
 type Pixeldrain struct {
 	Client           *client.PixelDrain
-	Stdout           io.WriteCloser
-	Stderr           io.WriteCloser
+	Stdout           io.Writer
+	Stderr           io.Writer
 	downloadEndpoint string
 }
 

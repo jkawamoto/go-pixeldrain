@@ -23,6 +23,18 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
+type renamedFile struct {
+	*os.File
+	name string
+}
+
+func (f *renamedFile) Name() string {
+	if f.name != "" {
+		return f.name
+	}
+	return f.File.Name()
+}
+
 func CmdUpload(c *cli.Context) error {
 	if c.NArg() != 1 {
 		_, _ = fmt.Printf("expected 1 argument. (%d given)\n", c.NArg())
@@ -32,7 +44,7 @@ func CmdUpload(c *cli.Context) error {
 	pd := pixeldrain.New()
 	ctx := context.Background()
 	if c.Args().First() == "-" {
-		id, err := pd.Upload(ctx, os.Stdin, c.String("name"))
+		id, err := pd.Upload(ctx, &renamedFile{File: os.Stdin, name: c.String("name")})
 		if err != nil {
 			return cli.Exit(err, status.APIError)
 		}
@@ -52,7 +64,7 @@ func CmdUpload(c *cli.Context) error {
 		}
 	}()
 
-	id, err := pd.Upload(ctx, fp, c.String("name"))
+	id, err := pd.Upload(ctx, &renamedFile{File: fp, name: c.String("name")})
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}

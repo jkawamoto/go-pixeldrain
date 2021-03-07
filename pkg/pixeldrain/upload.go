@@ -11,24 +11,28 @@ package pixeldrain
 import (
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 	"gopkg.in/cheggaaa/pb.v1"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
 
-// Upload the given file to PixelDrain under the given context.
-// If a name is given, the uploaded file will be renamed.
-// After the upload succeeds, an ID associated with the uploaded file will be returned.
-func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (string, error) {
-	if name == "" {
-		name = filepath.Base(fp.Name())
-	}
+// File is the interface the uploading file needs to implement.
+type File interface {
+	io.Reader
+	Name() string
+	Stat() (os.FileInfo, error)
+}
 
-	info, err := fp.Stat()
+// Upload the given file to PixelDrain under the given context.
+// After the upload succeeds, an ID associated with the uploaded file will be returned.
+func (pd *Pixeldrain) Upload(ctx context.Context, f File) (string, error) {
+	info, err := f.Stat()
 	if err != nil {
 		return "", err
 	}
@@ -38,10 +42,11 @@ func (pd *Pixeldrain) Upload(ctx context.Context, fp *os.File, name string) (str
 	bar.Start()
 	defer bar.Finish()
 
+	name := filepath.Base(f.Name())
 	res, err := pd.Client.File.UploadFile(
 		file.NewUploadFileParamsWithContext(ctx).
-			WithFile(runtime.NamedReader(name, bar.NewProxyReader(fp))).
-			WithName(&name),
+			WithFile(runtime.NamedReader(name, bar.NewProxyReader(f))).
+			WithName(swag.String(name)),
 	)
 	if err != nil {
 		var e ErrorResponse
