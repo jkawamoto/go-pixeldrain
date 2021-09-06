@@ -6,7 +6,7 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-// package pixeldrain provides a Pixeldrain client.
+// Package pixeldrain provides a Pixeldrain client.
 package pixeldrain
 
-//go:generate swagger generate client -f https://raw.githubusercontent.com/jkawamoto/pixeldrain-swagger/master/swagger.yaml -t .
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0
