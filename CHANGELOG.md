@@ -1,3 +1,7 @@
+### 0.4.1 (2021-09-05)
+### Update
+- dependencies
+
 ### 0.4.0 (2021-02-27)
 ### Update
 - dependencies
