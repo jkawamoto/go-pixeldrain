@@ -12,14 +12,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
 type renamedFile struct {
@@ -74,6 +72,6 @@ func CmdUpload(c *cli.Context) error {
 }
 
 func printID(id string) error {
-	_, err := fmt.Printf("https://%v\n", path.Join(client.DefaultHost, client.DefaultBasePath, "file", id))
+	_, err := fmt.Println(pixeldrain.DownloadEndpoint + "/" + id)
 	return err
 }

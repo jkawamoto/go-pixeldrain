@@ -1,4 +1,8 @@
-### 0.4.1 (2021-09-05)
+## 0.4.2 (2021-09-19)
+### Fixed
+- download endpoint URL
+
+## 0.4.1 (2021-09-05)
 ### Update
 - dependencies
 

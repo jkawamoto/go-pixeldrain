@@ -11,7 +11,6 @@ package pixeldrain
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -56,7 +55,7 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	res, err := ctxhttp.Get(ctx, nil, fmt.Sprint(pd.downloadEndpoint, info.Payload.ID))
+	res, err := ctxhttp.Get(ctx, nil, DownloadEndpoint+"/"+info.Payload.ID)
 	if err != nil {
 		return err
 	}
