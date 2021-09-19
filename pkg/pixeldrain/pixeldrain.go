@@ -13,8 +13,6 @@ import (
 	"os"
 	"path"
 
-	httpTransport "github.com/go-openapi/runtime/client"
-
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
@@ -28,12 +26,7 @@ type Pixeldrain struct {
 
 func New() *Pixeldrain {
 	cli := client.Default
-
-	switch transport := cli.Transport.(type) {
-	case *httpTransport.Runtime:
-		transport.Transport = newTransporter(transport.Transport)
-		cli.SetTransport(transport)
-	}
+	cli.SetTransport(newTransport(cli.Transport))
 
 	return &Pixeldrain{
 		Client: cli,
