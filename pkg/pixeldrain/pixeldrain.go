@@ -11,19 +11,19 @@ package pixeldrain
 import (
 	"io"
 	"os"
+	"path"
 
 	httpTransport "github.com/go-openapi/runtime/client"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-const downloadEndpoint = "https://sia.pixeldrain.com/api/file/"
+var DownloadEndpoint = "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file")
 
 type Pixeldrain struct {
-	Client           *client.PixelDrain
-	Stdout           io.WriteCloser
-	Stderr           io.WriteCloser
-	downloadEndpoint string
+	Client *client.PixelDrain
+	Stdout io.WriteCloser
+	Stderr io.WriteCloser
 }
 
 func New() *Pixeldrain {
@@ -36,9 +36,8 @@ func New() *Pixeldrain {
 	}
 
 	return &Pixeldrain{
-		Client:           cli,
-		Stdout:           os.Stdout,
-		Stderr:           os.Stderr,
-		downloadEndpoint: downloadEndpoint,
+		Client: cli,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
 	}
 }
