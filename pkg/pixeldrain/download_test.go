@@ -102,7 +102,7 @@ func TestDownload(t *testing.T) {
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		pd.downloadEndpoint = "http://" + u.Host + "/file/"
+		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempFile("", "")
 		if err != nil {
@@ -115,7 +115,7 @@ func TestDownload(t *testing.T) {
 			}
 		}()
 
-		err = pd.Download(context.Background(), fmt.Sprint(downloadEndpoint, id), "")
+		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), "")
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
@@ -147,14 +147,14 @@ func TestDownload(t *testing.T) {
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		pd.downloadEndpoint = "http://" + u.Host + "/file/"
+		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempDir("", "")
 		if err != nil {
 			t.Fatal("Failed to create a temporal directory", err)
 		}
 
-		err = pd.Download(context.Background(), fmt.Sprint(downloadEndpoint, id), tmp)
+		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), tmp)
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}

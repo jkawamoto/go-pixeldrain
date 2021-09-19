@@ -10,16 +10,14 @@ package pixeldrain
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"golang.org/x/net/context/ctxhttp"
 	"gopkg.in/cheggaaa/pb.v1"
-
-	"github.com/hashicorp/go-multierror"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
@@ -50,7 +48,7 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	res, err := ctxhttp.Get(ctx, nil, fmt.Sprint(pd.downloadEndpoint, info.Payload.ID))
+	res, err := ctxhttp.Get(ctx, nil, DownloadEndpoint+"/"+info.Payload.ID)
 	if err != nil {
 		return err
 	}

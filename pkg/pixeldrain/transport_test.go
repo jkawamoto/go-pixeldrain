@@ -1,4 +1,4 @@
-// transporter_test.go
+// transport_test.go
 //
 // Copyright (c) 2018-2021 Junpei Kawamoto
 //
@@ -31,11 +31,8 @@ func TestTransporter(t *testing.T) {
 		{receive: "text/plain charset=utf8", expect: "application/json"},
 		{receive: "image/png", expect: "image/png"},
 	}
-
 	for _, c := range cases {
-
 		t.Run(c.receive, func(t *testing.T) {
-
 			mock := &mockRoundTripper{
 				Response: &http.Response{
 					Status:     "OK",
@@ -45,7 +42,7 @@ func TestTransporter(t *testing.T) {
 			}
 			mock.Response.Header.Set(ContentType, c.receive)
 
-			transporter := newTransporter(mock)
+			transporter := newRoundTripper(mock)
 			res, err := transporter.RoundTrip(nil)
 			if err != nil {
 				t.Fatal("RoundTrip returns an error:", err)
@@ -53,7 +50,6 @@ func TestTransporter(t *testing.T) {
 			if cType := res.Header.Get(ContentType); cType != c.expect {
 				t.Errorf("content-type is %v, expected %v", cType, c.expect)
 			}
-
 		})
 	}
 }
