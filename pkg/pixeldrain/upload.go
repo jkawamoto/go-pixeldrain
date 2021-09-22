@@ -42,10 +42,11 @@ func (pd *Pixeldrain) Upload(ctx context.Context, f File) (string, error) {
 	defer bar.Finish()
 
 	name := filepath.Base(f.Name())
-	res, err := pd.Client.File.UploadFile(
+	res, err := pd.cli.File.UploadFile(
 		file.NewUploadFileParamsWithContext(ctx).
 			WithFile(runtime.NamedReader(name, bar.NewProxyReader(f))).
-			WithName(swag.String(name)),pd.authInfoWriter,
+			WithName(swag.String(name)),
+		pd.authInfoWriter,
 	)
 	if err != nil {
 		return "", NewError(err)

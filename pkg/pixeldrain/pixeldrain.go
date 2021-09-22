@@ -24,8 +24,8 @@ var DownloadEndpoint = "https://" + path.Join(client.DefaultHost, client.Default
 type Pixeldrain struct {
 	cli            *client.PixeldrainAPI
 	authInfoWriter runtime.ClientAuthInfoWriter
-	Stdout         io.WriteCloser
-	Stderr         io.WriteCloser
+	Stdout         io.Writer
+	Stderr         io.Writer
 }
 
 func New(apiKey string) *Pixeldrain {

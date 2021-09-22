@@ -17,13 +17,14 @@ import (
 
 // CreateList sends a list creation request with the given title, description, and items.
 func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (string, error) {
-	res, err := pd.cli.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
-		list.CreateFileListBody{
+	res, err := pd.cli.List.CreateFileList(
+		list.NewCreateFileListParamsWithContext(ctx).WithList(list.CreateFileListBody{
 			Title:       &title,
 			Description: description,
 			Files:       parseListItems(items),
-		},
-	), pd.authInfoWriter)
+		}),
+		pd.authInfoWriter,
+	)
 	if err != nil {
 		return "", NewError(err)
 	}

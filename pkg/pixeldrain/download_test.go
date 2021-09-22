@@ -177,7 +177,7 @@ func TestDownload(t *testing.T) {
 			t.Fatal("Failed to read original filename:", err)
 		}
 		if string(received) != string(expected) {
-			t.Error("Downloaded filename is broken")
+			t.Error("Downloaded file is broken")
 		}
 	})
 }
