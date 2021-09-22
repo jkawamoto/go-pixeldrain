@@ -31,17 +31,17 @@ type File interface {
 // Upload the given file to PixelDrain under the given context.
 // After the upload succeeds, an ID associated with the uploaded file will be returned.
 func (pd *Pixeldrain) Upload(ctx context.Context, f File) (string, error) {
+	name := filepath.Base(f.Name())
 	info, err := f.Stat()
 	if err != nil {
 		return "", err
 	}
 
-	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES)
+	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES).Prefix(name)
 	bar.Output = pd.Stderr
 	bar.Start()
 	defer bar.Finish()
 
-	name := filepath.Base(f.Name())
 	res, err := pd.cli.File.UploadFile(
 		file.NewUploadFileParamsWithContext(ctx).
 			WithFile(runtime.NamedReader(name, bar.NewProxyReader(f))).
