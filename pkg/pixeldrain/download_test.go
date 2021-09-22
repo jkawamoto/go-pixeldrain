@@ -121,7 +121,7 @@ func TestDownload(t *testing.T) {
 			}
 		}()
 
-		err = pd.Download(context.Background(), DownloadEndpoint+"/"+id, "")
+		err = pd.Download(context.Background(), pd.DownloadURL(id), "")
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
@@ -163,7 +163,7 @@ func TestDownload(t *testing.T) {
 			t.Fatal("Failed to create a temporal directory", err)
 		}
 
-		err = pd.Download(context.Background(), DownloadEndpoint+"/"+id, tmp)
+		err = pd.Download(context.Background(), pd.DownloadURL(id), tmp)
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}

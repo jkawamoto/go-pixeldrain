@@ -26,7 +26,7 @@ func CmdDownload(c *cli.Context) error {
 	url := c.Args().First()
 	dir := c.String("output")
 
-	err := pixeldrain.New().Download(c.Context, url, dir)
+	err := pixeldrain.New(c.String("api-key")).Download(c.Context, url, dir)
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}

@@ -19,8 +19,6 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-var DownloadEndpoint = "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file")
-
 type Pixeldrain struct {
 	cli            *client.PixeldrainAPI
 	authInfoWriter runtime.ClientAuthInfoWriter
@@ -41,4 +39,8 @@ func New(apiKey string) *Pixeldrain {
 		res.authInfoWriter = auth.BasicAuth("", apiKey)
 	}
 	return res
+}
+
+func (Pixeldrain) DownloadURL(id string) string {
+	return "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)
 }

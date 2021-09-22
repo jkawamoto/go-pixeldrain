@@ -11,6 +11,7 @@ package pixeldrain
 import (
 	"encoding/base64"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/go-openapi/runtime"
@@ -70,5 +71,15 @@ func TestNew(t *testing.T) {
 			}
 			c.verify(t, pd)
 		})
+	}
+}
+
+func TestPixeldrain_DownloadURL(t *testing.T) {
+	id := "test-id"
+	expect := "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)
+
+	pd := &Pixeldrain{}
+	if res := pd.DownloadURL(id); res != expect {
+		t.Errorf("expect %v, got %v", expect, res)
 	}
 }

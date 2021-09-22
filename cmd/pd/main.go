@@ -32,7 +32,7 @@ func main() {
 			Email: "kawamoto.junpei@gmail.com",
 		},
 	}
-	app.Usage = "Pixeldrain client"
+	app.Usage = "A Pixeldrain client"
 
 	app.Flags = GlobalFlags
 	app.Commands = Commands
