@@ -43,7 +43,7 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 		out = fp
 	}
 
-	bar := pb.New(int(info.Payload.Size)).SetUnits(pb.U_BYTES)
+	bar := pb.New(int(info.Payload.Size)).SetUnits(pb.U_BYTES).Prefix(info.Payload.Name)
 	bar.Output = pd.Stderr
 	bar.Start()
 	defer bar.Finish()
