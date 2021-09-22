@@ -10,7 +10,6 @@ package pixeldrain
 
 import (
 	"context"
-	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -25,13 +24,9 @@ import (
 func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	id := url[strings.LastIndex(url, "/")+1:]
 
-	info, err := pd.Client.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id))
+	info, err := pd.cli.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id), pd.authInfoWriter)
 	if err != nil {
-		var e ErrorResponse
-		if errors.As(err, &e) {
-			return NewAPIError(e)
-		}
-		return err
+		return NewError(err)
 	}
 
 	out := pd.Stdout
@@ -53,7 +48,10 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	_, err = pd.Client.File.DownloadFile(
-		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), nil, io.MultiWriter(out, bar))
-	return err
+	_, err = pd.cli.File.DownloadFile(
+		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), pd.authInfoWriter, io.MultiWriter(out, bar))
+	if err != nil {
+		return NewError(err)
+	}
+	return nil
 }

@@ -13,24 +13,32 @@ import (
 	"os"
 	"path"
 
+	"github.com/go-openapi/runtime"
+	auth "github.com/go-openapi/runtime/client"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
 var DownloadEndpoint = "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file")
 
 type Pixeldrain struct {
-	Client *client.PixelDrain
-	Stdout io.Writer
-	Stderr io.Writer
+	cli            *client.PixeldrainAPI
+	authInfoWriter runtime.ClientAuthInfoWriter
+	Stdout         io.WriteCloser
+	Stderr         io.WriteCloser
 }
 
-func New() *Pixeldrain {
+func New(apiKey string) *Pixeldrain {
 	cli := client.Default
 	cli.SetTransport(newTransport(cli.Transport))
 
-	return &Pixeldrain{
-		Client: cli,
+	res := &Pixeldrain{
+		cli:    cli,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	}
+	if apiKey != "" {
+		res.authInfoWriter = auth.BasicAuth("", apiKey)
+	}
+	return res
 }

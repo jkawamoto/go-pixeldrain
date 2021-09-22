@@ -27,10 +27,11 @@ import (
 )
 
 type mockListServer struct {
-	ID          string
-	Description string
-	Title       string
-	Files       []*list.CreateFileListParamsBodyFilesItems0
+	ID            string
+	Description   string
+	Title         string
+	Files         []*list.CreateFileListParamsBodyFilesItems0
+	Authorization string
 }
 
 func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -38,6 +39,14 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/list" {
 		res.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(res).Encode(models.StandardError{Message: swag.String("received a wrong request")}); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	if req.Header.Get("Authorization") != m.Authorization {
+		res.WriteHeader(http.StatusUnauthorized)
+		if err := json.NewEncoder(res).Encode(models.StandardError{Message: swag.String("not authorized")}); err != nil {
 			panic(err)
 		}
 		return
@@ -80,18 +89,20 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func TestCreateList(t *testing.T) {
+	apiKey := "test api key"
 	mock := &mockListServer{
-		ID: "sample-id",
+		ID:            "sample-id",
+		Authorization: authorization(apiKey),
 	}
 	server := httptest.NewServer(mock)
 	defer server.Close()
 
-	pd := New()
+	pd := New(apiKey)
 	u, err := url.Parse(server.URL)
 	if err != nil {
 		t.Fatal("Cannot parse a URL:", err)
 	}
-	pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+	pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 		Host:     u.Host,
 		BasePath: "/",
 		Schemes:  []string{"http"},

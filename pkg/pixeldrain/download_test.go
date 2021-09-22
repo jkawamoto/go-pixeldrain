@@ -29,21 +29,20 @@ import (
 )
 
 type mockDownloadHandler struct {
-	ID   string
-	File string
-}
-
-func newMockDownloadHandler(id, file string) http.Handler {
-	return &mockDownloadHandler{
-		ID:   id,
-		File: file,
-	}
+	ID            string
+	File          string
+	Authorization string
 }
 
 func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set(runtime.HeaderContentType, runtime.JSONMime)
 	if !strings.HasPrefix(req.URL.Path, "/file") {
 		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if req.Header.Get("Authorization") != m.Authorization {
+		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -90,17 +89,22 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 func TestDownload(t *testing.T) {
 	id := "abcde"
 	filename := "./download.go"
+	apiKey := "test api key"
 
 	t.Run("stdout", func(t *testing.T) {
-		server := httptest.NewServer(newMockDownloadHandler(id, filename))
+		server := httptest.NewServer(&mockDownloadHandler{
+			ID:            id,
+			File:          filename,
+			Authorization: authorization(apiKey),
+		})
 		defer server.Close()
 
-		pd := New()
+		pd := New(apiKey)
 		u, err := url.Parse(server.URL)
 		if err != nil {
 			t.Fatal("Cannot parse a URL:", err)
 		}
-		pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+		pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 			Host:     u.Host,
 			BasePath: "/",
 			Schemes:  []string{"http"},
@@ -136,15 +140,19 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("dir", func(t *testing.T) {
-		server := httptest.NewServer(newMockDownloadHandler(id, filename))
+		server := httptest.NewServer(&mockDownloadHandler{
+			ID:            id,
+			File:          filename,
+			Authorization: authorization(apiKey),
+		})
 		defer server.Close()
 
-		pd := New()
+		pd := New(apiKey)
 		u, err := url.Parse(server.URL)
 		if err != nil {
 			t.Fatal("Cannot parse a URL:", err)
 		}
-		pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+		pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 			Host:     u.Host,
 			BasePath: "/",
 			Schemes:  []string{"http"},

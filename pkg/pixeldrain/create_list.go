@@ -10,7 +10,6 @@ package pixeldrain
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
@@ -18,19 +17,15 @@ import (
 
 // CreateList sends a list creation request with the given title, description, and items.
 func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (string, error) {
-	res, err := pd.Client.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
+	res, err := pd.cli.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
 		list.CreateFileListBody{
 			Title:       &title,
 			Description: description,
 			Files:       parseListItems(items),
 		},
-	))
+	), pd.authInfoWriter)
 	if err != nil {
-		var e ErrorResponse
-		if errors.As(err, &e) {
-			return "", NewAPIError(e)
-		}
-		return "", err
+		return "", NewError(err)
 	}
 
 	return res.Payload.ID, nil
