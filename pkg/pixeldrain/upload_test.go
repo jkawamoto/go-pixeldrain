@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
@@ -65,7 +66,7 @@ func newMockHandler(t *testing.T, file, name, id string) *mockHandler {
 }
 
 func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set(ContentType, "application/json")
+	res.Header().Set(runtime.HeaderContentType, runtime.JSONMime)
 	if req.URL.Path != "/file" {
 		res.WriteHeader(http.StatusBadRequest)
 		return

@@ -23,6 +23,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-openapi/runtime"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
@@ -40,7 +42,7 @@ func newMockDownloadHandler(id, file string) http.Handler {
 }
 
 func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set(ContentType, "application/json")
+	res.Header().Set(runtime.HeaderContentType, runtime.JSONMime)
 	if !strings.HasPrefix(req.URL.Path, "/file") {
 		res.WriteHeader(http.StatusBadRequest)
 		return

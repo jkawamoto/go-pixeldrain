@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
@@ -33,7 +34,7 @@ type mockListServer struct {
 }
 
 func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Add("Content-type", "application/json")
+	res.Header().Add(runtime.HeaderContentType, runtime.JSONMime)
 	if req.URL.Path != "/list" {
 		res.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(res).Encode(models.StandardError{Message: swag.String("received a wrong request")}); err != nil {
