@@ -30,15 +30,15 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetFileIDThumbnail(params *GetFileIDThumbnailParams, opts ...ClientOption) (*GetFileIDThumbnailOK, error)
+	GetFileIDThumbnail(params *GetFileIDThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileIDThumbnailOK, error)
 
-	DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*DeleteFileOK, error)
+	DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteFileOK, error)
 
-	DownloadFile(params *DownloadFileParams, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error)
+	DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error)
 
-	GetFileInfo(params *GetFileInfoParams, opts ...ClientOption) (*GetFileInfoOK, error)
+	GetFileInfo(params *GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileInfoOK, error)
 
-	UploadFile(params *UploadFileParams, opts ...ClientOption) (*UploadFileCreated, error)
+	UploadFile(params *UploadFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UploadFileCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -49,7 +49,7 @@ type ClientService interface {
   Returns a PNG thumbnail image representing the file. The thumbnail is always 100*100 px. If the source file is parsable by imagemagick the thumbnail will be generated from the file, if not it will be a generic mime type icon.
 
 */
-func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams, opts ...ClientOption) (*GetFileIDThumbnailOK, error) {
+func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileIDThumbnailOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetFileIDThumbnailParams()
@@ -58,11 +58,12 @@ func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams, opts ...Cl
 		ID:                 "GetFileIDThumbnail",
 		Method:             "GET",
 		PathPattern:        "/file/{id}/thumbnail",
-		ProducesMediaTypes: []string{"application/json", "image/png"},
+		ProducesMediaTypes: []string{"image/png"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetFileIDThumbnailReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -88,7 +89,7 @@ func (a *Client) GetFileIDThumbnail(params *GetFileIDThumbnailParams, opts ...Cl
 
   Deletes a file. Only works when the users owns the file.
 */
-func (a *Client) DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*DeleteFileOK, error) {
+func (a *Client) DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteFileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteFileParams()
@@ -97,11 +98,12 @@ func (a *Client) DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*De
 		ID:                 "deleteFile",
 		Method:             "DELETE",
 		PathPattern:        "/file/{id}",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteFileReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -128,7 +130,7 @@ func (a *Client) DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*De
   Returns the full file associated with the ID. Supports byte range requests.
 
 */
-func (a *Client) DownloadFile(params *DownloadFileParams, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error) {
+func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDownloadFileParams()
@@ -137,11 +139,12 @@ func (a *Client) DownloadFile(params *DownloadFileParams, writer io.Writer, opts
 		ID:                 "downloadFile",
 		Method:             "GET",
 		PathPattern:        "/file/{id}",
-		ProducesMediaTypes: []string{"application/json", "application/octet-stream"},
+		ProducesMediaTypes: []string{"application/octet-stream"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DownloadFileReader{formats: a.formats, writer: writer},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -168,7 +171,7 @@ func (a *Client) DownloadFile(params *DownloadFileParams, writer io.Writer, opts
   Returns information about one or more files. You can also put a comma separated list of file IDs in the URL and it will return an array of file info, instead of a single object.
 
 */
-func (a *Client) GetFileInfo(params *GetFileInfoParams, opts ...ClientOption) (*GetFileInfoOK, error) {
+func (a *Client) GetFileInfo(params *GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileInfoOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetFileInfoParams()
@@ -177,11 +180,12 @@ func (a *Client) GetFileInfo(params *GetFileInfoParams, opts ...ClientOption) (*
 		ID:                 "getFileInfo",
 		Method:             "GET",
 		PathPattern:        "/file/{id}/info",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetFileInfoReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -207,7 +211,7 @@ func (a *Client) GetFileInfo(params *GetFileInfoParams, opts ...ClientOption) (*
 
   Upload a file.
 */
-func (a *Client) UploadFile(params *UploadFileParams, opts ...ClientOption) (*UploadFileCreated, error) {
+func (a *Client) UploadFile(params *UploadFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UploadFileCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUploadFileParams()
@@ -216,11 +220,12 @@ func (a *Client) UploadFile(params *UploadFileParams, opts ...ClientOption) (*Up
 		ID:                 "uploadFile",
 		Method:             "POST",
 		PathPattern:        "/file",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"multipart/form-data"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &UploadFileReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}

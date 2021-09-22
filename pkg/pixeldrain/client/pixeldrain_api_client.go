@@ -14,7 +14,7 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
 )
 
-// Default pixel drain HTTP client.
+// Default pixeldrain API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -29,14 +29,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"https"}
 
-// NewHTTPClient creates a new pixel drain HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PixelDrain {
+// NewHTTPClient creates a new pixeldrain API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PixeldrainAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new pixel drain HTTP client,
+// NewHTTPClientWithConfig creates a new pixeldrain API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PixelDrain {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PixeldrainAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -47,14 +47,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Pix
 	return New(transport, formats)
 }
 
-// New creates a new pixel drain client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PixelDrain {
+// New creates a new pixeldrain API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PixeldrainAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PixelDrain)
+	cli := new(PixeldrainAPI)
 	cli.Transport = transport
 	cli.File = file.New(transport, formats)
 	cli.List = list.New(transport, formats)
@@ -100,8 +100,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PixelDrain is a client for pixel drain
-type PixelDrain struct {
+// PixeldrainAPI is a client for pixeldrain API
+type PixeldrainAPI struct {
 	File file.ClientService
 
 	List list.ClientService
@@ -110,7 +110,7 @@ type PixelDrain struct {
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PixelDrain) SetTransport(transport runtime.ClientTransport) {
+func (c *PixeldrainAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.File.SetTransport(transport)
 	c.List.SetTransport(transport)
