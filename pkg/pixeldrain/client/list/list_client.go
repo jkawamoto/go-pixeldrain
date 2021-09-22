@@ -28,9 +28,9 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateFileList(params *CreateFileListParams, opts ...ClientOption) (*CreateFileListCreated, error)
+	CreateFileList(params *CreateFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateFileListCreated, error)
 
-	GetFileList(params *GetFileListParams, opts ...ClientOption) (*GetFileListOK, error)
+	GetFileList(params *GetFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileListOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -40,7 +40,7 @@ type ClientService interface {
 
   Creates a list of files that can be viewed together on the file viewer page.
 */
-func (a *Client) CreateFileList(params *CreateFileListParams, opts ...ClientOption) (*CreateFileListCreated, error) {
+func (a *Client) CreateFileList(params *CreateFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateFileListCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateFileListParams()
@@ -49,11 +49,12 @@ func (a *Client) CreateFileList(params *CreateFileListParams, opts ...ClientOpti
 		ID:                 "createFileList",
 		Method:             "POST",
 		PathPattern:        "/list",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &CreateFileListReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -79,7 +80,7 @@ func (a *Client) CreateFileList(params *CreateFileListParams, opts ...ClientOpti
 
   Returns information about a file list and the files in it.
 */
-func (a *Client) GetFileList(params *GetFileListParams, opts ...ClientOption) (*GetFileListOK, error) {
+func (a *Client) GetFileList(params *GetFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileListOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetFileListParams()
@@ -88,11 +89,12 @@ func (a *Client) GetFileList(params *GetFileListParams, opts ...ClientOption) (*
 		ID:                 "getFileList",
 		Method:             "GET",
 		PathPattern:        "/list/{id}",
-		ProducesMediaTypes: []string{"application/json", "text/plain"},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetFileListReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}

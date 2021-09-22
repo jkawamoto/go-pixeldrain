@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
@@ -34,12 +35,13 @@ const (
 )
 
 type mockHandler struct {
-	expected []byte
-	id       string
-	name     string
+	expected      []byte
+	id            string
+	name          string
+	authorization string
 }
 
-func newMockHandler(t *testing.T, file, name, id string) *mockHandler {
+func newMockHandler(t *testing.T, file, name, id, auth string) *mockHandler {
 	t.Helper()
 
 	fp, err := os.Open(file)
@@ -58,14 +60,20 @@ func newMockHandler(t *testing.T, file, name, id string) *mockHandler {
 	}
 
 	return &mockHandler{
-		expected: data,
-		id:       id,
-		name:     name,
+		expected:      data,
+		id:            id,
+		name:          name,
+		authorization: auth,
 	}
 }
 
 func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set(ContentType, "application/json")
+	res.Header().Set(runtime.HeaderContentType, runtime.JSONMime)
+	if req.Header.Get("Authorization") != m.authorization {
+		res.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	if req.URL.Path != "/file" {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -129,6 +137,7 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func TestUpload(t *testing.T) {
 	id := "test-id"
+	apiKey := "test api key"
 	cases := []struct {
 		file   string
 		expect string
@@ -138,16 +147,16 @@ func TestUpload(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {
-			server := httptest.NewServer(newMockHandler(t, c.file, c.expect, id))
+			server := httptest.NewServer(newMockHandler(t, c.file, c.expect, id, authorization(apiKey)))
 			defer server.Close()
 
-			pd := New()
+			pd := New(apiKey)
 			pd.Stderr = io.Discard
 			u, err := url.Parse(server.URL)
 			if err != nil {
 				t.Fatal("Cannot parse a URL:", err)
 			}
-			pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+			pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 				Host:     u.Host,
 				BasePath: "/",
 				Schemes:  []string{"http"},

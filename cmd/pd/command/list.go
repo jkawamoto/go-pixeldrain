@@ -25,7 +25,7 @@ func CmdCreateList(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	id, err := pixeldrain.New().CreateList(
+	id, err := pixeldrain.New(c.String("api-key")).CreateList(
 		c.Context, c.String("title"), c.String("description"),
 		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -23,26 +22,27 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-openapi/runtime"
+
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
 
 type mockDownloadHandler struct {
-	ID   string
-	File string
-}
-
-func newMockDownloadHandler(id, file string) http.Handler {
-	return &mockDownloadHandler{
-		ID:   id,
-		File: file,
-	}
+	ID            string
+	File          string
+	Authorization string
 }
 
 func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set(ContentType, "application/json")
+	res.Header().Set(runtime.HeaderContentType, runtime.JSONMime)
 	if !strings.HasPrefix(req.URL.Path, "/file") {
 		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if req.Header.Get("Authorization") != m.Authorization {
+		res.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -78,6 +78,7 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 			}
 		}()
 
+		res.Header().Set(runtime.HeaderContentType, runtime.DefaultMime)
 		res.WriteHeader(http.StatusOK)
 		if _, err := io.Copy(res, fp); err != nil {
 			panic(err)
@@ -88,22 +89,26 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 func TestDownload(t *testing.T) {
 	id := "abcde"
 	filename := "./download.go"
+	apiKey := "test api key"
 
 	t.Run("stdout", func(t *testing.T) {
-		server := httptest.NewServer(newMockDownloadHandler(id, filename))
+		server := httptest.NewServer(&mockDownloadHandler{
+			ID:            id,
+			File:          filename,
+			Authorization: authorization(apiKey),
+		})
 		defer server.Close()
 
-		pd := New()
+		pd := New(apiKey)
 		u, err := url.Parse(server.URL)
 		if err != nil {
 			t.Fatal("Cannot parse a URL:", err)
 		}
-		pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+		pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 			Host:     u.Host,
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempFile("", "")
 		if err != nil {
@@ -116,7 +121,7 @@ func TestDownload(t *testing.T) {
 			}
 		}()
 
-		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), "")
+		err = pd.Download(context.Background(), pd.DownloadURL(id), "")
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
@@ -135,27 +140,30 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("dir", func(t *testing.T) {
-		server := httptest.NewServer(newMockDownloadHandler(id, filename))
+		server := httptest.NewServer(&mockDownloadHandler{
+			ID:            id,
+			File:          filename,
+			Authorization: authorization(apiKey),
+		})
 		defer server.Close()
 
-		pd := New()
+		pd := New(apiKey)
 		u, err := url.Parse(server.URL)
 		if err != nil {
 			t.Fatal("Cannot parse a URL:", err)
 		}
-		pd.Client = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
+		pd.cli = client.NewHTTPClientWithConfig(nil, &client.TransportConfig{
 			Host:     u.Host,
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempDir("", "")
 		if err != nil {
 			t.Fatal("Failed to create a temporal directory", err)
 		}
 
-		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), tmp)
+		err = pd.Download(context.Background(), pd.DownloadURL(id), tmp)
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
@@ -169,7 +177,7 @@ func TestDownload(t *testing.T) {
 			t.Fatal("Failed to read original filename:", err)
 		}
 		if string(received) != string(expected) {
-			t.Error("Downloaded filename is broken")
+			t.Error("Downloaded file is broken")
 		}
 	})
 }

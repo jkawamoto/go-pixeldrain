@@ -10,16 +10,13 @@ package pixeldrain
 
 import (
 	"context"
-	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/net/context/ctxhttp"
-	"gopkg.in/cheggaaa/pb.v1"
-
 	"github.com/hashicorp/go-multierror"
+	"gopkg.in/cheggaaa/pb.v1"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
@@ -27,13 +24,9 @@ import (
 func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	id := url[strings.LastIndex(url, "/")+1:]
 
-	info, err := pd.Client.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id))
+	info, err := pd.cli.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id), pd.authInfoWriter)
 	if err != nil {
-		var e ErrorResponse
-		if errors.As(err, &e) {
-			return NewAPIError(e)
-		}
-		return err
+		return NewError(err)
 	}
 
 	out := pd.Stdout
@@ -55,16 +48,10 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	res, err := ctxhttp.Get(ctx, nil, DownloadEndpoint+"/"+info.Payload.ID)
+	_, err = pd.cli.File.DownloadFile(
+		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), pd.authInfoWriter, io.MultiWriter(out, bar))
 	if err != nil {
-		return err
+		return NewError(err)
 	}
-	defer func() {
-		if e := res.Body.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}()
-
-	_, err = io.Copy(io.MultiWriter(out, bar), res.Body)
-	return err
+	return nil
 }

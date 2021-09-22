@@ -19,7 +19,13 @@ import (
 )
 
 // GlobalFlags manages global flags.
-var GlobalFlags []cli.Flag
+var GlobalFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "api-key",
+		Usage:   "an API `key`",
+		EnvVars: []string{"PIXELDRAIN_API_KEY"},
+	},
+}
 
 // Commands manage sub commands.
 var Commands = []*cli.Command{

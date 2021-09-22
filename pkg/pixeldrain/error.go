@@ -10,17 +10,30 @@ package pixeldrain
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/pkg/errors"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
 )
 
-// ErrorResponse is an interface a Swagger's error response has
-type ErrorResponse interface {
-	GetPayload() *models.StandardError
+type Error struct {
+	error
 }
 
-// NewAPIError converts the error response to an error.
-func NewAPIError(e ErrorResponse) error {
-	return errors.New("API error: " + swag.StringValue(e.GetPayload().Message))
+func NewError(err error) *Error {
+	if err == nil {
+		return nil
+	}
+	return &Error{error: err}
+}
+
+func (e Error) Error() string {
+	if p, ok := e.error.(interface {
+		GetPayload() *models.StandardError
+	}); ok {
+		return swag.StringValue(p.GetPayload().Message)
+	}
+	return e.error.Error()
+}
+
+func (e Error) Unwrap() error {
+	return e.error
 }

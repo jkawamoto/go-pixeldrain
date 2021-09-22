@@ -9,6 +9,8 @@
 package pixeldrain
 
 import (
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/go-openapi/swag"
@@ -16,46 +18,51 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
 )
 
-type errorResponse struct {
-	Err *models.StandardError
+type apiError struct {
+	err *models.StandardError
 }
 
-func (e *errorResponse) GetPayload() *models.StandardError {
-	return e.Err
+func newAPIError(e *models.StandardError) error {
+	return &apiError{err: e}
 }
 
-func TestNewAPIError(t *testing.T) {
+func (e *apiError) Error() string {
+	return "unexpected call"
+}
+
+func (e *apiError) GetPayload() *models.StandardError {
+	return e.err
+}
+
+func TestNewError(t *testing.T) {
+	sampleMsg := "this is a sample error message"
+
 	cases := []struct {
 		name   string
-		res    *errorResponse
+		err    error
 		expect string
 	}{
 		{
-			name: "error with a message",
-			res: &errorResponse{
-				Err: &models.StandardError{
-					Message: swag.String("a message"),
-				},
-			},
-			expect: "a message",
+			name: "API error",
+			err: newAPIError(&models.StandardError{
+				Message: swag.String(sampleMsg),
+			}),
+			expect: sampleMsg,
 		},
 		{
-			name: "error without a message",
-			res: &errorResponse{
-				Err: &models.StandardError{},
-			},
+			name:   "non API error",
+			err:    context.Canceled,
+			expect: context.Canceled.Error(),
 		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			err := NewAPIError(c.res)
-			if err == nil {
-				t.Fatal("expect a non nil error")
+			err := NewError(c.err)
+			if msg := err.Error(); msg != c.expect {
+				t.Errorf("expect %v, got %v", c.expect, msg)
 			}
-
-			expect := "API error: " + c.expect
-			if err.Error() != expect {
-				t.Errorf("expect %q, got %q", expect, err.Error())
+			if !errors.Is(err, c.err) {
+				t.Errorf("expect %v is a %v", c.err, err)
 			}
 		})
 	}

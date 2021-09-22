@@ -38,15 +38,13 @@ func CmdUpload(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	pd := pixeldrain.New()
+	pd := pixeldrain.New(c.String("api-key"))
 	if c.Args().First() == "-" {
 		id, err := pd.Upload(c.Context, &renamedFile{File: os.Stdin, name: c.String("name")})
 		if err != nil {
 			return cli.Exit(err, status.APIError)
 		}
-		if err := printID(id); err != nil {
-			return cli.Exit(err, status.IOError)
-		}
+		fmt.Println(pd.DownloadURL(id))
 		return nil
 	}
 
@@ -65,13 +63,6 @@ func CmdUpload(c *cli.Context) error {
 		return cli.Exit(err, status.APIError)
 	}
 
-	if err := printID(id); err != nil {
-		return cli.Exit(err, status.IOError)
-	}
+	fmt.Println(pd.DownloadURL(id))
 	return nil
-}
-
-func printID(id string) error {
-	_, err := fmt.Println(pixeldrain.DownloadEndpoint + "/" + id)
-	return err
 }

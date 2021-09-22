@@ -10,25 +10,24 @@ package pixeldrain
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/go-openapi/runtime"
 )
 
-const ContentType = "content-type"
-
 // roundTripper is a http.RoundTripper that forwards a request to the upstream and fixes content type header of the
 // corresponding response.
 type roundTripper struct {
-	upstream http.RoundTripper
+	upstream    http.RoundTripper
+	contentType string
 }
 
 var _ http.RoundTripper = (*roundTripper)(nil)
 
-// newRoundTripper creates a roundTripper which wraps a given roundTripper.
-func newRoundTripper(upstream http.RoundTripper) *roundTripper {
+// newRoundTripper creates a roundTripper which wraps a given roundTripper and overwrites the content types of responses.
+func newRoundTripper(upstream http.RoundTripper, contentType string) *roundTripper {
 	return &roundTripper{
-		upstream: upstream,
+		upstream:    upstream,
+		contentType: contentType,
 	}
 }
 
@@ -39,10 +38,9 @@ func (t *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	if strings.HasPrefix(res.Header.Get(ContentType), "text/plain") {
-		res.Header.Set(ContentType, "application/json")
+	if res.StatusCode < 300 {
+		res.Header.Set(runtime.HeaderContentType, t.contentType)
 	}
-
 	return res, nil
 }
 
@@ -65,6 +63,6 @@ func (t *transport) Submit(op *runtime.ClientOperation) (interface{}, error) {
 			Transport: http.DefaultTransport,
 		}
 	}
-	op.Client.Transport = newRoundTripper(op.Client.Transport)
+	op.Client.Transport = newRoundTripper(op.Client.Transport, op.ProducesMediaTypes[0])
 	return t.upstream.Submit(op)
 }
