@@ -16,10 +16,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/net/context/ctxhttp"
-	"gopkg.in/cheggaaa/pb.v1"
-
 	"github.com/hashicorp/go-multierror"
+	"gopkg.in/cheggaaa/pb.v1"
 
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
 )
@@ -55,16 +53,7 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	res, err := ctxhttp.Get(ctx, nil, DownloadEndpoint+"/"+info.Payload.ID)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if e := res.Body.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}()
-
-	_, err = io.Copy(io.MultiWriter(out, bar), res.Body)
+	_, err = pd.Client.File.DownloadFile(
+		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), nil, io.MultiWriter(out, bar))
 	return err
 }

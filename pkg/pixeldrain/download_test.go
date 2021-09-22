@@ -12,7 +12,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -80,6 +79,7 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 			}
 		}()
 
+		res.Header().Set(runtime.HeaderContentType, runtime.DefaultMime)
 		res.WriteHeader(http.StatusOK)
 		if _, err := io.Copy(res, fp); err != nil {
 			panic(err)
@@ -105,7 +105,6 @@ func TestDownload(t *testing.T) {
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempFile("", "")
 		if err != nil {
@@ -118,7 +117,7 @@ func TestDownload(t *testing.T) {
 			}
 		}()
 
-		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), "")
+		err = pd.Download(context.Background(), DownloadEndpoint+"/"+id, "")
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
@@ -150,14 +149,13 @@ func TestDownload(t *testing.T) {
 			BasePath: "/",
 			Schemes:  []string{"http"},
 		})
-		setDownloadEndpoint(t, "http://"+u.Host+"/file")
 
 		tmp, err := ioutil.TempDir("", "")
 		if err != nil {
 			t.Fatal("Failed to create a temporal directory", err)
 		}
 
-		err = pd.Download(context.Background(), fmt.Sprint(DownloadEndpoint, id), tmp)
+		err = pd.Download(context.Background(), DownloadEndpoint+"/"+id, tmp)
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}

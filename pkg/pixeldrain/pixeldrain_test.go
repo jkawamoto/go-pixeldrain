@@ -15,15 +15,6 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
-func setDownloadEndpoint(t *testing.T, u string) {
-	t.Helper()
-	old := DownloadEndpoint
-	DownloadEndpoint = u
-	t.Cleanup(func() {
-		DownloadEndpoint = old
-	})
-}
-
 func TestNew(t *testing.T) {
 	pd := New()
 	if pd.Client != client.Default {
