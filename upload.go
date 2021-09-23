@@ -18,13 +18,15 @@ import (
 	"github.com/go-openapi/swag"
 	"gopkg.in/cheggaaa/pb.v1"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
-// File is the interface the uploading file needs to implement.
+// File is the interface the uploading file needs to implement. os.File implements this interface.
 type File interface {
 	io.Reader
+	// Name returns the name of this file.
 	Name() string
+	// Stat returns os.FileInfo of this file.
 	Stat() (os.FileInfo, error)
 }
 

@@ -16,16 +16,21 @@ import (
 	"github.com/go-openapi/runtime"
 	auth "github.com/go-openapi/runtime/client"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client"
 )
 
+// Pixeldrain is a Pixeldrain API client.
 type Pixeldrain struct {
+	// Stdout is used to output downloaded files.
+	Stdout io.Writer
+	// Stderr is used to render progress bars. If you want to disable progress bars, set io.Discard.
+	Stderr io.Writer
+
 	cli            *client.PixeldrainAPI
 	authInfoWriter runtime.ClientAuthInfoWriter
-	Stdout         io.Writer
-	Stderr         io.Writer
 }
 
+// New creates a Pixeldrain API client that uses the given API key. The key can be an empty string.
 func New(apiKey string) *Pixeldrain {
 	cli := client.Default
 	cli.SetTransport(newTransport(cli.Transport))
@@ -41,6 +46,12 @@ func New(apiKey string) *Pixeldrain {
 	return res
 }
 
+// DownloadURL returns the URL associated with the given file ID.
 func (Pixeldrain) DownloadURL(id string) string {
 	return "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)
+}
+
+// ListURL returns the URL associated with the given list ID.
+func (Pixeldrain) ListURL(id string) string {
+	return "https://" + path.Join(client.DefaultHost, "l", id)
 }

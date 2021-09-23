@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 // DownloadFileReader is a Reader for the DownloadFile structure.

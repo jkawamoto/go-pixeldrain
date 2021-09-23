@@ -12,7 +12,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
 )
 
 // CreateList sends a list creation request with the given title, description, and items.

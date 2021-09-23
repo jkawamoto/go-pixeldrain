@@ -24,8 +24,8 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
 type mockDownloadHandler struct {

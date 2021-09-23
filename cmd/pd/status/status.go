@@ -6,6 +6,7 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
+// Package status defines status codes pd command returns.
 package status
 
 const (

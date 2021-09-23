@@ -21,9 +21,9 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 type mockListServer struct {

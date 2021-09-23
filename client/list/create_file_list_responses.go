@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 // CreateFileListReader is a Reader for the CreateFileList structure.
