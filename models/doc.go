@@ -6,7 +6,5 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-// Package pixeldrain provides a Pixeldrain client.
-package pixeldrain
-
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0
+// Package models contains auto generated structures used in the open API client for Pixeldrain.
+package models

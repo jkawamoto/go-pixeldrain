@@ -12,20 +12,21 @@ import (
 	"context"
 	"strings"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
 )
 
 // CreateList sends a list creation request with the given title, description, and items.
 func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (string, error) {
-	res, err := pd.Client.List.CreateFileList(list.NewCreateFileListParamsWithContext(ctx).WithList(
-		list.CreateFileListBody{
+	res, err := pd.cli.List.CreateFileList(
+		list.NewCreateFileListParamsWithContext(ctx).WithList(list.CreateFileListBody{
 			Title:       &title,
 			Description: description,
 			Files:       parseListItems(items),
-		},
-	))
+		}),
+		pd.authInfoWriter,
+	)
 	if err != nil {
-		return "", err
+		return "", NewError(err)
 	}
 
 	return res.Payload.ID, nil

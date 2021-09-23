@@ -9,16 +9,12 @@
 package command
 
 import (
-	"context"
 	"fmt"
-	"path"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
+	"github.com/jkawamoto/go-pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
-
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
 )
 
 func CmdCreateList(c *cli.Context) error {
@@ -27,13 +23,16 @@ func CmdCreateList(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	id, err := pixeldrain.New().CreateList(
-		context.Background(), c.String("title"), c.String("description"),
+	pd := pixeldrain.New(c.String("api-key"))
+	id, err := pd.CreateList(
+		c.Context, c.String("title"), c.String("description"),
 		append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
-		return cli.NewExitError(err, status.APIError)
+		return cli.Exit(err, status.APIError)
 	}
 
-	_, _ = fmt.Printf("https://%v\n", path.Join(client.DefaultHost, "l", id))
+	if _, err := fmt.Println(pd.ListURL(id)); err != nil {
+		return cli.Exit(err, status.IOError)
+	}
 	return nil
 }

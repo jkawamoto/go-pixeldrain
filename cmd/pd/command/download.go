@@ -9,14 +9,12 @@
 package command
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
+	"github.com/jkawamoto/go-pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
-
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 )
 
 func CmdDownload(c *cli.Context) error {
@@ -28,9 +26,9 @@ func CmdDownload(c *cli.Context) error {
 	url := c.Args().First()
 	dir := c.String("output")
 
-	err := pixeldrain.New().Download(context.Background(), url, dir)
+	err := pixeldrain.New(c.String("api-key")).Download(c.Context, url, dir)
 	if err != nil {
-		return cli.NewExitError(err, status.APIError)
+		return cli.Exit(err, status.APIError)
 	}
 
 	return nil

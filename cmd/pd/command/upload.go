@@ -9,17 +9,28 @@
 package command
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
+	"github.com/jkawamoto/go-pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 )
+
+type renamedFile struct {
+	*os.File
+	name string
+}
+
+func (f *renamedFile) Name() string {
+	if f.name != "" {
+		return f.name
+	}
+	return f.File.Name()
+}
 
 func CmdUpload(c *cli.Context) error {
 	if c.NArg() != 1 {
@@ -27,20 +38,19 @@ func CmdUpload(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	pd := pixeldrain.New()
-	ctx := context.Background()
+	pd := pixeldrain.New(c.String("api-key"))
 	if c.Args().First() == "-" {
-		id, err := pd.UploadRaw(ctx, os.Stdin, c.String("name"))
+		id, err := pd.Upload(c.Context, &renamedFile{File: os.Stdin, name: c.String("name")})
 		if err != nil {
-			return cli.NewExitError(err, status.APIError)
+			return cli.Exit(err, status.APIError)
 		}
-		printID(id)
+		fmt.Println(pd.DownloadURL(id))
 		return nil
 	}
 
 	fp, err := os.Open(c.Args().First())
 	if err != nil {
-		return cli.NewExitError(err, status.InvalidArgument)
+		return cli.Exit(err, status.InvalidArgument)
 	}
 	defer func() {
 		if e := fp.Close(); e != nil && !errors.Is(err, os.ErrClosed) {
@@ -48,15 +58,11 @@ func CmdUpload(c *cli.Context) error {
 		}
 	}()
 
-	id, err := pd.Upload(ctx, fp, c.String("name"))
+	id, err := pd.Upload(c.Context, &renamedFile{File: fp, name: c.String("name")})
 	if err != nil {
-		return cli.NewExitError(err, status.APIError)
+		return cli.Exit(err, status.APIError)
 	}
 
-	printID(id)
+	fmt.Println(pd.DownloadURL(id))
 	return nil
-}
-
-func printID(id string) {
-	_, _ = fmt.Println(pixeldrain.DownloadEndpoint + "/" + id)
 }

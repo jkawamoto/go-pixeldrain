@@ -6,6 +6,7 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
+// Package status defines status codes pd command returns.
 package status
 
 const (
@@ -15,4 +16,6 @@ const (
 	InvalidArgument
 	// APIError is the exit code if an API request fails.
 	APIError
+	// IOError is the exit code if an IO error happens.
+	IOError
 )

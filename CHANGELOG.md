@@ -1,3 +1,7 @@
+## 0.5.0 (2021-09-22)
+### Update
+- support authentication
+
 ## 0.4.2 (2021-09-19)
 ### Fixed
 - download endpoint URL

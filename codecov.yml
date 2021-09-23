@@ -16,5 +16,5 @@ comment:
   behavior: default
   require_changes: false
 ignore:
-  - "pkg/pixeldrain/client/**/*"
-  - "pkg/pixeldrain/models/**/*"
+  - "client/**/*"
+  - "models/**/*"
