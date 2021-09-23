@@ -10,8 +10,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
 )
 
 // Default pixeldrain API HTTP client.

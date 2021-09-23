@@ -16,8 +16,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/urfave/cli/v2"
 
+	"github.com/jkawamoto/go-pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain"
 )
 
 type renamedFile struct {

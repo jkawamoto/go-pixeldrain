@@ -11,13 +11,15 @@ package pixeldrain
 import (
 	"github.com/go-openapi/swag"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
+// Error wraps an error to return a more readable error message.
 type Error struct {
 	error
 }
 
+// NewError returns *Error that wraps the given error. If err is nil, it returns nil.
 func NewError(err error) *Error {
 	if err == nil {
 		return nil
@@ -25,6 +27,7 @@ func NewError(err error) *Error {
 	return &Error{error: err}
 }
 
+// Error returns a string that represents this error.
 func (e Error) Error() string {
 	if p, ok := e.error.(interface {
 		GetPayload() *models.StandardError
@@ -34,6 +37,7 @@ func (e Error) Error() string {
 	return e.error.Error()
 }
 
+// Unwrap returns the original error.
 func (e Error) Unwrap() error {
 	return e.error
 }

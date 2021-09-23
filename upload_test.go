@@ -25,9 +25,9 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/models"
+	"github.com/jkawamoto/go-pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 const (
@@ -143,7 +143,7 @@ func TestUpload(t *testing.T) {
 		expect string
 	}{
 		{file: TestFileName, expect: TestFileName},
-		{file: "../../cmd/pd/command/upload.go", expect: TestFileName},
+		{file: "./cmd/pd/command/upload.go", expect: TestFileName},
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%+v", c), func(t *testing.T) {

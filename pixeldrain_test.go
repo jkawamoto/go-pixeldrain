@@ -16,7 +16,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client"
+	"github.com/jkawamoto/go-pixeldrain/client"
 )
 
 func authorization(apiKey string) string {
@@ -80,6 +80,16 @@ func TestPixeldrain_DownloadURL(t *testing.T) {
 
 	pd := &Pixeldrain{}
 	if res := pd.DownloadURL(id); res != expect {
+		t.Errorf("expect %v, got %v", expect, res)
+	}
+}
+
+func TestPixeldrain_ListURL(t *testing.T) {
+	id := "test-id"
+	expect := "https://" + path.Join(client.DefaultHost, "l", id)
+
+	pd := &Pixeldrain{}
+	if res := pd.ListURL(id); res != expect {
 		t.Errorf("expect %v, got %v", expect, res)
 	}
 }

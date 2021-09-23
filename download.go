@@ -18,9 +18,11 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"gopkg.in/cheggaaa/pb.v1"
 
-	"github.com/jkawamoto/go-pixeldrain/pkg/pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
+// Download the file associated with the given url or file ID. If dir is given, the downloaded file is stored into
+// the directory. Otherwise, it is written in pd.Stdout.
 func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	id := url[strings.LastIndex(url, "/")+1:]
 

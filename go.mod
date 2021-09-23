@@ -9,9 +9,7 @@ require (
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.2
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/net v0.0.0-20210421230115-4e50805a0758
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 )
 
@@ -38,6 +36,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	go.mongodb.org/mongo-driver v1.7.2 // indirect
+	golang.org/x/net v0.0.0-20210421230115-4e50805a0758 // indirect
 	golang.org/x/sys v0.0.0-20210420072515-93ed5bcd2bfe // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
