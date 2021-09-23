@@ -14,9 +14,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
-	"gopkg.in/cheggaaa/pb.v1"
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
@@ -39,8 +39,10 @@ func (pd *Pixeldrain) Upload(ctx context.Context, f File) (string, error) {
 		return "", err
 	}
 
-	bar := pb.New(int(info.Size())).SetUnits(pb.U_BYTES).Prefix(name)
-	bar.Output = pd.Stderr
+	bar := pb.New(int(info.Size()))
+	bar.Set(pb.SIBytesPrefix, true)
+	bar.Set("prefix", name+" ")
+	bar.SetWriter(pd.Stderr)
 	bar.Start()
 	defer bar.Finish()
 

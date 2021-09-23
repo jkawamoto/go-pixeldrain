@@ -10,13 +10,12 @@ package pixeldrain
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/hashicorp/go-multierror"
-	"gopkg.in/cheggaaa/pb.v1"
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
@@ -45,13 +44,15 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 		out = fp
 	}
 
-	bar := pb.New(int(info.Payload.Size)).SetUnits(pb.U_BYTES).Prefix(info.Payload.Name)
-	bar.Output = pd.Stderr
+	bar := pb.New64(info.Payload.Size)
+	bar.Set(pb.SIBytesPrefix, true)
+	bar.Set("prefix", info.Payload.Name+" ")
+	bar.SetWriter(pd.Stderr)
 	bar.Start()
 	defer bar.Finish()
 
 	_, err = pd.cli.File.DownloadFile(
-		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), pd.authInfoWriter, io.MultiWriter(out, bar))
+		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), pd.authInfoWriter, bar.NewProxyWriter(out))
 	if err != nil {
 		return NewError(err)
 	}
