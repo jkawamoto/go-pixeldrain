@@ -28,7 +28,6 @@ import (
 
 type mockListServer struct {
 	ID            string
-	Description   string
 	Title         string
 	Files         []*list.CreateFileListParamsBodyFilesItems0
 	Authorization string
@@ -75,7 +74,6 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	m.Description = body.Description
 	m.Title = *body.Title
 	m.Files = body.Files
 
@@ -109,9 +107,8 @@ func TestCreateList(t *testing.T) {
 	})
 
 	title := "sample-title"
-	description := "sample-description"
 	files := []string{"file1:file1.txt", "file2:file2.dat"}
-	id, err := pd.CreateList(context.Background(), title, description, files)
+	id, err := pd.CreateList(context.Background(), title, files)
 	if err != nil {
 		t.Fatal("CreateList returned an error:", err)
 	}
@@ -123,7 +120,8 @@ func TestCreateList(t *testing.T) {
 		t.Errorf("the mock server received %v items but sent %v items", len(mock.Files), len(files))
 	} else {
 		for i, f := range parseListItems(files) {
-			if item := mock.Files[i]; item.ID != f.ID || item.Description != f.Description {
+			item := mock.Files[i]
+			if swag.StringValue(item.ID) != swag.StringValue(f.ID) || item.Description != f.Description {
 				t.Errorf("item %v was %+v but expected %+v", i, item, f)
 			}
 		}
@@ -138,27 +136,27 @@ func TestParseListItems(t *testing.T) {
 		{
 			Input: []string{"ID"},
 			Expected: []*list.CreateFileListParamsBodyFilesItems0{
-				{ID: "ID"},
+				{ID: swag.String("ID")},
 			},
 		},
 		{
 			Input: []string{"ID:description"},
 			Expected: []*list.CreateFileListParamsBodyFilesItems0{
-				{ID: "ID", Description: "description"},
+				{ID: swag.String("ID"), Description: "description"},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2"},
 			Expected: []*list.CreateFileListParamsBodyFilesItems0{
-				{ID: "ID", Description: "description"},
-				{ID: "id2"},
+				{ID: swag.String("ID"), Description: "description"},
+				{ID: swag.String("id2")},
 			},
 		},
 		{
 			Input: []string{"ID:description", "id2:desc2"},
 			Expected: []*list.CreateFileListParamsBodyFilesItems0{
-				{ID: "ID", Description: "description"},
-				{ID: "id2", Description: "desc2"},
+				{ID: swag.String("ID"), Description: "description"},
+				{ID: swag.String("id2"), Description: "desc2"},
 			},
 		},
 	}
@@ -170,7 +168,7 @@ func TestParseListItems(t *testing.T) {
 				t.Errorf("got %v items but want %v", len(res), len(c.Expected))
 			} else {
 				for j, e := range c.Expected {
-					if res[j].ID != e.ID || res[j].Description != e.Description {
+					if swag.StringValue(res[j].ID) != swag.StringValue(e.ID) || res[j].Description != e.Description {
 						t.Errorf("item %v: %+v but want ID = %v, Description = %q", j, res[j], e.ID, e.Description)
 					}
 				}

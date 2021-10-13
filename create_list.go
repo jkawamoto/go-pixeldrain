@@ -12,16 +12,17 @@ import (
 	"context"
 	"strings"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/jkawamoto/go-pixeldrain/client/list"
 )
 
-// CreateList sends a list creation request with the given title, description, and items.
-func (pd *Pixeldrain) CreateList(ctx context.Context, title, description string, items []string) (string, error) {
+// CreateList sends a list creation request with the given title and items.
+func (pd *Pixeldrain) CreateList(ctx context.Context, title string, items []string) (string, error) {
 	res, err := pd.cli.List.CreateFileList(
 		list.NewCreateFileListParamsWithContext(ctx).WithList(list.CreateFileListBody{
-			Title:       &title,
-			Description: description,
-			Files:       parseListItems(items),
+			Title: &title,
+			Files: parseListItems(items),
 		}),
 		pd.authInfoWriter,
 	)
@@ -38,7 +39,7 @@ func parseListItems(values []string) []*list.CreateFileListParamsBodyFilesItems0
 	for i, v := range values {
 		c := strings.SplitN(v, ":", 2)
 		item := &list.CreateFileListParamsBodyFilesItems0{
-			ID: c[0],
+			ID: swag.String(c[0]),
 		}
 		if len(c) != 1 {
 			item.Description = c[1]

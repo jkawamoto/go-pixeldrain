@@ -25,8 +25,7 @@ func CmdCreateList(c *cli.Context) error {
 
 	pd := pixeldrain.New(c.String("api-key"))
 	id, err := pd.CreateList(
-		c.Context, c.String("title"), c.String("description"),
-		append([]string{c.Args().First()}, c.Args().Tail()...))
+		c.Context, c.String("title"), append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}

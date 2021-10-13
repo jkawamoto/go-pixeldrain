@@ -23,9 +23,11 @@ import (
 	"testing"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
+
+	"github.com/jkawamoto/go-pixeldrain/models"
 
 	"github.com/jkawamoto/go-pixeldrain/client"
-	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
 type mockDownloadHandler struct {
@@ -58,11 +60,10 @@ func (m *mockDownloadHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 			return
 		}
 		res.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(res).Encode(&file.GetFileInfoOKBody{
-			Success: true,
-			ID:      m.ID,
-			Name:    m.File,
-			Size:    info.Size(),
+		if err := json.NewEncoder(res).Encode(&models.FileInfo{
+			ID:   swag.String(m.ID),
+			Name: m.File,
+			Size: info.Size(),
 		}); err != nil {
 			panic(err)
 		}
