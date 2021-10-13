@@ -67,10 +67,6 @@ var Commands = []*cli.Command{
 				Aliases: []string{"t"},
 				Usage:   "specify the `TITLE` of this list",
 			},
-			&cli.StringFlag{
-				Name:  "description",
-				Usage: "specify the description of this list",
-			},
 		},
 	},
 }

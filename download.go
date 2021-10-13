@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/cheggaaa/pb/v3"
+	"github.com/go-openapi/swag"
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
@@ -52,7 +53,10 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 	defer bar.Finish()
 
 	_, err = pd.cli.File.DownloadFile(
-		file.NewDownloadFileParamsWithContext(ctx).WithID(info.Payload.ID), pd.authInfoWriter, bar.NewProxyWriter(out))
+		file.NewDownloadFileParamsWithContext(ctx).WithID(swag.StringValue(info.Payload.ID)),
+		pd.authInfoWriter,
+		bar.NewProxyWriter(out),
+	)
 	if err != nil {
 		return NewError(err)
 	}

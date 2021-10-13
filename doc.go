@@ -14,4 +14,4 @@
 // The client provides Upload and Download functions. See each example for more information.
 package pixeldrain
 
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0 generate client -f https://raw.githubusercontent.com/jkawamoto/pixeldrain-swagger/master/swagger.yaml -t .
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.28.0 generate client -f https://raw.githubusercontent.com/jkawamoto/pixeldrain-swagger/master/swagger.yaml -t .

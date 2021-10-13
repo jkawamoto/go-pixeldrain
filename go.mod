@@ -5,10 +5,10 @@ go 1.17
 require (
 	github.com/cheggaaa/pb/v3 v3.0.8
 	github.com/go-openapi/errors v0.20.1
-	github.com/go-openapi/runtime v0.19.32-0.20210909040302-2bc043c8ba8a
-	github.com/go-openapi/strfmt v0.20.2
+	github.com/go-openapi/runtime v0.20.0
+	github.com/go-openapi/strfmt v0.20.3
 	github.com/go-openapi/swag v0.19.15
-	github.com/go-openapi/validate v0.20.2
+	github.com/go-openapi/validate v0.20.3
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/urfave/cli/v2 v2.3.0
 )
