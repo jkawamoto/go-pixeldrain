@@ -128,7 +128,7 @@ type GetFileListOKBody struct {
 	DateCreqated float64 `json:"date_creqated,omitempty"`
 
 	// files
-	Files []*GetFileListOKBodyFilesItems0 `json:"files"`
+	Files []*models.FileInfo `json:"files"`
 
 	// id
 	// Example: L8bhwx
@@ -171,6 +171,8 @@ func (o *GetFileListOKBody) validateFiles(formats strfmt.Registry) error {
 			if err := o.Files[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -203,6 +205,8 @@ func (o *GetFileListOKBody) contextValidateFiles(ctx context.Context, formats st
 			if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -224,66 +228,6 @@ func (o *GetFileListOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFileListOKBody) UnmarshalBinary(b []byte) error {
 	var res GetFileListOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetFileListOKBodyFilesItems0 get file list o k body files items0
-swagger:model GetFileListOKBodyFilesItems0
-*/
-type GetFileListOKBodyFilesItems0 struct {
-
-	// date created
-	// Example: 1513033304
-	DateCreated float64 `json:"date_created,omitempty"`
-
-	// date last view
-	// Example: 1513033304
-	DateLastView float64 `json:"date_last_view,omitempty"`
-
-	// description
-	Description string `json:"description,omitempty"`
-
-	// detail href
-	// Example: /file/_SqVWi/info
-	DetailHref string `json:"detail_href,omitempty"`
-
-	// file name
-	// Example: 01 Holy Wars... The Punishment Due.mp3
-	FileName string `json:"file_name,omitempty"`
-
-	// id
-	// Example: _SqVWi
-	ID string `json:"id,omitempty"`
-
-	// list description
-	ListDescription string `json:"list_description,omitempty"`
-}
-
-// Validate validates this get file list o k body files items0
-func (o *GetFileListOKBodyFilesItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get file list o k body files items0 based on context it is used
-func (o *GetFileListOKBodyFilesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetFileListOKBodyFilesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetFileListOKBodyFilesItems0) UnmarshalBinary(b []byte) error {
-	var res GetFileListOKBodyFilesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

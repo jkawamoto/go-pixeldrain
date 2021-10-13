@@ -124,9 +124,9 @@ swagger:model CreateFileListBody
 */
 type CreateFileListBody struct {
 
-	// Description of the list.
-	// Example: An album of photos from my vacation in Austria
-	Description string `json:"description,omitempty"`
+	// If true this list will not be linked to your user account.
+	// Example: true
+	Anonymous *bool `json:"anonymous,omitempty"`
 
 	// Ordered array of files to add to the list
 	// Example: [{"description":"First photo of the week, such a beautiful valley","id":"abc123"},{"description":"The week went by so quickly, here's a photo from the plane back","id":"123abc"}]
@@ -135,8 +135,7 @@ type CreateFileListBody struct {
 
 	// Title of the list.
 	// Example: My beautiful photos
-	// Required: true
-	Title *string `json:"title"`
+	Title *string `json:"title,omitempty"`
 }
 
 // Validate validates this create file list body
@@ -144,10 +143,6 @@ func (o *CreateFileListBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateFiles(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTitle(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -172,20 +167,13 @@ func (o *CreateFileListBody) validateFiles(formats strfmt.Registry) error {
 			if err := o.Files[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (o *CreateFileListBody) validateTitle(formats strfmt.Registry) error {
-
-	if err := validate.Required("list"+"."+"title", "body", o.Title); err != nil {
-		return err
 	}
 
 	return nil
@@ -213,6 +201,8 @@ func (o *CreateFileListBody) contextValidateFiles(ctx context.Context, formats s
 			if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -294,11 +284,30 @@ type CreateFileListParamsBodyFilesItems0 struct {
 
 	// ID of the file
 	// Example: abc123
-	ID string `json:"id,omitempty"`
+	// Required: true
+	ID *string `json:"id"`
 }
 
 // Validate validates this create file list params body files items0
 func (o *CreateFileListParamsBodyFilesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateFileListParamsBodyFilesItems0) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("id", "body", o.ID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
