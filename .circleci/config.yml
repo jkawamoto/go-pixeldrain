@@ -1,12 +1,13 @@
 version: "2.1"
 orbs:
   go: circleci/go@1.7.0
-  codecov: codecov/codecov@3.0.0
+  codecov: codecov/codecov@3.2.2
 jobs:
   test:
     executor:
       name: go/default
       tag: "1.17"
+    resource_class: medium
     steps:
       - checkout
       - go/mod-download-cached
@@ -20,13 +21,16 @@ jobs:
     executor:
       name: go/default
       tag: "1.17"
+    resource_class: medium
     steps:
       - checkout
       - run:
           name: Release
           command: bash <(curl -sL https://git.io/goreleaser) release
   tag:
-    machine: true
+    machine:
+      image: ubuntu-2004:202111-02
+    resource_class: medium
     steps:
       - checkout
       - run:
