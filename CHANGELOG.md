@@ -1,3 +1,10 @@
+## 0.5.1 (2022-03-15)
+### Update
+- dependencies
+
+### Fixed
+- homebrew formula
+
 ## 0.5.0 (2021-09-22)
 ### Update
 - support authentication
