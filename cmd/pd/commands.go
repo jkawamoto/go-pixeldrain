@@ -1,6 +1,6 @@
 // commands.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -21,9 +21,10 @@ import (
 // GlobalFlags manages global flags.
 var GlobalFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:    "api-key",
-		Usage:   "an API `key`",
-		EnvVars: []string{"PIXELDRAIN_API_KEY"},
+		Name:        "api-key",
+		Usage:       "an API `key`",
+		EnvVars:     []string{"PIXELDRAIN_API_KEY"},
+		DefaultText: "empty",
 	},
 }
 
