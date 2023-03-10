@@ -36,9 +36,9 @@ type ClientService interface {
 }
 
 /*
-  ListFileLists returns file lists
+ListFileLists returns file lists
 
-  Returns file lists.
+Returns file lists.
 */
 func (a *Client) ListFileLists(params *ListFileListsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*ListFileListsOK, error) {
 	// TODO: Validate the params before sending
@@ -76,9 +76,9 @@ func (a *Client) ListFileLists(params *ListFileListsParams, authInfo runtime.Cli
 }
 
 /*
-  ListFiles returns a list of uploaded files
+ListFiles returns a list of uploaded files
 
-  Returns a list of uploaded files..
+Returns a list of uploaded files..
 */
 func (a *Client) ListFiles(params *ListFilesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*ListFilesOK, error) {
 	// TODO: Validate the params before sending

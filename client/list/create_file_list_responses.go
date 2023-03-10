@@ -51,7 +51,8 @@ func NewCreateFileListCreated() *CreateFileListCreated {
 	return &CreateFileListCreated{}
 }
 
-/* CreateFileListCreated describes a response with status code 201, with default header values.
+/*
+CreateFileListCreated describes a response with status code 201, with default header values.
 
 List is created
 */
@@ -59,9 +60,44 @@ type CreateFileListCreated struct {
 	Payload *CreateFileListCreatedBody
 }
 
+// IsSuccess returns true when this create file list created response has a 2xx status code
+func (o *CreateFileListCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create file list created response has a 3xx status code
+func (o *CreateFileListCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create file list created response has a 4xx status code
+func (o *CreateFileListCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create file list created response has a 5xx status code
+func (o *CreateFileListCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create file list created response a status code equal to that given
+func (o *CreateFileListCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the create file list created response
+func (o *CreateFileListCreated) Code() int {
+	return 201
+}
+
 func (o *CreateFileListCreated) Error() string {
 	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreateFileListCreated) String() string {
+	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreateFileListCreated) GetPayload() *CreateFileListCreatedBody {
 	return o.Payload
 }
@@ -85,7 +121,8 @@ func NewCreateFileListDefault(code int) *CreateFileListDefault {
 	}
 }
 
-/* CreateFileListDefault describes a response with status code -1, with default header values.
+/*
+CreateFileListDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -93,6 +130,31 @@ type CreateFileListDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this create file list default response has a 2xx status code
+func (o *CreateFileListDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create file list default response has a 3xx status code
+func (o *CreateFileListDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create file list default response has a 4xx status code
+func (o *CreateFileListDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create file list default response has a 5xx status code
+func (o *CreateFileListDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create file list default response a status code equal to that given
+func (o *CreateFileListDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the create file list default response
@@ -103,6 +165,11 @@ func (o *CreateFileListDefault) Code() int {
 func (o *CreateFileListDefault) Error() string {
 	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *CreateFileListDefault) String() string {
+	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *CreateFileListDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }
@@ -119,7 +186,8 @@ func (o *CreateFileListDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*CreateFileListBody create file list body
+/*
+CreateFileListBody create file list body
 swagger:model CreateFileListBody
 */
 type CreateFileListBody struct {
@@ -231,7 +299,8 @@ func (o *CreateFileListBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateFileListCreatedBody create file list created body
+/*
+CreateFileListCreatedBody create file list created body
 swagger:model CreateFileListCreatedBody
 */
 type CreateFileListCreatedBody struct {
@@ -273,7 +342,8 @@ func (o *CreateFileListCreatedBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateFileListParamsBodyFilesItems0 create file list params body files items0
+/*
+CreateFileListParamsBodyFilesItems0 create file list params body files items0
 swagger:model CreateFileListParamsBodyFilesItems0
 */
 type CreateFileListParamsBodyFilesItems0 struct {

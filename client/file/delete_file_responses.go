@@ -48,7 +48,8 @@ func NewDeleteFileOK() *DeleteFileOK {
 	return &DeleteFileOK{}
 }
 
-/* DeleteFileOK describes a response with status code 200, with default header values.
+/*
+DeleteFileOK describes a response with status code 200, with default header values.
 
 OK
 */
@@ -56,9 +57,44 @@ type DeleteFileOK struct {
 	Payload *DeleteFileOKBody
 }
 
+// IsSuccess returns true when this delete file o k response has a 2xx status code
+func (o *DeleteFileOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete file o k response has a 3xx status code
+func (o *DeleteFileOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete file o k response has a 4xx status code
+func (o *DeleteFileOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete file o k response has a 5xx status code
+func (o *DeleteFileOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete file o k response a status code equal to that given
+func (o *DeleteFileOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the delete file o k response
+func (o *DeleteFileOK) Code() int {
+	return 200
+}
+
 func (o *DeleteFileOK) Error() string {
 	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK  %+v", 200, o.Payload)
 }
+
+func (o *DeleteFileOK) String() string {
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK  %+v", 200, o.Payload)
+}
+
 func (o *DeleteFileOK) GetPayload() *DeleteFileOKBody {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewDeleteFileDefault(code int) *DeleteFileDefault {
 	}
 }
 
-/* DeleteFileDefault describes a response with status code -1, with default header values.
+/*
+DeleteFileDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -90,6 +127,31 @@ type DeleteFileDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this delete file default response has a 2xx status code
+func (o *DeleteFileDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this delete file default response has a 3xx status code
+func (o *DeleteFileDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this delete file default response has a 4xx status code
+func (o *DeleteFileDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this delete file default response has a 5xx status code
+func (o *DeleteFileDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this delete file default response a status code equal to that given
+func (o *DeleteFileDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the delete file default response
@@ -100,6 +162,11 @@ func (o *DeleteFileDefault) Code() int {
 func (o *DeleteFileDefault) Error() string {
 	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *DeleteFileDefault) String() string {
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *DeleteFileDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }
@@ -116,7 +183,8 @@ func (o *DeleteFileDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*DeleteFileOKBody delete file o k body
+/*
+DeleteFileOKBody delete file o k body
 swagger:model DeleteFileOKBody
 */
 type DeleteFileOKBody struct {

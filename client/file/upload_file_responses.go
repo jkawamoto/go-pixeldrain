@@ -48,7 +48,8 @@ func NewUploadFileCreated() *UploadFileCreated {
 	return &UploadFileCreated{}
 }
 
-/* UploadFileCreated describes a response with status code 201, with default header values.
+/*
+UploadFileCreated describes a response with status code 201, with default header values.
 
 File is uploaded
 */
@@ -56,9 +57,44 @@ type UploadFileCreated struct {
 	Payload *UploadFileCreatedBody
 }
 
+// IsSuccess returns true when this upload file created response has a 2xx status code
+func (o *UploadFileCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this upload file created response has a 3xx status code
+func (o *UploadFileCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this upload file created response has a 4xx status code
+func (o *UploadFileCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this upload file created response has a 5xx status code
+func (o *UploadFileCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this upload file created response a status code equal to that given
+func (o *UploadFileCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the upload file created response
+func (o *UploadFileCreated) Code() int {
+	return 201
+}
+
 func (o *UploadFileCreated) Error() string {
 	return fmt.Sprintf("[POST /file][%d] uploadFileCreated  %+v", 201, o.Payload)
 }
+
+func (o *UploadFileCreated) String() string {
+	return fmt.Sprintf("[POST /file][%d] uploadFileCreated  %+v", 201, o.Payload)
+}
+
 func (o *UploadFileCreated) GetPayload() *UploadFileCreatedBody {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewUploadFileDefault(code int) *UploadFileDefault {
 	}
 }
 
-/* UploadFileDefault describes a response with status code -1, with default header values.
+/*
+UploadFileDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -90,6 +127,31 @@ type UploadFileDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this upload file default response has a 2xx status code
+func (o *UploadFileDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this upload file default response has a 3xx status code
+func (o *UploadFileDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this upload file default response has a 4xx status code
+func (o *UploadFileDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this upload file default response has a 5xx status code
+func (o *UploadFileDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this upload file default response a status code equal to that given
+func (o *UploadFileDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the upload file default response
@@ -100,6 +162,11 @@ func (o *UploadFileDefault) Code() int {
 func (o *UploadFileDefault) Error() string {
 	return fmt.Sprintf("[POST /file][%d] uploadFile default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *UploadFileDefault) String() string {
+	return fmt.Sprintf("[POST /file][%d] uploadFile default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *UploadFileDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }
@@ -116,7 +183,8 @@ func (o *UploadFileDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*UploadFileCreatedBody upload file created body
+/*
+UploadFileCreatedBody upload file created body
 swagger:model UploadFileCreatedBody
 */
 type UploadFileCreatedBody struct {

@@ -46,15 +46,49 @@ func NewGetFileThumbnailOK() *GetFileThumbnailOK {
 	return &GetFileThumbnailOK{}
 }
 
-/* GetFileThumbnailOK describes a response with status code 200, with default header values.
+/*
+GetFileThumbnailOK describes a response with status code 200, with default header values.
 
 A PNG image if a thumbnail can be generated. If a thumbnail cannot be generated you will get a 301 redirect to an image representing the type of the file.
-
 */
 type GetFileThumbnailOK struct {
 }
 
+// IsSuccess returns true when this get file thumbnail o k response has a 2xx status code
+func (o *GetFileThumbnailOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get file thumbnail o k response has a 3xx status code
+func (o *GetFileThumbnailOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get file thumbnail o k response has a 4xx status code
+func (o *GetFileThumbnailOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get file thumbnail o k response has a 5xx status code
+func (o *GetFileThumbnailOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get file thumbnail o k response a status code equal to that given
+func (o *GetFileThumbnailOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get file thumbnail o k response
+func (o *GetFileThumbnailOK) Code() int {
+	return 200
+}
+
 func (o *GetFileThumbnailOK) Error() string {
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK ", 200)
+}
+
+func (o *GetFileThumbnailOK) String() string {
 	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK ", 200)
 }
 
@@ -70,7 +104,8 @@ func NewGetFileThumbnailDefault(code int) *GetFileThumbnailDefault {
 	}
 }
 
-/* GetFileThumbnailDefault describes a response with status code -1, with default header values.
+/*
+GetFileThumbnailDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -78,6 +113,31 @@ type GetFileThumbnailDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this get file thumbnail default response has a 2xx status code
+func (o *GetFileThumbnailDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get file thumbnail default response has a 3xx status code
+func (o *GetFileThumbnailDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get file thumbnail default response has a 4xx status code
+func (o *GetFileThumbnailDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get file thumbnail default response has a 5xx status code
+func (o *GetFileThumbnailDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get file thumbnail default response a status code equal to that given
+func (o *GetFileThumbnailDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get file thumbnail default response
@@ -88,6 +148,11 @@ func (o *GetFileThumbnailDefault) Code() int {
 func (o *GetFileThumbnailDefault) Error() string {
 	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetFileThumbnailDefault) String() string {
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetFileThumbnailDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }

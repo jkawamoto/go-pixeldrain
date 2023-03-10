@@ -46,7 +46,8 @@ func NewGetFileInfoOK() *GetFileInfoOK {
 	return &GetFileInfoOK{}
 }
 
-/* GetFileInfoOK describes a response with status code 200, with default header values.
+/*
+GetFileInfoOK describes a response with status code 200, with default header values.
 
 OK
 */
@@ -54,9 +55,44 @@ type GetFileInfoOK struct {
 	Payload *models.FileInfo
 }
 
+// IsSuccess returns true when this get file info o k response has a 2xx status code
+func (o *GetFileInfoOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get file info o k response has a 3xx status code
+func (o *GetFileInfoOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get file info o k response has a 4xx status code
+func (o *GetFileInfoOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get file info o k response has a 5xx status code
+func (o *GetFileInfoOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get file info o k response a status code equal to that given
+func (o *GetFileInfoOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get file info o k response
+func (o *GetFileInfoOK) Code() int {
+	return 200
+}
+
 func (o *GetFileInfoOK) Error() string {
 	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfoOK  %+v", 200, o.Payload)
 }
+
+func (o *GetFileInfoOK) String() string {
+	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfoOK  %+v", 200, o.Payload)
+}
+
 func (o *GetFileInfoOK) GetPayload() *models.FileInfo {
 	return o.Payload
 }
@@ -80,7 +116,8 @@ func NewGetFileInfoDefault(code int) *GetFileInfoDefault {
 	}
 }
 
-/* GetFileInfoDefault describes a response with status code -1, with default header values.
+/*
+GetFileInfoDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -88,6 +125,31 @@ type GetFileInfoDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this get file info default response has a 2xx status code
+func (o *GetFileInfoDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get file info default response has a 3xx status code
+func (o *GetFileInfoDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get file info default response has a 4xx status code
+func (o *GetFileInfoDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get file info default response has a 5xx status code
+func (o *GetFileInfoDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get file info default response a status code equal to that given
+func (o *GetFileInfoDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the get file info default response
@@ -98,6 +160,11 @@ func (o *GetFileInfoDefault) Code() int {
 func (o *GetFileInfoDefault) Error() string {
 	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfo default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *GetFileInfoDefault) String() string {
+	return fmt.Sprintf("[GET /file/{id}/info][%d] getFileInfo default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *GetFileInfoDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }

@@ -50,7 +50,8 @@ func NewListFilesOK() *ListFilesOK {
 	return &ListFilesOK{}
 }
 
-/* ListFilesOK describes a response with status code 200, with default header values.
+/*
+ListFilesOK describes a response with status code 200, with default header values.
 
 OK
 */
@@ -58,9 +59,44 @@ type ListFilesOK struct {
 	Payload *ListFilesOKBody
 }
 
+// IsSuccess returns true when this list files o k response has a 2xx status code
+func (o *ListFilesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list files o k response has a 3xx status code
+func (o *ListFilesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list files o k response has a 4xx status code
+func (o *ListFilesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list files o k response has a 5xx status code
+func (o *ListFilesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list files o k response a status code equal to that given
+func (o *ListFilesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list files o k response
+func (o *ListFilesOK) Code() int {
+	return 200
+}
+
 func (o *ListFilesOK) Error() string {
 	return fmt.Sprintf("[GET /user/files][%d] listFilesOK  %+v", 200, o.Payload)
 }
+
+func (o *ListFilesOK) String() string {
+	return fmt.Sprintf("[GET /user/files][%d] listFilesOK  %+v", 200, o.Payload)
+}
+
 func (o *ListFilesOK) GetPayload() *ListFilesOKBody {
 	return o.Payload
 }
@@ -84,7 +120,8 @@ func NewListFilesDefault(code int) *ListFilesDefault {
 	}
 }
 
-/* ListFilesDefault describes a response with status code -1, with default header values.
+/*
+ListFilesDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -92,6 +129,31 @@ type ListFilesDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this list files default response has a 2xx status code
+func (o *ListFilesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list files default response has a 3xx status code
+func (o *ListFilesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list files default response has a 4xx status code
+func (o *ListFilesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list files default response has a 5xx status code
+func (o *ListFilesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list files default response a status code equal to that given
+func (o *ListFilesDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the list files default response
@@ -102,6 +164,11 @@ func (o *ListFilesDefault) Code() int {
 func (o *ListFilesDefault) Error() string {
 	return fmt.Sprintf("[GET /user/files][%d] listFiles default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *ListFilesDefault) String() string {
+	return fmt.Sprintf("[GET /user/files][%d] listFiles default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *ListFilesDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }
@@ -118,7 +185,8 @@ func (o *ListFilesDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*ListFilesOKBody list files o k body
+/*
+ListFilesOKBody list files o k body
 swagger:model ListFilesOKBody
 */
 type ListFilesOKBody struct {

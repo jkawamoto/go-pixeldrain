@@ -52,10 +52,12 @@ func NewListFileListsParamsWithHTTPClient(client *http.Client) *ListFileListsPar
 	}
 }
 
-/* ListFileListsParams contains all the parameters to send to the API endpoint
-   for the list file lists operation.
+/*
+ListFileListsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list file lists operation.
+
+	Typically these are written to a http.Request.
 */
 type ListFileListsParams struct {
 	timeout    time.Duration

@@ -1,6 +1,6 @@
 // doc.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -14,4 +14,4 @@
 // The client provides Upload and Download functions. See each example for more information.
 package pixeldrain
 
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.28.0 generate client -f https://raw.githubusercontent.com/jkawamoto/pixeldrain-swagger/master/swagger.yaml -t .
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.30.4 generate client -f https://raw.githubusercontent.com/jkawamoto/pixeldrain-swagger/master/swagger.yaml -t .

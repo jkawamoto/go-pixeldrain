@@ -52,10 +52,12 @@ func NewCreateFileListParamsWithHTTPClient(client *http.Client) *CreateFileListP
 	}
 }
 
-/* CreateFileListParams contains all the parameters to send to the API endpoint
-   for the create file list operation.
+/*
+CreateFileListParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the create file list operation.
+
+	Typically these are written to a http.Request.
 */
 type CreateFileListParams struct {
 

@@ -44,9 +44,9 @@ type ClientService interface {
 }
 
 /*
-  DeleteFile deletes a file
+DeleteFile deletes a file
 
-  Deletes a file. Only works when the users owns the file.
+Deletes a file. Only works when the users owns the file.
 */
 func (a *Client) DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteFileOK, error) {
 	// TODO: Validate the params before sending
@@ -84,12 +84,12 @@ func (a *Client) DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAut
 }
 
 /*
-  DownloadFile downloads a file
+	DownloadFile downloads a file
 
-  Returns the full file associated with the ID. Supports byte range requests.
+	Returns the full file associated with the ID. Supports byte range requests.
+
 Warning: If a file is using too much bandwidth it can be rate limited. The rate limit will be enabled if a file has three times more downloads than views. The owner of a file can always download it. When a file is rate limited the user will need to fill out a captcha in order to continue downloading the file. The captcha will only appear on the file viewer page (pixeldrain.com/u/{id}). Rate limiting has been added to prevent the spread of viruses and to stop hotlinking. Hotlinking is only allowed when files are uploaded using a Pro account.
 Pixeldrain also includes a virus scanner. If a virus has been detected in a file the user will also have to fill in a captcha to download it.
-
 */
 func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error) {
 	// TODO: Validate the params before sending
@@ -127,10 +127,9 @@ func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.Clien
 }
 
 /*
-  GetFileInfo retrieves information of a file
+GetFileInfo retrieves information of a file
 
-  Returns information about one or more files. You can also put a comma separated list of file IDs in the URL and it will return an array of file info, instead of a single object.
-
+Returns information about one or more files. You can also put a comma separated list of file IDs in the URL and it will return an array of file info, instead of a single object.
 */
 func (a *Client) GetFileInfo(params *GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileInfoOK, error) {
 	// TODO: Validate the params before sending
@@ -168,10 +167,9 @@ func (a *Client) GetFileInfo(params *GetFileInfoParams, authInfo runtime.ClientA
 }
 
 /*
-  GetFileThumbnail gets a thumbnail image representing the file
+GetFileThumbnail gets a thumbnail image representing the file
 
-  Returns a PNG thumbnail image representing the file. The thumbnail is always 100*100 px. If the source file is parsable by imagemagick the thumbnail will be generated from the file, if not it will be a generic mime type icon.
-
+Returns a PNG thumbnail image representing the file. The thumbnail is always 100*100 px. If the source file is parsable by imagemagick the thumbnail will be generated from the file, if not it will be a generic mime type icon.
 */
 func (a *Client) GetFileThumbnail(params *GetFileThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileThumbnailOK, error) {
 	// TODO: Validate the params before sending
@@ -209,10 +207,9 @@ func (a *Client) GetFileThumbnail(params *GetFileThumbnailParams, authInfo runti
 }
 
 /*
-  UploadFile uploads a file
+UploadFile uploads a file
 
-  Upload a file. I recommend that you use the PUT API instead of the POST API. It’s easier to use and the multipart encoding of the POST API can cause performance issues in certain environments.
-
+Upload a file. I recommend that you use the PUT API instead of the POST API. It’s easier to use and the multipart encoding of the POST API can cause performance issues in certain environments.
 */
 func (a *Client) UploadFile(params *UploadFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UploadFileCreated, error) {
 	// TODO: Validate the params before sending

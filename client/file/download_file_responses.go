@@ -50,7 +50,8 @@ func NewDownloadFileOK(writer io.Writer) *DownloadFileOK {
 	}
 }
 
-/* DownloadFileOK describes a response with status code 200, with default header values.
+/*
+DownloadFileOK describes a response with status code 200, with default header values.
 
 A file output stream.
 */
@@ -58,9 +59,44 @@ type DownloadFileOK struct {
 	Payload io.Writer
 }
 
+// IsSuccess returns true when this download file o k response has a 2xx status code
+func (o *DownloadFileOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this download file o k response has a 3xx status code
+func (o *DownloadFileOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this download file o k response has a 4xx status code
+func (o *DownloadFileOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this download file o k response has a 5xx status code
+func (o *DownloadFileOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this download file o k response a status code equal to that given
+func (o *DownloadFileOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the download file o k response
+func (o *DownloadFileOK) Code() int {
+	return 200
+}
+
 func (o *DownloadFileOK) Error() string {
 	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK  %+v", 200, o.Payload)
 }
+
+func (o *DownloadFileOK) String() string {
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK  %+v", 200, o.Payload)
+}
+
 func (o *DownloadFileOK) GetPayload() io.Writer {
 	return o.Payload
 }
@@ -82,7 +118,8 @@ func NewDownloadFileDefault(code int) *DownloadFileDefault {
 	}
 }
 
-/* DownloadFileDefault describes a response with status code -1, with default header values.
+/*
+DownloadFileDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -90,6 +127,31 @@ type DownloadFileDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this download file default response has a 2xx status code
+func (o *DownloadFileDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this download file default response has a 3xx status code
+func (o *DownloadFileDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this download file default response has a 4xx status code
+func (o *DownloadFileDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this download file default response has a 5xx status code
+func (o *DownloadFileDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this download file default response a status code equal to that given
+func (o *DownloadFileDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the download file default response
@@ -100,6 +162,11 @@ func (o *DownloadFileDefault) Code() int {
 func (o *DownloadFileDefault) Error() string {
 	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *DownloadFileDefault) String() string {
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *DownloadFileDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }

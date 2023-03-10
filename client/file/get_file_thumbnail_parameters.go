@@ -53,10 +53,12 @@ func NewGetFileThumbnailParamsWithHTTPClient(client *http.Client) *GetFileThumbn
 	}
 }
 
-/* GetFileThumbnailParams contains all the parameters to send to the API endpoint
-   for the get file thumbnail operation.
+/*
+GetFileThumbnailParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get file thumbnail operation.
+
+	Typically these are written to a http.Request.
 */
 type GetFileThumbnailParams struct {
 
