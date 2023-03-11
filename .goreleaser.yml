@@ -35,6 +35,7 @@ nfpms:
   - package_name: pixeldrain
     homepage: https://jkawamoto.github.io/go-pixeldrain/
     description: "Share files with decentralized cloud storage."
+    maintainer: "Junpei Kawamoto <kawamoto.junpei.s64@kyoto-u.jp>"
     license: "MIT"
     formats:
       - apk
