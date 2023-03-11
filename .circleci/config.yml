@@ -29,7 +29,7 @@ jobs:
           command: bash <(curl -sL https://git.io/goreleaser) release
   tag:
     machine:
-      image: ubuntu-2004:202111-02
+      image: ubuntu-2204:2023.02.1
     resource_class: medium
     steps:
       - checkout
