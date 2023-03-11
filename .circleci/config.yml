@@ -1,12 +1,12 @@
 version: "2.1"
 orbs:
   go: circleci/go@1.7.1
-  codecov: codecov/codecov@3.2.2
+  codecov: codecov/codecov@3.2.4
 jobs:
   test:
     executor:
       name: go/default
-      tag: "1.17"
+      tag: "1.18"
     resource_class: medium
     steps:
       - checkout
@@ -20,7 +20,7 @@ jobs:
   release:
     executor:
       name: go/default
-      tag: "1.17"
+      tag: "1.18"
     resource_class: medium
     steps:
       - checkout
@@ -29,7 +29,7 @@ jobs:
           command: bash <(curl -sL https://git.io/goreleaser) release
   tag:
     machine:
-      image: ubuntu-2004:202111-02
+      image: ubuntu-2204:2023.02.1
     resource_class: medium
     steps:
       - checkout
