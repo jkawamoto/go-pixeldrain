@@ -1,6 +1,6 @@
 // pixeldrain.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -10,8 +10,8 @@ package pixeldrain
 
 import (
 	"io"
+	"net/url"
 	"os"
-	"path"
 
 	"github.com/go-openapi/runtime"
 	auth "github.com/go-openapi/runtime/client"
@@ -47,11 +47,17 @@ func New(apiKey string) *Pixeldrain {
 }
 
 // DownloadURL returns the URL associated with the given file ID.
-func (Pixeldrain) DownloadURL(id string) string {
-	return "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)
+func (*Pixeldrain) DownloadURL(id string) string {
+	u := url.URL{
+		Scheme: client.DefaultSchemes[0],
+	}
+	return u.JoinPath(client.DefaultHost, client.DefaultBasePath, "file", id).String()
 }
 
 // ListURL returns the URL associated with the given list ID.
-func (Pixeldrain) ListURL(id string) string {
-	return "https://" + path.Join(client.DefaultHost, "l", id)
+func (*Pixeldrain) ListURL(id string) string {
+	u := url.URL{
+		Scheme: client.DefaultSchemes[0],
+	}
+	return u.JoinPath(client.DefaultHost, "l", id).String()
 }
