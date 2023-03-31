@@ -19,7 +19,7 @@ const (
 	// Name defines the basename of this program.
 	Name = "pd"
 	// Version defines current version number.
-	Version = "0.5.1"
+	Version = "0.5.2"
 )
 
 func main() {
