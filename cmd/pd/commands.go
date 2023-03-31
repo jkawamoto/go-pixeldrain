@@ -18,10 +18,14 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
+const (
+	FlagAPIKey = "api-key"
+)
+
 // GlobalFlags manages global flags.
 var GlobalFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:        "api-key",
+		Name:        FlagAPIKey,
 		Usage:       "an API `key`",
 		EnvVars:     []string{"PIXELDRAIN_API_KEY"},
 		DefaultText: "empty",

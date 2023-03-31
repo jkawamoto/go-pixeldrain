@@ -1,6 +1,6 @@
-// create-list.go
+// list.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -13,7 +13,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/jkawamoto/go-pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/cmd/client"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
@@ -23,7 +23,7 @@ func CmdCreateList(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	pd := pixeldrain.New(c.String("api-key"))
+	pd := client.Extract(c.Context)
 	id, err := pd.CreateList(
 		c.Context, c.String("title"), append([]string{c.Args().First()}, c.Args().Tail()...))
 	if err != nil {

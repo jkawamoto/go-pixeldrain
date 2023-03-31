@@ -13,6 +13,8 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
+
+	"github.com/jkawamoto/go-pixeldrain/cmd/client"
 )
 
 const (
@@ -38,6 +40,10 @@ func main() {
 	app.Commands = Commands
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
+	app.Before = func(c *cli.Context) error {
+		c.Context = client.ToContext(c.Context, client.New(c.String(FlagAPIKey)))
+		return nil
+	}
 
 	_ = app.RunContext(context.Background(), os.Args)
 }
