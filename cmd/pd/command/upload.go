@@ -1,6 +1,6 @@
 // upload.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/urfave/cli/v2"
 
-	"github.com/jkawamoto/go-pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/cmd/client"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
@@ -38,7 +38,7 @@ func CmdUpload(c *cli.Context) error {
 		return cli.ShowSubcommandHelp(c)
 	}
 
-	pd := pixeldrain.New(c.String("api-key"))
+	pd := client.Extract(c.Context)
 	if c.Args().First() == "-" {
 		id, err := pd.Upload(c.Context, &renamedFile{File: os.Stdin, name: c.String("name")})
 		if err != nil {

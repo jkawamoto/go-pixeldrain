@@ -1,6 +1,6 @@
 // download.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -13,7 +13,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/jkawamoto/go-pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/cmd/client"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
@@ -26,7 +26,8 @@ func CmdDownload(c *cli.Context) error {
 	url := c.Args().First()
 	dir := c.String("output")
 
-	err := pixeldrain.New(c.String("api-key")).Download(c.Context, url, dir)
+	pd := client.Extract(c.Context)
+	err := pd.Download(c.Context, url, dir)
 	if err != nil {
 		return cli.Exit(err, status.APIError)
 	}
