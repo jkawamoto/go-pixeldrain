@@ -6,7 +6,7 @@ jobs:
   test:
     executor:
       name: go/default
-      tag: "1.19"
+      tag: "1.20"
     resource_class: medium
     steps:
       - checkout

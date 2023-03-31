@@ -1,6 +1,6 @@
 module github.com/jkawamoto/go-pixeldrain
 
-go 1.19
+go 1.20
 
 require (
 	github.com/cheggaaa/pb/v3 v3.1.2
