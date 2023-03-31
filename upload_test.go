@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -54,7 +53,7 @@ func newMockHandler(t *testing.T, file, name, id, auth string) *mockHandler {
 		}
 	}()
 
-	data, err := ioutil.ReadAll(fp)
+	data, err := io.ReadAll(fp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +104,7 @@ func (m *mockHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 	}()
 
-	data, err := ioutil.ReadAll(fp)
+	data, err := io.ReadAll(fp)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		if err := json.NewEncoder(res).Encode(&models.StandardError{

@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -111,7 +110,7 @@ func TestDownload(t *testing.T) {
 			Schemes:  []string{"http"},
 		})
 
-		tmp, err := ioutil.TempFile("", "")
+		tmp, err := os.CreateTemp(t.TempDir(), "")
 		if err != nil {
 			t.Fatal("Failed to create a temporal filename", err)
 		}
@@ -127,11 +126,11 @@ func TestDownload(t *testing.T) {
 			t.Fatal("failed to download the filename:", err)
 		}
 
-		received, err := ioutil.ReadFile(tmp.Name())
+		received, err := os.ReadFile(tmp.Name())
 		if err != nil {
 			t.Fatal("Failed to read received filename:", err)
 		}
-		expected, err := ioutil.ReadFile(filename)
+		expected, err := os.ReadFile(filename)
 		if err != nil {
 			t.Fatal("Failed to read original filename:", err)
 		}
@@ -159,21 +158,17 @@ func TestDownload(t *testing.T) {
 			Schemes:  []string{"http"},
 		})
 
-		tmp, err := ioutil.TempDir("", "")
-		if err != nil {
-			t.Fatal("Failed to create a temporal directory", err)
-		}
-
+		tmp := t.TempDir()
 		err = pd.Download(context.Background(), pd.DownloadURL(id), tmp)
 		if err != nil {
 			t.Fatal("failed to download the filename:", err)
 		}
 
-		received, err := ioutil.ReadFile(filepath.Join(tmp, filename))
+		received, err := os.ReadFile(filepath.Join(tmp, filename))
 		if err != nil {
 			t.Fatal("Failed to read received filename:", err)
 		}
-		expected, err := ioutil.ReadFile(filename)
+		expected, err := os.ReadFile(filename)
 		if err != nil {
 			t.Fatal("Failed to read original filename:", err)
 		}

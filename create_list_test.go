@@ -12,7 +12,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -51,7 +51,7 @@ func (m *mockListServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	raw, err := ioutil.ReadAll(req.Body)
+	raw, err := io.ReadAll(req.Body)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		if err := json.NewEncoder(res).Encode(models.StandardError{
