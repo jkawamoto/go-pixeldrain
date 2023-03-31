@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/client"
@@ -54,7 +53,7 @@ func CmdUpload(c *cli.Context) error {
 	}
 	defer func() {
 		if e := fp.Close(); e != nil && !errors.Is(err, os.ErrClosed) {
-			err = multierror.Append(err, e)
+			err = errors.Join(err, e)
 		}
 	}()
 

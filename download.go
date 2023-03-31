@@ -10,20 +10,21 @@ package pixeldrain
 
 import (
 	"context"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/go-openapi/swag"
-	"github.com/hashicorp/go-multierror"
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 )
 
 // Download the file associated with the given url or file ID. If dir is given, the downloaded file is stored into
 // the directory. Otherwise, it is written in pd.Stdout.
-func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
+func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) (err error) {
 	id := url[strings.LastIndex(url, "/")+1:]
 
 	info, err := pd.cli.File.GetFileInfo(file.NewGetFileInfoParamsWithContext(ctx).WithID(id), pd.authInfoWriter)
@@ -33,14 +34,13 @@ func (pd *Pixeldrain) Download(ctx context.Context, url, dir string) error {
 
 	out := pd.Stdout
 	if dir != "" {
-		fp, err := os.OpenFile(filepath.Join(dir, info.Payload.Name), os.O_CREATE|os.O_WRONLY, 0644)
+		var fp io.WriteCloser
+		fp, err = os.OpenFile(filepath.Join(dir, info.Payload.Name), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
 		}
 		defer func() {
-			if e := fp.Close(); e != nil {
-				err = multierror.Append(err, e)
-			}
+			err = errors.Join(err, fp.Close())
 		}()
 		out = fp
 	}
