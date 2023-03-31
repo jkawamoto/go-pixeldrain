@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/jkawamoto/go-pixeldrain.svg?style=svg)](https://circleci.com/gh/jkawamoto/go-pixeldrain)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jkawamoto/go-pixeldrain.svg)](https://pkg.go.dev/github.com/jkawamoto/go-pixeldrain)
 [![codecov](https://codecov.io/gh/jkawamoto/go-pixeldrain/branch/master/graph/badge.svg?token=ppX3MVIqWA)](https://codecov.io/gh/jkawamoto/go-pixeldrain)
-[![Release](https://img.shields.io/badge/release-0.5.1-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.5.1)
+[![Release](https://img.shields.io/badge/release-0.5.2-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.5.2)
 
 
 ## Usage
