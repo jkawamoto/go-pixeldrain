@@ -6,45 +6,36 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-package main
+package command
 
 import (
-	"fmt"
-	"os"
+	"errors"
 
 	"github.com/urfave/cli/v2"
-
-	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
-	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
 const (
-	FlagAPIKey = "api-key"
+	FlagAlbumName = "album"
 )
 
-// GlobalFlags manages global flags.
-var GlobalFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:        FlagAPIKey,
-		Usage:       "an API `key`",
-		EnvVars:     []string{"PIXELDRAIN_API_KEY"},
-		DefaultText: "empty",
-	},
-}
+var (
+	ErrNotEnoughArguments = errors.New("not enough arguments")
+)
 
 // Commands manage sub commands.
 var Commands = []*cli.Command{
 	{
-		Name:        "upload",
-		Usage:       "Upload a file",
-		Description: "upload a file to PixelDrain",
-		ArgsUsage:   "<file path>",
-		Action:      command.CmdUpload,
+		Name:  "upload",
+		Usage: "Upload files",
+		Description: "Upload files specified by the given paths. Each path can have an optional name. " +
+			"If a name is given, uploaded file will be renamed with it.",
+		ArgsUsage: "<path[:name]>...",
+		Action:    CmdUpload,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "name",
-				Aliases: []string{"n"},
-				Usage:   "rename the uploaded file to `NAME`",
+				Name: FlagAlbumName,
+				Usage: "If multiple files are uploaded, an album consisting of those files will be created. " +
+					"This flag can specifies the album name.",
 			},
 		},
 	}, {
@@ -52,7 +43,7 @@ var Commands = []*cli.Command{
 		Usage:       "Download a file",
 		Description: "download a file from PixelDrain",
 		ArgsUsage:   "<file ID | URL>",
-		Action:      command.CmdDownload,
+		Action:      CmdDownload,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "output",
@@ -65,7 +56,7 @@ var Commands = []*cli.Command{
 		Usage:       "Create a list consisting of uploaded files",
 		Description: "create a list consisting of given file IDs",
 		ArgsUsage:   "fileID[:description]...",
-		Action:      command.CmdCreateList,
+		Action:      CmdCreateList,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "title",
@@ -74,11 +65,4 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
-}
-
-// commandNotFound shows error message and exit when a given command is not found.
-func commandNotFound(c *cli.Context, command string) {
-	_, _ = fmt.Fprintf(os.Stderr, "'%s' is not a %s command..\n", command, c.App.Name)
-	//_ = cli.ShowAppHelp(c)
-	os.Exit(status.InvalidCommand)
 }

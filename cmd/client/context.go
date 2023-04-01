@@ -10,8 +10,6 @@ package client
 
 import (
 	"context"
-
-	"github.com/jkawamoto/go-pixeldrain"
 )
 
 type ctxMarker struct{}
@@ -21,13 +19,13 @@ var (
 )
 
 // ToContext attaches the given client to the given context.
-func ToContext(ctx context.Context, cli *pixeldrain.Pixeldrain) context.Context {
+func ToContext(ctx context.Context, cli Client) context.Context {
 	return context.WithValue(ctx, ctxMarkerKey, cli)
 }
 
 // Extract takes a client from the given context. If no client is attached to the context, it will return nil.
-func Extract(ctx context.Context) *pixeldrain.Pixeldrain {
-	cli, ok := ctx.Value(ctxMarkerKey).(*pixeldrain.Pixeldrain)
+func Extract(ctx context.Context) Client {
+	cli, ok := ctx.Value(ctxMarkerKey).(Client)
 	if !ok {
 		return nil
 	}

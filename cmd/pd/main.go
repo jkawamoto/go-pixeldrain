@@ -10,11 +10,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain/cmd/client"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
 const (
@@ -24,7 +27,14 @@ const (
 	Version = "0.5.2"
 )
 
-func main() {
+// commandNotFound shows error message and exit when a given command is not found.
+func commandNotFound(c *cli.Context, command string) {
+	_, _ = fmt.Fprintf(c.App.ErrWriter, "'%s' is not a %s command..\n", command, c.App.Name)
+	//_ = cli.ShowAppHelp(c)
+	os.Exit(status.InvalidCommand)
+}
+
+func initApp() *cli.App {
 	app := cli.NewApp()
 	app.Name = Name
 	app.Version = Version
@@ -37,7 +47,7 @@ func main() {
 	app.Usage = "A Pixeldrain client"
 
 	app.Flags = GlobalFlags
-	app.Commands = Commands
+	app.Commands = command.Commands
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
 	app.Before = func(c *cli.Context) error {
@@ -45,5 +55,15 @@ func main() {
 		return nil
 	}
 
-	_ = app.RunContext(context.Background(), os.Args)
+	return app
+}
+
+func main() {
+	app := initApp()
+
+	err := app.RunContext(context.Background(), os.Args)
+	if err != nil {
+		_, _ = fmt.Fprintf(app.ErrWriter, "failed to run: %v\n", err)
+		os.Exit(status.InvalidArgument)
+	}
 }
