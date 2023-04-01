@@ -9,6 +9,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.7
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
+	github.com/golang/mock v1.6.0
 	github.com/urfave/cli/v2 v2.25.1
 )
 
