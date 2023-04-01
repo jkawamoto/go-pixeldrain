@@ -51,18 +51,5 @@ var Commands = []*cli.Command{
 				Usage:   "output the downloaded file into `DIR`",
 			},
 		},
-	}, {
-		Name:        "create-list",
-		Usage:       "Create a list consisting of uploaded files",
-		Description: "create a list consisting of given file IDs",
-		ArgsUsage:   "fileID[:description]...",
-		Action:      CmdCreateList,
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "title",
-				Aliases: []string{"t"},
-				Usage:   "specify the `TITLE` of this list",
-			},
-		},
 	},
 }
