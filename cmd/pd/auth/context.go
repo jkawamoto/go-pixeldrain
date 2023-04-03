@@ -6,10 +6,12 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-package client
+package auth
 
 import (
 	"context"
+
+	"github.com/go-openapi/runtime"
 )
 
 type ctxMarker struct{}
@@ -19,15 +21,15 @@ var (
 )
 
 // ToContext attaches the given client to the given context.
-func ToContext(ctx context.Context, cli Client) context.Context {
-	return context.WithValue(ctx, ctxMarkerKey, cli)
+func ToContext(ctx context.Context, auth runtime.ClientAuthInfoWriter) context.Context {
+	return context.WithValue(ctx, ctxMarkerKey, auth)
 }
 
 // Extract takes a client from the given context. If no client is attached to the context, it will return nil.
-func Extract(ctx context.Context) Client {
-	cli, ok := ctx.Value(ctxMarkerKey).(Client)
+func Extract(ctx context.Context) runtime.ClientAuthInfoWriter {
+	auth, ok := ctx.Value(ctxMarkerKey).(runtime.ClientAuthInfoWriter)
 	if !ok {
 		return nil
 	}
-	return cli
+	return auth
 }

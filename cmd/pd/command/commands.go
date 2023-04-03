@@ -9,17 +9,11 @@
 package command
 
 import (
-	"errors"
-
 	"github.com/urfave/cli/v2"
 )
 
 const (
 	FlagAlbumName = "album"
-)
-
-var (
-	ErrNotEnoughArguments = errors.New("not enough arguments")
 )
 
 // Commands manage sub commands.
