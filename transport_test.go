@@ -1,6 +1,6 @@
 // transport_test.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -25,7 +25,7 @@ func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	return m.Response, nil
 }
 
-func TestTransporter(t *testing.T) {
+func TestContentTypeFixer(t *testing.T) {
 	cases := []struct {
 		name        string
 		status      int

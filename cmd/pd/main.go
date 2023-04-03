@@ -13,9 +13,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-openapi/runtime/client"
 	"github.com/urfave/cli/v2"
 
-	"github.com/jkawamoto/go-pixeldrain/cmd/client"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
@@ -51,7 +52,9 @@ func initApp() *cli.App {
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
 	app.Before = func(c *cli.Context) error {
-		c.Context = client.ToContext(c.Context, client.New(c.String(FlagAPIKey)))
+		if key := c.String(FlagAPIKey); key != "" {
+			c.Context = auth.ToContext(c.Context, client.BasicAuth("", key))
+		}
 		return nil
 	}
 

@@ -6,13 +6,11 @@ package file
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -54,7 +52,7 @@ UploadFileCreated describes a response with status code 201, with default header
 File is uploaded
 */
 type UploadFileCreated struct {
-	Payload *UploadFileCreatedBody
+	Payload *models.SuccessResponse
 }
 
 // IsSuccess returns true when this upload file created response has a 2xx status code
@@ -95,13 +93,13 @@ func (o *UploadFileCreated) String() string {
 	return fmt.Sprintf("[POST /file][%d] uploadFileCreated  %+v", 201, o.Payload)
 }
 
-func (o *UploadFileCreated) GetPayload() *UploadFileCreatedBody {
+func (o *UploadFileCreated) GetPayload() *models.SuccessResponse {
 	return o.Payload
 }
 
 func (o *UploadFileCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(UploadFileCreatedBody)
+	o.Payload = new(models.SuccessResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -180,48 +178,5 @@ func (o *UploadFileDefault) readResponse(response runtime.ClientResponse, consum
 		return err
 	}
 
-	return nil
-}
-
-/*
-UploadFileCreatedBody upload file created body
-swagger:model UploadFileCreatedBody
-*/
-type UploadFileCreatedBody struct {
-
-	// ID of the newly uploaded file
-	// Example: abc123
-	ID string `json:"id,omitempty"`
-
-	// success
-	// Example: true
-	Success bool `json:"success,omitempty"`
-}
-
-// Validate validates this upload file created body
-func (o *UploadFileCreatedBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this upload file created body based on context it is used
-func (o *UploadFileCreatedBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UploadFileCreatedBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UploadFileCreatedBody) UnmarshalBinary(b []byte) error {
-	var res UploadFileCreatedBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

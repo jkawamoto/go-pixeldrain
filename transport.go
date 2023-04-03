@@ -1,6 +1,6 @@
 // transport.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -52,11 +52,12 @@ type transport struct {
 
 var _ runtime.ClientTransport = (*transport)(nil)
 
-// newTransport returns a new ClientTransport that wraps the given ClientTransport.
-func newTransport(upstream runtime.ClientTransport) runtime.ClientTransport {
+// ContentTypeFixer returns a new ClientTransport that wraps the given ClientTransport to fix the content type issue.
+func ContentTypeFixer(upstream runtime.ClientTransport) runtime.ClientTransport {
 	return &transport{upstream: upstream}
 }
 
+// Submit sends the given operation and returns a response.
 func (t *transport) Submit(op *runtime.ClientOperation) (interface{}, error) {
 	if op.Client == nil {
 		op.Client = &http.Client{

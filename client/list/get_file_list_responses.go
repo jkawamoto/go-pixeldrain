@@ -6,15 +6,11 @@ package list
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"strconv"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -56,7 +52,7 @@ GetFileListOK describes a response with status code 200, with default header val
 OK
 */
 type GetFileListOK struct {
-	Payload *GetFileListOKBody
+	Payload *models.GetFileListResponse
 }
 
 // IsSuccess returns true when this get file list o k response has a 2xx status code
@@ -97,13 +93,13 @@ func (o *GetFileListOK) String() string {
 	return fmt.Sprintf("[GET /list/{id}][%d] getFileListOK  %+v", 200, o.Payload)
 }
 
-func (o *GetFileListOK) GetPayload() *GetFileListOKBody {
+func (o *GetFileListOK) GetPayload() *models.GetFileListResponse {
 	return o.Payload
 }
 
 func (o *GetFileListOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(GetFileListOKBody)
+	o.Payload = new(models.GetFileListResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -182,123 +178,5 @@ func (o *GetFileListDefault) readResponse(response runtime.ClientResponse, consu
 		return err
 	}
 
-	return nil
-}
-
-/*
-GetFileListOKBody get file list o k body
-swagger:model GetFileListOKBody
-*/
-type GetFileListOKBody struct {
-
-	// date creqated
-	// Example: 1513033315
-	DateCreqated float64 `json:"date_creqated,omitempty"`
-
-	// files
-	Files []*models.FileInfo `json:"files"`
-
-	// id
-	// Example: L8bhwx
-	ID string `json:"id,omitempty"`
-
-	// success
-	// Example: true
-	Success bool `json:"success,omitempty"`
-
-	// title
-	// Example: Rust in Peace
-	Title string `json:"title,omitempty"`
-}
-
-// Validate validates this get file list o k body
-func (o *GetFileListOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateFiles(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetFileListOKBody) validateFiles(formats strfmt.Registry) error {
-	if swag.IsZero(o.Files) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Files); i++ {
-		if swag.IsZero(o.Files[i]) { // not required
-			continue
-		}
-
-		if o.Files[i] != nil {
-			if err := o.Files[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get file list o k body based on the context it is used
-func (o *GetFileListOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateFiles(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetFileListOKBody) contextValidateFiles(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(o.Files); i++ {
-
-		if o.Files[i] != nil {
-			if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getFileListOK" + "." + "files" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetFileListOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetFileListOKBody) UnmarshalBinary(b []byte) error {
-	var res GetFileListOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

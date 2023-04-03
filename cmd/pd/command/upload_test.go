@@ -11,38 +11,63 @@ package command
 import (
 	"bytes"
 	"context"
-	"errors"
+	"encoding/base64"
 	"flag"
 	"io"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/swag"
 	"github.com/golang/mock/gomock"
 	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain"
-	"github.com/jkawamoto/go-pixeldrain/cmd/client"
-	"github.com/jkawamoto/go-pixeldrain/cmd/client/mock"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command/mock"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
+func checkAPIKey(t *testing.T, authInfo runtime.ClientAuthInfoWriter, apiKey string) {
+	t.Helper()
+
+	req := &runtime.TestClientRequest{}
+	if err := authInfo.AuthenticateRequest(req, nil); err != nil {
+		t.Fatal(err)
+	}
+	s, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(req.Headers.Get(runtime.HeaderAuthorization), "Basic "))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(s), apiKey) {
+		t.Errorf("expect api key, got %v", string(s))
+	}
+}
+
 func TestUpload(t *testing.T) {
+	apiKey := "test-key"
+
 	cases := []struct {
 		name   string
-		init   func(*testing.T, context.Context, *mock.MockClient)
+		init   func(*testing.T, context.Context, *mock.MockClientService)
 		args   []string
 		stdin  io.Reader
 		expect string
-		err    error
+		exit   int
 	}{
 		{
 			name: "not enough arguments",
-			err:  ErrNotEnoughArguments,
+			exit: status.InvalidArgument,
 		},
 		{
 			name: "one file w/o renaming",
 			args: []string{"doc.go"},
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClient) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 				expect, err := os.ReadFile("doc.go")
 				if err != nil {
@@ -50,28 +75,44 @@ func TestUpload(t *testing.T) {
 				}
 
 				m.EXPECT().
-					Upload(ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, f pixeldrain.File) (string, error) {
-						if f.Name() != "doc.go" {
-							t.Errorf("expect %v, got %v", "doc.go", f.Name())
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						data, err := io.ReadAll(f)
+						checkAPIKey(t, authInfo, apiKey)
+
+						if name := params.File.Name(); name != "doc.go" {
+							t.Errorf("expect %v, got %v", "doc.go", name)
+						}
+						data, err := io.ReadAll(params.File)
 						if err != nil {
 							t.Fatal(err)
+						}
+						if err = params.File.Close(); err != nil {
+							t.Error(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return "123", nil
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String("123"),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					})
-				m.EXPECT().DownloadURL("123").Return("https://example.com/123")
 			},
-			expect: "https://example.com/123\n",
+			expect: pixeldrain.DownloadURL("123") + "\n",
 		},
 		{
 			name: "one file w/ renaming",
 			args: []string{"doc.go:manual"},
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClient) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 				expect, err := os.ReadFile("doc.go")
 				if err != nil {
@@ -79,113 +120,224 @@ func TestUpload(t *testing.T) {
 				}
 
 				m.EXPECT().
-					Upload(ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, f pixeldrain.File) (string, error) {
-						if f.Name() != "manual" {
-							t.Errorf("expect %v, got %v", "manual", f.Name())
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						data, err := io.ReadAll(f)
+						checkAPIKey(t, authInfo, apiKey)
+
+						if name := params.File.Name(); name != "manual" {
+							t.Errorf("expect %v, got %v", "manual", name)
+						}
+						data, err := io.ReadAll(params.File)
 						if err != nil {
 							t.Fatal(err)
 						}
+						if err = params.File.Close(); err != nil {
+							t.Fatal(err)
+						}
+
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return "123", nil
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String("123"),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					})
-				m.EXPECT().DownloadURL("123").Return("https://example.com/123")
 			},
-			expect: "https://example.com/123\n",
+			expect: pixeldrain.DownloadURL("123") + "\n",
 		},
 		{
 			name:  "read from stdin",
 			args:  []string{"--", "-:manual"},
 			stdin: bytes.NewReader([]byte("test data")),
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClient) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 				expect := []byte("test data")
 
 				m.EXPECT().
-					Upload(ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, f pixeldrain.File) (string, error) {
-						if f.Name() != "manual" {
-							t.Errorf("expect %v, got %v", "manual", f.Name())
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						data, err := io.ReadAll(f)
+						checkAPIKey(t, authInfo, apiKey)
+
+						if name := params.File.Name(); name != "manual" {
+							t.Errorf("expect %v, got %v", "manual", name)
+						}
+						data, err := io.ReadAll(params.File)
 						if err != nil {
+							t.Fatal(err)
+						}
+						if err = params.File.Close(); err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return "123", nil
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String("123"),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					})
-				m.EXPECT().DownloadURL("123").Return("https://example.com/123")
 			},
-			expect: "https://example.com/123\n",
+			expect: pixeldrain.DownloadURL("123") + "\n",
 		},
+
 		{
 			name: "create list w/ name",
 			args: []string{"-album", "list", "doc.go", "upload.go"},
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClient) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 
 				m.EXPECT().
-					Upload(ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, f pixeldrain.File) (string, error) {
-						data, err := io.ReadAll(f)
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						checkAPIKey(t, authInfo, apiKey)
+
+						data, err := io.ReadAll(params.File)
 						if err != nil {
 							t.Fatal(err)
 						}
-						expect, err := os.ReadFile(f.Name())
+						if err = params.File.Close(); err != nil {
+							t.Fatal(err)
+						}
+
+						expect, err := os.ReadFile(params.File.Name())
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return f.Name(), nil
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String(params.File.Name()),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					}).Times(2)
-				m.EXPECT().CreateList(ctx, "list", []string{"doc.go", "upload.go"}).Return("abc", nil)
+				m.EXPECT().
+					CreateFileList(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *list.CreateFileListParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...list.ClientOption,
+					) (*list.CreateFileListCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						checkAPIKey(t, authInfo, apiKey)
 
-				m.EXPECT().ListURL("abc").Return("https://example.com/abc")
+						if len(params.List.Files) != 2 {
+							t.Fatalf("expect %v, got %v", 2, len(params.List.Files))
+						}
+						if id := swag.StringValue(params.List.Files[0].ID); id != "doc.go" {
+							t.Errorf("expect %v, got %v", "doc.go", id)
+						}
+						if id := swag.StringValue(params.List.Files[1].ID); id != "upload.go" {
+							t.Errorf("expect %v, got %v", "upload.go", id)
+						}
+						if name := swag.StringValue(params.List.Title); name != "list" {
+							t.Errorf("expect %v, got %v", "list", name)
+						}
+
+						return &list.CreateFileListCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String("abc"),
+								Success: swag.Bool(true),
+							},
+						}, nil
+					})
 			},
-			expect: "https://example.com/abc\n",
+			expect: pixeldrain.ListURL("abc") + "\n",
 		},
 		{
 			name: "create list w/o name",
 			args: []string{"doc.go", "upload.go"},
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClient) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 
 				m.EXPECT().
-					Upload(ctx, gomock.Any()).
-					DoAndReturn(func(_ context.Context, f pixeldrain.File) (string, error) {
-						data, err := io.ReadAll(f)
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						checkAPIKey(t, authInfo, apiKey)
+
+						data, err := io.ReadAll(params.File)
 						if err != nil {
 							t.Fatal(err)
 						}
-						expect, err := os.ReadFile(f.Name())
+						if err = params.File.Close(); err != nil {
+							t.Fatal(err)
+						}
+
+						expect, err := os.ReadFile(params.File.Name())
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return f.Name(), nil
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String(params.File.Name()),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					}).Times(2)
 				m.EXPECT().
-					CreateList(ctx, gomock.Any(), []string{"doc.go", "upload.go"}).
-					DoAndReturn(func(_ context.Context, name string, _ []string) (string, error) {
-						if !strings.HasPrefix(name, "album-") {
+					CreateFileList(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *list.CreateFileListParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...list.ClientOption,
+					) (*list.CreateFileListCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						checkAPIKey(t, authInfo, apiKey)
+
+						if name := swag.StringValue(params.List.Title); !strings.HasPrefix(name, "album-") {
 							t.Errorf("expect having prefix album-, got %v", name)
 						}
-						return "abc", nil
+						return &list.CreateFileListCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String("abc"),
+								Success: swag.Bool(true),
+							},
+						}, nil
 					})
-
-				m.EXPECT().ListURL("abc").Return("https://example.com/abc")
 			},
-			expect: "https://example.com/abc\n",
+			expect: pixeldrain.ListURL("abc") + "\n",
 		},
 	}
 	for _, tc := range cases {
@@ -202,21 +354,28 @@ func TestUpload(t *testing.T) {
 
 			buf := bytes.NewBuffer(nil)
 
-			m := mock.NewMockClient(ctrl)
 			c := cli.NewContext(cli.NewApp(), flagSet, nil)
 			c.App.Reader = tc.stdin
 			c.App.Writer = buf
-			c.Context = client.ToContext(c.Context, m)
+			c.Context = auth.ToContext(c.Context, client.BasicAuth("", apiKey))
+
+			m := mock.NewMockClientService(ctrl)
 			if tc.init != nil {
 				tc.init(t, c.Context, m)
 			}
+			RegisterMock(t, m)
 
 			err = CmdUpload(c)
-			if !errors.Is(err, tc.err) {
-				t.Errorf("expect %v, got %v", tc.err, err)
+			if err != nil || tc.exit != 0 {
+				if e, ok := err.(cli.ExitCoder); !ok {
+					t.Errorf("expect an ExitCoder, got %v", err)
+				} else if e.ExitCode() != tc.exit {
+					t.Errorf("expect %v, got %v", tc.exit, e.ExitCode())
+				}
 			}
+
 			if res := buf.String(); res != tc.expect {
-				t.Errorf("expect %v, got %v", tc.expect, res)
+				t.Errorf("expect %q, got %q", tc.expect, res)
 			}
 		})
 	}

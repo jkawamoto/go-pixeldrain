@@ -1,12 +1,12 @@
 // doc.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
 // http://opensource.org/licenses/mit-license.php
 
-// pd is a Pixeldrain client.
+// pd is a Pixeldrain client application.
 //
 // # Usage
 //

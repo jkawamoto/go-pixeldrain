@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 // NewCreateFileListParams creates a new CreateFileListParams object,
@@ -66,7 +68,7 @@ type CreateFileListParams struct {
 	   POST body should be a JSON object, example below. A list can contain maximally 5000 files. If you try to add more the request will fail.
 
 	*/
-	List CreateFileListBody
+	List *models.CreateFileListRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -122,13 +124,13 @@ func (o *CreateFileListParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithList adds the list to the create file list params
-func (o *CreateFileListParams) WithList(list CreateFileListBody) *CreateFileListParams {
+func (o *CreateFileListParams) WithList(list *models.CreateFileListRequest) *CreateFileListParams {
 	o.SetList(list)
 	return o
 }
 
 // SetList adds the list to the create file list params
-func (o *CreateFileListParams) SetList(list CreateFileListBody) {
+func (o *CreateFileListParams) SetList(list *models.CreateFileListRequest) {
 	o.List = list
 }
 
@@ -139,8 +141,10 @@ func (o *CreateFileListParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.List); err != nil {
-		return err
+	if o.List != nil {
+		if err := r.SetBodyParam(o.List); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

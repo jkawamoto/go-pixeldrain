@@ -1,0 +1,435 @@
+swagger: "2.0"
+info:
+  title: Pixeldrain API
+  version: 2023-04-02
+host: pixeldrain.com
+basePath: /api
+schemes:
+  - https
+tags:
+  - name: file
+    description: File Methods
+  - name: list
+    description: List Methods
+  - name: user
+    description: User Methods
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+security:
+  - basicAuth: [ ]
+paths:
+  /file:
+    post:
+      tags:
+        - file
+      summary: Upload a file.
+      description: >
+        Upload a file. I recommend that you use the PUT API instead of the POST API.
+        It’s easier to use and the multipart encoding of the POST API can cause performance issues in certain
+        environments.
+      operationId: uploadFile
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          type: file
+          in: formData
+          required: true
+          description: File to upload
+        - name: name
+          type: string
+          in: formData
+          description: Name of the file to upload
+          default: multipart file name
+        - name: anonymous
+          type: boolean
+          in: formData
+          description: File is not linked to user if true
+          default: false
+      responses:
+        201:
+          description: File is uploaded
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/file/{id}":
+    get:
+      tags:
+        - file
+      summary: Download a file.
+      description: >
+        Returns the full file associated with the ID. Supports byte range requests.
+
+        Warning: If a file is using too much bandwidth it can be rate limited.
+        The rate limit will be enabled if a file has three times more downloads than views.
+        The owner of a file can always download it.
+        When a file is rate limited the user will need to fill out a captcha in order to continue downloading the file.
+        The captcha will only appear on the file viewer page (pixeldrain.com/u/{id}).
+        Rate limiting has been added to prevent the spread of viruses and to stop hotlinking.
+        Hotlinking is only allowed when files are uploaded using a Pro account.
+
+        Pixeldrain also includes a virus scanner.
+        If a virus has been detected in a file the user will also have to fill in a captcha to download it.
+      operationId: downloadFile
+      produces:
+        - application/octet-stream
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the file to request
+      responses:
+        200:
+          description: A file output stream.
+          schema:
+            type: file
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+    delete:
+      tags:
+        - file
+      summary: Deletes a file.
+      description: Deletes a file. Only works when the users owns the file.
+      operationId: deleteFile
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the file to request
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              value:
+                type: string
+                example: file_deleted
+              message:
+                type: string
+                example: The file has been deleted.
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/file/{id}/info":
+    get:
+      tags:
+        - file
+      summary: Retrieve information of a file.
+      description: >
+        Returns information about one or more files.
+        You can also put a comma separated list of file IDs in the URL
+        and it will return an array of file info, instead of a single object.
+      operationId: getFileInfo
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID(s) of the file
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FileInfo"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/file/{id}/thumbnail":
+    get:
+      tags:
+        - file
+      summary: Get a thumbnail image representing the file
+      description: >
+        Returns a PNG thumbnail image representing the file.
+        The thumbnail is always 100*100 px.
+        If the source file is parsable by imagemagick the thumbnail will be generated from the file,
+        if not it will be a generic mime type icon.
+      operationId: getFileThumbnail
+      produces:
+        - image/png
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the file to get a thumbnail for
+        - name: width
+          type: integer
+          in: query
+          description: Width of the thumbnail image
+        - name: height
+          type: integer
+          in: query
+          description: Height of the thumbnail image
+      responses:
+        200:
+          description: >
+            A PNG image if a thumbnail can be generated.
+            If a thumbnail cannot be generated you will get a 301 redirect to an image representing the type of the
+            file.
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  /list:
+    post:
+      tags:
+        - list
+      summary: Creates a list of files that can be viewed together on the file viewer page.
+      description: Creates a list of files that can be viewed together on the file viewer page.
+      operationId: createFileList
+      parameters:
+        - name: list
+          in: body
+          required: true
+          description: >
+            POST body should be a JSON object, example below.
+            A list can contain maximally 5000 files.
+            If you try to add more the request will fail.
+          schema:
+            $ref: "#/definitions/CreateFileListRequest"
+      responses:
+        201:
+          description: List is created
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/list/{id}":
+    get:
+      tags:
+        - list
+      summary: Returns information about a file list and the files in it.
+      description: Returns information about a file list and the files in it.
+      operationId: getFileList
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the list
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/GetFileListResponse"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/user/files":
+    get:
+      tags:
+        - user
+      summary: Returns a list of uploaded files.
+      description: Returns a list of uploaded files..
+      operationId: listFiles
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  $ref: "#/definitions/FileInfo"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+  "/user/lists":
+    get:
+      tags:
+        - user
+      summary: Returns file lists.
+      description: Returns file lists.
+      operationId: listFileLists
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              lists:
+                type: array
+                items:
+                  $ref: "#/definitions/ListInfo"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
+definitions:
+  FileInfo:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        description: ID of the newly uploaded file
+        example: abc123
+      name:
+        type: string
+        description: Name of the file
+        example: screenshot.png
+      date_upload:
+        type: string
+        format: date-time
+        description: Timestamp of uploaded time
+        example: "2019-01-15T17:13:43Z"
+      date_last_view:
+        type: string
+        format: date-time
+        description: Timestamp of last viewed time
+        example: "2019-01-15T17:13:43Z"
+      size:
+        type: integer
+        format: int64
+        description: Size of the file in Bytes
+        example: 5694837
+      views:
+        type: integer
+        format: int64
+        description: Amount of unique file views
+        example: 1234
+      bandwidth_used:
+        type: integer
+        format: int64
+        description: How much bandwidth this file used
+      mime_type:
+        type: string
+        description: MIME type of the file
+        example: image/png
+      thumbnail_href:
+        type: string
+        description: Link to a thumbnail of this file
+        example: /file/1234abcd/thumbnail
+  ListInfo:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        description: ID of the newly uploaded file
+        example: abc123
+      title:
+        type: string
+        description: Title of the list.
+        default: Pixeldrain List
+        example: My beautiful photos
+      date_created:
+        type: string
+        format: date-time
+        description: Timestamp of creation time
+        example: "2019-01-15T17:13:43Z"
+      file_count:
+        type: integer
+        format: int64
+        description: The number of files in the list
+        example: 1234
+
+  ListItem:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        description: ID of the file
+        example: abc123
+      description:
+        type: string
+        description: Description of the file
+        example: First photo of the week, such a beautiful valley
+  CreateFileListRequest:
+    required:
+      - files
+    properties:
+      title:
+        type: string
+        description: Title of the list.
+        default: Pixeldrain List
+        example: My beautiful photos
+      anonymous:
+        type: boolean
+        description: If true this list will not be linked to your user account.
+        default: false
+        example: true
+      files:
+        type: array
+        items:
+          $ref: "#/definitions/ListItem"
+        description: Ordered array of files to add to the list
+        example:
+          - id: abc123
+            description: First photo of the week, such a beautiful valley
+          - id: 123abc
+            description: The week went by so quickly, here's a photo from the plane back
+  GetFileListResponse:
+    properties:
+      success:
+        type: boolean
+        example: true
+      id:
+        type: string
+        example: L8bhwx
+      title:
+        type: string
+        example: Rust in Peace
+      date_creqated:
+        type: number
+        example: 1513033315
+      files:
+        type: array
+        items:
+          $ref: "#/definitions/FileInfo"
+  SuccessResponse:
+    required:
+      - success
+      - id
+    properties:
+      success:
+        type: boolean
+        example: true
+      id:
+        type: string
+        description: ID of the created object
+        example: yay137
+  StandardError:
+    required:
+      - success
+      - value
+      - message
+    properties:
+      success:
+        type: boolean
+        example: false
+      id:
+        type: string
+        example: Oh42No
+      value:
+        type: string
+        example: writing
+      message:
+        type: string
+        example: >-
+          Something went wrong while writing the file to disk, the server may be out of storage space.
