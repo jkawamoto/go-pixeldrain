@@ -63,10 +63,5 @@ func initApp() *cli.App {
 
 func main() {
 	app := initApp()
-
-	err := app.RunContext(context.Background(), os.Args)
-	if err != nil {
-		_, _ = fmt.Fprintf(app.ErrWriter, "failed to run: %v\n", err)
-		os.Exit(status.InvalidArgument)
-	}
+	_ = app.RunContext(context.Background(), os.Args)
 }

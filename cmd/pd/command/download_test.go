@@ -28,6 +28,7 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command/mock"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/internal/testutil"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -72,7 +73,7 @@ func TestCmdDownload(t *testing.T) {
 			if params.Context != ctx {
 				t.Errorf("expect %v, got %v", ctx, params.Context)
 			}
-			checkAPIKey(t, authInfo, apiKey)
+			testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 			info, err := os.Stat(params.ID)
 			if err != nil {
@@ -98,7 +99,7 @@ func TestCmdDownload(t *testing.T) {
 			if params.Context != ctx {
 				t.Errorf("expect %v, got %v", ctx, params.Context)
 			}
-			checkAPIKey(t, authInfo, apiKey)
+			testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 			f, err := os.Open(params.ID)
 			if err != nil {
@@ -173,7 +174,7 @@ func TestCmdDownload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if params.ID != "abc" {
 							t.Errorf("expect %v, got %v", "abc", params.ID)

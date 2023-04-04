@@ -6,7 +6,7 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-package command
+package testutil
 
 import (
 	"encoding/base64"
@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 )
 
-func checkAPIKey(t *testing.T, authInfo runtime.ClientAuthInfoWriter, apiKey string) {
+func ExpectAuthInfoWritesAPIKey(t *testing.T, authInfo runtime.ClientAuthInfoWriter, apiKey string) {
 	t.Helper()
 
 	req := &runtime.TestClientRequest{}

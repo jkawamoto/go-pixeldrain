@@ -28,6 +28,7 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command/mock"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/internal/testutil"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -67,7 +68,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "doc.go" {
 							t.Errorf("expect %v, got %v", "doc.go", name)
@@ -112,7 +113,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "manual" {
 							t.Errorf("expect %v, got %v", "manual", name)
@@ -156,7 +157,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "manual" {
 							t.Errorf("expect %v, got %v", "manual", name)
@@ -198,7 +199,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
 						if err != nil {
@@ -232,7 +233,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if len(params.List.Files) != 2 {
 							t.Fatalf("expect %v, got %v", 2, len(params.List.Files))
@@ -273,7 +274,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
 						if err != nil {
@@ -307,7 +308,7 @@ func TestUpload(t *testing.T) {
 						if params.Context != ctx {
 							t.Errorf("expect %v, got %v", ctx, params.Context)
 						}
-						checkAPIKey(t, authInfo, apiKey)
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := swag.StringValue(params.List.Title); !strings.HasPrefix(name, "album-") {
 							t.Errorf("expect having prefix album-, got %v", name)
