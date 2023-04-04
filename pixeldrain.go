@@ -1,6 +1,6 @@
 // pixeldrain.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -9,49 +9,68 @@
 package pixeldrain
 
 import (
-	"io"
-	"os"
-	"path"
+	"net/url"
+	"strings"
 
-	"github.com/go-openapi/runtime"
-	auth "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/jkawamoto/go-pixeldrain/client"
 )
 
-// Pixeldrain is a Pixeldrain API client.
-type Pixeldrain struct {
-	// Stdout is used to output downloaded files.
-	Stdout io.Writer
-	// Stderr is used to render progress bars. If you want to disable progress bars, set io.Discard.
-	Stderr io.Writer
+// Default is a default client.
+var Default = New(nil, nil)
 
-	cli            *client.PixeldrainAPI
-	authInfoWriter runtime.ClientAuthInfoWriter
-}
+const (
+	// fileBasePath is the base path to file download URLs.
+	fileBasePath = "/file"
+	// listBasePath is the base path to list URLs.
+	listBasePath = "/l"
+)
 
-// New creates a Pixeldrain API client that uses the given API key. The key can be an empty string.
-func New(apiKey string) *Pixeldrain {
-	cli := client.Default
-	cli.SetTransport(newTransport(cli.Transport))
-
-	res := &Pixeldrain{
-		cli:    cli,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
-	if apiKey != "" {
-		res.authInfoWriter = auth.BasicAuth("", apiKey)
-	}
-	return res
+// New creates a new PixelDrain client with the given configurations. formats and cfg can be nil.
+func New(formats strfmt.Registry, cfg *client.TransportConfig) *client.PixeldrainAPI {
+	cli := client.NewHTTPClientWithConfig(formats, cfg)
+	cli.SetTransport(ContentTypeFixer(cli.Transport))
+	return cli
 }
 
 // DownloadURL returns the URL associated with the given file ID.
-func (Pixeldrain) DownloadURL(id string) string {
-	return "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", id)
+func DownloadURL(id string) string {
+	u := url.URL{
+		Scheme: client.DefaultSchemes[0],
+	}
+	return u.JoinPath(client.DefaultHost, client.DefaultBasePath, fileBasePath, id).String()
 }
 
 // ListURL returns the URL associated with the given list ID.
-func (Pixeldrain) ListURL(id string) string {
-	return "https://" + path.Join(client.DefaultHost, "l", id)
+func ListURL(id string) string {
+	u := url.URL{
+		Scheme: client.DefaultSchemes[0],
+	}
+	return u.JoinPath(client.DefaultHost, listBasePath, id).String()
+}
+
+// IsDownloadURL returns true if the given url points a file.
+func IsDownloadURL(u string) (bool, error) {
+	parse, err := url.Parse(u)
+	if err != nil {
+		return false, err
+	}
+
+	prefix, err := url.JoinPath(client.DefaultBasePath, fileBasePath)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.HasPrefix(parse.Path, prefix), nil
+}
+
+// IsListURL returns true if the given url points a list.
+func IsListURL(u string) (bool, error) {
+	parse, err := url.Parse(u)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.HasPrefix(parse.Path, listBasePath), nil
 }

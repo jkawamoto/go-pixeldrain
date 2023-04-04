@@ -6,16 +6,11 @@ package list
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"strconv"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -51,24 +46,60 @@ func NewCreateFileListCreated() *CreateFileListCreated {
 	return &CreateFileListCreated{}
 }
 
-/* CreateFileListCreated describes a response with status code 201, with default header values.
+/*
+CreateFileListCreated describes a response with status code 201, with default header values.
 
 List is created
 */
 type CreateFileListCreated struct {
-	Payload *CreateFileListCreatedBody
+	Payload *models.SuccessResponse
+}
+
+// IsSuccess returns true when this create file list created response has a 2xx status code
+func (o *CreateFileListCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create file list created response has a 3xx status code
+func (o *CreateFileListCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create file list created response has a 4xx status code
+func (o *CreateFileListCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create file list created response has a 5xx status code
+func (o *CreateFileListCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create file list created response a status code equal to that given
+func (o *CreateFileListCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the create file list created response
+func (o *CreateFileListCreated) Code() int {
+	return 201
 }
 
 func (o *CreateFileListCreated) Error() string {
 	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
 }
-func (o *CreateFileListCreated) GetPayload() *CreateFileListCreatedBody {
+
+func (o *CreateFileListCreated) String() string {
+	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
+}
+
+func (o *CreateFileListCreated) GetPayload() *models.SuccessResponse {
 	return o.Payload
 }
 
 func (o *CreateFileListCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(CreateFileListCreatedBody)
+	o.Payload = new(models.SuccessResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -85,7 +116,8 @@ func NewCreateFileListDefault(code int) *CreateFileListDefault {
 	}
 }
 
-/* CreateFileListDefault describes a response with status code -1, with default header values.
+/*
+CreateFileListDefault describes a response with status code -1, with default header values.
 
 Error Response
 */
@@ -93,6 +125,31 @@ type CreateFileListDefault struct {
 	_statusCode int
 
 	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this create file list default response has a 2xx status code
+func (o *CreateFileListDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create file list default response has a 3xx status code
+func (o *CreateFileListDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create file list default response has a 4xx status code
+func (o *CreateFileListDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create file list default response has a 5xx status code
+func (o *CreateFileListDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create file list default response a status code equal to that given
+func (o *CreateFileListDefault) IsCode(code int) bool {
+	return o._statusCode == code
 }
 
 // Code gets the status code for the create file list default response
@@ -103,6 +160,11 @@ func (o *CreateFileListDefault) Code() int {
 func (o *CreateFileListDefault) Error() string {
 	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
 }
+
+func (o *CreateFileListDefault) String() string {
+	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
+}
+
 func (o *CreateFileListDefault) GetPayload() *models.StandardError {
 	return o.Payload
 }
@@ -116,211 +178,5 @@ func (o *CreateFileListDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
-	return nil
-}
-
-/*CreateFileListBody create file list body
-swagger:model CreateFileListBody
-*/
-type CreateFileListBody struct {
-
-	// Description of the list.
-	// Example: An album of photos from my vacation in Austria
-	Description string `json:"description,omitempty"`
-
-	// Ordered array of files to add to the list
-	// Example: [{"description":"First photo of the week, such a beautiful valley","id":"abc123"},{"description":"The week went by so quickly, here's a photo from the plane back","id":"123abc"}]
-	// Required: true
-	Files []*CreateFileListParamsBodyFilesItems0 `json:"files"`
-
-	// Title of the list.
-	// Example: My beautiful photos
-	// Required: true
-	Title *string `json:"title"`
-}
-
-// Validate validates this create file list body
-func (o *CreateFileListBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateFiles(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTitle(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *CreateFileListBody) validateFiles(formats strfmt.Registry) error {
-
-	if err := validate.Required("list"+"."+"files", "body", o.Files); err != nil {
-		return err
-	}
-
-	for i := 0; i < len(o.Files); i++ {
-		if swag.IsZero(o.Files[i]) { // not required
-			continue
-		}
-
-		if o.Files[i] != nil {
-			if err := o.Files[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *CreateFileListBody) validateTitle(formats strfmt.Registry) error {
-
-	if err := validate.Required("list"+"."+"title", "body", o.Title); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validate this create file list body based on the context it is used
-func (o *CreateFileListBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateFiles(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *CreateFileListBody) contextValidateFiles(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(o.Files); i++ {
-
-		if o.Files[i] != nil {
-			if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list" + "." + "files" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CreateFileListBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CreateFileListBody) UnmarshalBinary(b []byte) error {
-	var res CreateFileListBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*CreateFileListCreatedBody create file list created body
-swagger:model CreateFileListCreatedBody
-*/
-type CreateFileListCreatedBody struct {
-
-	// ID of the newly created list
-	// Example: yay137
-	ID string `json:"id,omitempty"`
-
-	// success
-	// Example: true
-	Success bool `json:"success,omitempty"`
-}
-
-// Validate validates this create file list created body
-func (o *CreateFileListCreatedBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this create file list created body based on context it is used
-func (o *CreateFileListCreatedBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CreateFileListCreatedBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CreateFileListCreatedBody) UnmarshalBinary(b []byte) error {
-	var res CreateFileListCreatedBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*CreateFileListParamsBodyFilesItems0 create file list params body files items0
-swagger:model CreateFileListParamsBodyFilesItems0
-*/
-type CreateFileListParamsBodyFilesItems0 struct {
-
-	// Description of the file
-	// Example: First photo of the week, such a beautiful valley
-	Description string `json:"description,omitempty"`
-
-	// ID of the file
-	// Example: abc123
-	ID string `json:"id,omitempty"`
-}
-
-// Validate validates this create file list params body files items0
-func (o *CreateFileListParamsBodyFilesItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this create file list params body files items0 based on context it is used
-func (o *CreateFileListParamsBodyFilesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CreateFileListParamsBodyFilesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CreateFileListParamsBodyFilesItems0) UnmarshalBinary(b []byte) error {
-	var res CreateFileListParamsBodyFilesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

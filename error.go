@@ -1,6 +1,6 @@
 // error.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -19,11 +19,8 @@ type Error struct {
 	error
 }
 
-// NewError returns *Error that wraps the given error. If err is nil, it returns nil.
+// NewError returns *Error that wraps the given error.
 func NewError(err error) *Error {
-	if err == nil {
-		return nil
-	}
 	return &Error{error: err}
 }
 

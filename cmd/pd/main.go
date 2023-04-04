@@ -10,19 +10,32 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
+	"github.com/go-openapi/runtime/client"
 	"github.com/urfave/cli/v2"
+
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 )
 
 const (
 	// Name defines the basename of this program.
 	Name = "pd"
 	// Version defines current version number.
-	Version = "0.5.2"
+	Version = "0.6.0"
 )
 
-func main() {
+// commandNotFound shows error message and exit when a given command is not found.
+func commandNotFound(c *cli.Context, command string) {
+	_, _ = fmt.Fprintf(c.App.ErrWriter, "'%s' is not a %s command..\n", command, c.App.Name)
+	//_ = cli.ShowAppHelp(c)
+	os.Exit(status.InvalidCommand)
+}
+
+func initApp() *cli.App {
 	app := cli.NewApp()
 	app.Name = Name
 	app.Version = Version
@@ -35,9 +48,20 @@ func main() {
 	app.Usage = "A Pixeldrain client"
 
 	app.Flags = GlobalFlags
-	app.Commands = Commands
+	app.Commands = command.Commands
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
+	app.Before = func(c *cli.Context) error {
+		if key := c.String(FlagAPIKey); key != "" {
+			c.Context = auth.ToContext(c.Context, client.BasicAuth("", key))
+		}
+		return nil
+	}
 
+	return app
+}
+
+func main() {
+	app := initApp()
 	_ = app.RunContext(context.Background(), os.Args)
 }

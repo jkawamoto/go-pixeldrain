@@ -1,62 +1,61 @@
 // doc.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
 // http://opensource.org/licenses/mit-license.php
 
-// pd is a Pixeldrain client.
+// pd is a Pixeldrain client application.
 //
-// Usage
+// # Usage
 //
-// pd has three subcommands: upload, download, and create-list.
+// pd has two subcommands: upload and download.
 //
-// upload command uploads a file to Pixeldrain and shows a URL to it.
-//   $ pd upload <file path>
-// The uploaded file has the same name as the given file. -n and --name options overwrite the file names.
+// upload command uploads files specified by the given paths to Pixeldrain and shows a URL to download them.
 //
-// If uploading file is given via STDIN, use - instead of a file path.
-// In this case either `-n` or `--name` option is mandatory.
+//	$ pd upload <path[:name]>...
 //
-// For example, this command reads file1.txt and uploads it with name uploaded.txt:
-//   $ cat file1.txt | pd upload --name uploaded.txt -
+// Each path can have an optional name. If a name is given, uploaded file will be renamed with it.
+// For example, this command reads img.png and uploads it as another.png:
 //
+//	$ pd upload img.png:another.png
 //
-// download command downloads a file from Pixeldrain and writes it to STDOUT.
-//   $ pd download <file ID | URL>
+// If path is "-", the uploading file is read from stdin. In this case, it's recommended to give a file name.
+// For example, this command reads data from stdin and uploads it as output.log:
 //
-// If -o option is given with a directory path, the downloaded file is stored in
-// the directory instead of writing to STDOUT.
+//	$ pd upload -:output.log
 //
-// For example, this command downloads a file FILE_ID into ~/Download:
-//   $ pd download FILE_ID -o ~/Download
+// If multiple files are given, an album consists of them will be created. By default, the album has a random name.
+// --album flag can specify the name.
+// For example, this command uploads two files and creates an album named "screenshots":
 //
+//	$ pd upload --album screenshots img1.png img2.png
 //
-// This application supports uploading a file from STDIN and downloading a file to STDOUT.
-// With tar command, it's also able to upload/download directories.
+// download command downloads files from Pixeldrain to the current directory.
 //
-// For example, this command uploads ~/Documents directory:
-//   $ tar zcf - ~/Documents | pd upload -n documents.tar.gz -
+//	$ pd download <URL>...
 //
-// and this command downloads the file:
-//   $ pd download <file id> | tar zxf - -C ~/Downloads
+// If --dir or -o option is given with a directory path, the downloaded file is stored in the directory.
 //
+// For example, this command downloads a file URL into ~/Download:
 //
-// Installation
+//	$ pd download URL -o ~/Download
+//
+// # Installation
 //
 // If you're a Homebrew or Linuxbrew user, you can install this app by the following commands:
-//   $ brew tap jkawamoto/pixeldrain
-//   $ brew install pixeldrain
+//
+//	$ brew tap jkawamoto/pixeldrain
+//	$ brew install pixeldrain
 //
 // To build the newest version, use go get command:
-//    $ go get github.com/jkawamoto/go-pixeldrain
+//
+//	$ go get github.com/jkawamoto/go-pixeldrain
 //
 // Otherwise, compiled binaries are also available at https://github.com/jkawamoto/go-pixeldrain/releases.
 //
-//
-// License
+// # License
 //
 // This software is released under the MIT License.
-//
 package main

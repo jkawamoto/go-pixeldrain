@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewUploadFileParams creates a new UploadFileParams object,
@@ -52,24 +53,24 @@ func NewUploadFileParamsWithHTTPClient(client *http.Client) *UploadFileParams {
 	}
 }
 
-/* UploadFileParams contains all the parameters to send to the API endpoint
-   for the upload file operation.
+/*
+UploadFileParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the upload file operation.
+
+	Typically these are written to a http.Request.
 */
 type UploadFileParams struct {
 
-	/* Description.
+	/* Anonymous.
 
-	   Description of the file
-
-	   Default: "Pixeldrain File"
+	   File is not linked to user if true
 	*/
-	Description *string
+	Anonymous *bool
 
 	/* File.
 
-	   Multipart file to upload
+	   File to upload
 	*/
 	File runtime.NamedReadCloser
 
@@ -77,7 +78,7 @@ type UploadFileParams struct {
 
 	   Name of the file to upload
 
-	   Default: "Name of file param"
+	   Default: "multipart file name"
 	*/
 	Name *string
 
@@ -99,14 +100,14 @@ func (o *UploadFileParams) WithDefaults() *UploadFileParams {
 // All values with no default are reset to their zero value.
 func (o *UploadFileParams) SetDefaults() {
 	var (
-		descriptionDefault = string("Pixeldrain File")
+		anonymousDefault = bool(false)
 
-		nameDefault = string("Name of file param")
+		nameDefault = string("multipart file name")
 	)
 
 	val := UploadFileParams{
-		Description: &descriptionDefault,
-		Name:        &nameDefault,
+		Anonymous: &anonymousDefault,
+		Name:      &nameDefault,
 	}
 
 	val.timeout = o.timeout
@@ -148,15 +149,15 @@ func (o *UploadFileParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithDescription adds the description to the upload file params
-func (o *UploadFileParams) WithDescription(description *string) *UploadFileParams {
-	o.SetDescription(description)
+// WithAnonymous adds the anonymous to the upload file params
+func (o *UploadFileParams) WithAnonymous(anonymous *bool) *UploadFileParams {
+	o.SetAnonymous(anonymous)
 	return o
 }
 
-// SetDescription adds the description to the upload file params
-func (o *UploadFileParams) SetDescription(description *string) {
-	o.Description = description
+// SetAnonymous adds the anonymous to the upload file params
+func (o *UploadFileParams) SetAnonymous(anonymous *bool) {
+	o.Anonymous = anonymous
 }
 
 // WithFile adds the file to the upload file params
@@ -189,16 +190,16 @@ func (o *UploadFileParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 	}
 	var res []error
 
-	if o.Description != nil {
+	if o.Anonymous != nil {
 
-		// form param description
-		var frDescription string
-		if o.Description != nil {
-			frDescription = *o.Description
+		// form param anonymous
+		var frAnonymous bool
+		if o.Anonymous != nil {
+			frAnonymous = *o.Anonymous
 		}
-		fDescription := frDescription
-		if fDescription != "" {
-			if err := r.SetFormParam("description", fDescription); err != nil {
+		fAnonymous := swag.FormatBool(frAnonymous)
+		if fAnonymous != "" {
+			if err := r.SetFormParam("anonymous", fAnonymous); err != nil {
 				return err
 			}
 		}

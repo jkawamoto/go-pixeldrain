@@ -12,6 +12,7 @@ import (
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 	"github.com/jkawamoto/go-pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/client/user"
 )
 
 // Default pixeldrain API HTTP client.
@@ -58,6 +59,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Pixeldrain
 	cli.Transport = transport
 	cli.File = file.New(transport, formats)
 	cli.List = list.New(transport, formats)
+	cli.User = user.New(transport, formats)
 	return cli
 }
 
@@ -106,6 +108,8 @@ type PixeldrainAPI struct {
 
 	List list.ClientService
 
+	User user.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -114,4 +118,5 @@ func (c *PixeldrainAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.File.SetTransport(transport)
 	c.List.SetTransport(transport)
+	c.User.SetTransport(transport)
 }

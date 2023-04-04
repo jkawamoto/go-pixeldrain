@@ -1,6 +1,6 @@
 // upload.go
 //
-// Copyright (c) 2018-2021 Junpei Kawamoto
+// Copyright (c) 2018-2023 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -11,58 +11,114 @@ package command
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
-	"github.com/hashicorp/go-multierror"
+	"github.com/cheggaaa/pb/v3"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 	"github.com/urfave/cli/v2"
 
 	"github.com/jkawamoto/go-pixeldrain"
+	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
+	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
-type renamedFile struct {
-	*os.File
-	name string
-}
-
-func (f *renamedFile) Name() string {
-	if f.name != "" {
-		return f.name
+// upload uploads the given contents with the given name via the given client, and returns the ID of the file.
+// If path is "-", read contents from stdin. If name is empty, use the base name of the path.
+func upload(ctx *cli.Context, path, name string) (_ string, err error) {
+	if name == "" {
+		name = filepath.Base(path)
 	}
-	return f.File.Name()
+
+	var r io.Reader
+	if path == "-" {
+		r = ctx.App.Reader
+	} else {
+		f, e := os.Open(path)
+		if e != nil {
+			return "", e
+		}
+		defer func() {
+			if e := f.Close(); e != nil && !errors.Is(e, os.ErrClosed) {
+				err = errors.Join(err, e)
+			}
+		}()
+		r = f
+
+		info, e := f.Stat()
+		if e != nil {
+			return "", e
+		}
+		bar := pb.New(int(info.Size()))
+		bar.Set(pb.SIBytesPrefix, true)
+		bar.Set("prefix", name+" ")
+		bar.SetWriter(ctx.App.ErrWriter)
+		bar.Start()
+		defer bar.Finish()
+	}
+
+	res, err := pixeldrain.Default.File.UploadFile(
+		file.NewUploadFileParamsWithContext(ctx.Context).WithFile(runtime.NamedReader(name, r)),
+		auth.Extract(ctx.Context),
+	)
+	if err != nil {
+		return "", pixeldrain.NewError(err)
+	}
+
+	return swag.StringValue(res.Payload.ID), nil
 }
 
 func CmdUpload(c *cli.Context) error {
-	if c.NArg() != 1 {
-		_, _ = fmt.Printf("expected 1 argument. (%d given)\n", c.NArg())
-		return cli.ShowSubcommandHelp(c)
+	if c.NArg() == 0 {
+		return cli.Exit(fmt.Sprintf("expected at least 1 argument but %d given", c.NArg()), status.InvalidArgument)
 	}
 
-	pd := pixeldrain.New(c.String("api-key"))
-	if c.Args().First() == "-" {
-		id, err := pd.Upload(c.Context, &renamedFile{File: os.Stdin, name: c.String("name")})
+	var ids []string
+	for i := 0; i != c.NArg(); i++ {
+		path, name, _ := strings.Cut(c.Args().Get(i), ":")
+
+		id, err := upload(c, path, name)
 		if err != nil {
-			return cli.Exit(err, status.APIError)
+			return cli.Exit(fmt.Errorf("failed to upload %v: %w", path, err), status.APIError)
 		}
-		fmt.Println(pd.DownloadURL(id))
+
+		ids = append(ids, id)
+	}
+
+	if len(ids) == 1 {
+		_, _ = fmt.Fprintln(c.App.Writer, pixeldrain.DownloadURL(ids[0]))
 		return nil
 	}
 
-	fp, err := os.Open(c.Args().First())
-	if err != nil {
-		return cli.Exit(err, status.InvalidArgument)
+	album := c.String(FlagAlbumName)
+	if album == "" {
+		album = fmt.Sprintf("album-%x", time.Now().Unix())
 	}
-	defer func() {
-		if e := fp.Close(); e != nil && !errors.Is(err, os.ErrClosed) {
-			err = multierror.Append(err, e)
+
+	files := make([]*models.ListItem, len(ids))
+	for i, id := range ids {
+		files[i] = &models.ListItem{
+			ID: swag.String(id),
 		}
-	}()
-
-	id, err := pd.Upload(c.Context, &renamedFile{File: fp, name: c.String("name")})
+	}
+	res, err := pixeldrain.Default.List.CreateFileList(
+		list.NewCreateFileListParamsWithContext(c.Context).WithList(&models.CreateFileListRequest{
+			Files: files,
+			Title: swag.String(album),
+		}),
+		auth.Extract(c.Context),
+	)
 	if err != nil {
-		return cli.Exit(err, status.APIError)
+		return cli.Exit(fmt.Errorf("failed to create an album: %w", pixeldrain.NewError(err)), status.APIError)
 	}
 
-	fmt.Println(pd.DownloadURL(id))
+	_, _ = fmt.Fprintln(c.App.Writer, pixeldrain.ListURL(swag.StringValue(res.Payload.ID)))
 	return nil
 }

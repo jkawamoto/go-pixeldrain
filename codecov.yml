@@ -17,4 +17,5 @@ comment:
   require_changes: false
 ignore:
   - "client/**/*"
-  - "models/**/*"
+  - "models/*"
+  - "mock_*"

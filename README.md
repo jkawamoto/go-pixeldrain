@@ -3,62 +3,65 @@
 [![CircleCI](https://circleci.com/gh/jkawamoto/go-pixeldrain.svg?style=svg)](https://circleci.com/gh/jkawamoto/go-pixeldrain)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jkawamoto/go-pixeldrain.svg)](https://pkg.go.dev/github.com/jkawamoto/go-pixeldrain)
 [![codecov](https://codecov.io/gh/jkawamoto/go-pixeldrain/branch/master/graph/badge.svg?token=ppX3MVIqWA)](https://codecov.io/gh/jkawamoto/go-pixeldrain)
-[![Release](https://img.shields.io/badge/release-0.5.2-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.5.2)
+[![Release](https://img.shields.io/badge/release-0.6.0-brightgreen.svg)](https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.6.0)
 
 
 ## Usage
-### Upload a file
-`upload` command uploads a file to Pixeldrain and shows a URL to it.
-
-
-```shell-session
-$ pd upload <file path>
+### Upload files
+```shell
+pd upload <path[:name]>...
 ```
 
-The uploaded file has the same name as the given file.
-`-n` and `--name` options overwrite the file names.
+`upload` command uploads files specified by the given `path`s to Pixeldrain and shows a URL to download them.
+Each `path` can have an optional `name`. If a name is given, uploaded file will be renamed with it.
 
+For example, this command reads `img.png` and uploads it as `another.png`:
 
-If uploading file is given via STDIN, use `-` instead of a file path.
-In this case either `-n` or `--name` option is mandatory.
-
-For example, this command reads `file1.txt` and uploads it with name `uploaded.txt`:
-
-```shell-session
-$ cat file1.txt | pd upload --name uploaded.txt -
+```shell
+pd upload img.png:another.png
 ```
 
+If `path` is `-`, the uploading file is read from stdin. In this case, it's recommended to give a file name.
+For example, this command reads data from stdin and uploads it as `output.log`:
 
-### Download a file
-`download` command downloads a file from Pixeldrain and writes it to STDOUT.
-
-```shell-session
-$ pd download <file ID | URL>
+```shell
+pd upload -:output.log
 ```
 
-If `-o` option is given with a directory path, the downloaded file is stored in
-the directory instead of writing to STDOUT.
+If multiple files are given, an album consists of them will be created. By default, the album has a random name.
+`--album` flag can specify the name.
+For example, this command uploads two files and creates an album named `screenshots`:
 
-For example, this command downloads a file `abcdefg` in `~/Download`:
-```shell-session
-$ pd download abcdefg -o ~/Download
+```shell
+pd upload --album screenshots img1.png img2.png
 ```
 
-### Upload/Download a directory
-This application supports uploading a file from STDIN and downloading a file to STDOUT.
-With `tar` command, it's also able to upload/download directories.
+#### Upload a directory
+Since this application supports uploading a file from STDIN, you can upload a directory with `tar` command.
 For example, this command uploads `~/Documents` directory:
 
-```shell-session
-$ tar zcf - ~/Documents | pd upload -n documents.tar.gz -
+```shell
+tar zcf - ~/Documents | pd upload -:documents.tar.gz
 ```
 
-and this command downloads the file:
+#### Upload to your account
+If you want to upload files to your account, give your API key with `--api-key` flag or via `PIXELDRAIN_API_KEY`
+environment variable.
 
-```shell-session
-$ pd download <file id> | tar zxf - -C ~/Downloads
+An API key can be obtained from https://pixeldrain.com/user/api_keys.
+
+
+### Download files
+```shell
+pd download <URL>...
 ```
 
+`download` command downloads files from Pixeldrain and stores it in the current directory by default.
+
+If `--dir` or `-o` option is given with a directory path, the downloaded file is stored in the directory.
+
+If the given URL refers an album which consists of multiple files, this command asks which file you want to download.
+If you want to download all files without any interaction, use `--all` flag.
 
 
 ## Installation

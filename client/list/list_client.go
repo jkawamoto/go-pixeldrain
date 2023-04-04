@@ -36,9 +36,9 @@ type ClientService interface {
 }
 
 /*
-  CreateFileList creates a list of files that can be viewed together on the file viewer page
+CreateFileList creates a list of files that can be viewed together on the file viewer page
 
-  Creates a list of files that can be viewed together on the file viewer page.
+Creates a list of files that can be viewed together on the file viewer page.
 */
 func (a *Client) CreateFileList(params *CreateFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateFileListCreated, error) {
 	// TODO: Validate the params before sending
@@ -76,9 +76,9 @@ func (a *Client) CreateFileList(params *CreateFileListParams, authInfo runtime.C
 }
 
 /*
-  GetFileList returns information about a file list and the files in it
+GetFileList returns information about a file list and the files in it
 
-  Returns information about a file list and the files in it.
+Returns information about a file list and the files in it.
 */
 func (a *Client) GetFileList(params *GetFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileListOK, error) {
 	// TODO: Validate the params before sending
