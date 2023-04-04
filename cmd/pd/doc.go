@@ -32,27 +32,15 @@
 //
 //	$ pd upload --album screenshots img1.png img2.png
 //
-// download command downloads a file from Pixeldrain and writes it to STDOUT.
+// download command downloads files from Pixeldrain to the current directory.
 //
-//	$ pd download <file ID | URL>
+//	$ pd download <URL>...
 //
-// If -o option is given with a directory path, the downloaded file is stored in
-// the directory instead of writing to STDOUT.
+// If --dir or -o option is given with a directory path, the downloaded file is stored in the directory.
 //
-// For example, this command downloads a file FILE_ID into ~/Download:
+// For example, this command downloads a file URL into ~/Download:
 //
-//	$ pd download FILE_ID -o ~/Download
-//
-// Sine this command supports uploading a file from STDIN and downloading a file to stdin,
-// it's also able to upload/download directories with tar command
-//
-// For example, this command uploads ~/Documents directory:
-//
-//	$ tar zcf - ~/Documents | pd upload -:documents.tar.gz
-//
-// and this command downloads the file:
-//
-//	$ pd download <file id> | tar zxf - -C ~/Downloads
+//	$ pd download URL -o ~/Download
 //
 // # Installation
 //
