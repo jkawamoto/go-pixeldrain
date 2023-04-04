@@ -126,7 +126,7 @@ func CmdDownload(c *cli.Context) error {
 		}
 
 		prompt := &survey.MultiSelect{
-			Message: "What days do you prefer:",
+			Message: "Which files do you want to download:",
 			Options: make([]string, len(res.Payload.Files)),
 		}
 		for i, f := range res.Payload.Files {
