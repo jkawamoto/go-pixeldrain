@@ -32,3 +32,73 @@ func TestListURL(t *testing.T) {
 		t.Errorf("expect %v, got %v", expect, res)
 	}
 }
+
+func TestIsDownloadURL(t *testing.T) {
+	cases := []struct {
+		url    string
+		expect bool
+	}{
+		{
+			url:    "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", "123"),
+			expect: true,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "l", "123"),
+			expect: false,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, "file", "123"),
+			expect: false,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, "l", "123"),
+			expect: false,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.url, func(t *testing.T) {
+			res, err := IsDownloadURL(c.url)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if res != c.expect {
+				t.Errorf("expect %v, got %v", c.expect, res)
+			}
+		})
+	}
+}
+
+func TestIsListURL(t *testing.T) {
+	cases := []struct {
+		url    string
+		expect bool
+	}{
+		{
+			url:    "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "file", "123"),
+			expect: false,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, client.DefaultBasePath, "l", "123"),
+			expect: false,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, "file", "123"),
+			expect: false,
+		},
+		{
+			url:    "https://" + path.Join(client.DefaultHost, "l", "123"),
+			expect: true,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.url, func(t *testing.T) {
+			res, err := IsListURL(c.url)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if res != c.expect {
+				t.Errorf("expect %v, got %v", c.expect, res)
+			}
+		})
+	}
+}

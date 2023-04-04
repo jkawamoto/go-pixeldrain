@@ -13,7 +13,12 @@ import (
 )
 
 const (
+	// FlagAlbumName is the flag name to specify an album name.
 	FlagAlbumName = "album"
+	// FlagDirectory is the flag name to specify an output directory where downloaded files will be stored.
+	FlagDirectory = "dir"
+	// FlagAll is the flag to download all files in a list.
+	FlagAll = "all"
 )
 
 // Commands manage sub commands.
@@ -29,20 +34,26 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name: FlagAlbumName,
 				Usage: "If multiple files are uploaded, an album consisting of those files will be created. " +
-					"This flag can specifies the album name.",
+					"This flag can specifies the album `name`.",
 			},
 		},
 	}, {
-		Name:        "download",
-		Usage:       "Download a file",
-		Description: "download a file from PixelDrain",
-		ArgsUsage:   "<file ID | URL>",
-		Action:      CmdDownload,
+		Name:  "download",
+		Usage: "Download files",
+		Description: "Download files associated with the given URLs. " +
+			"If the URL refers an album, you will be asked which file you want to download.",
+		ArgsUsage: "<URL>...",
+		Action:    CmdDownload,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "output",
-				Aliases: []string{"o"},
-				Usage:   "output the downloaded file into `DIR`",
+				Name:        FlagDirectory,
+				Aliases:     []string{"o"},
+				Usage:       "`path` to the directory where downloaded files will be stored",
+				DefaultText: ".",
+			},
+			&cli.BoolFlag{
+				Name:  FlagAll,
+				Usage: "if an album URL is given, download all files in it",
 			},
 		},
 	},

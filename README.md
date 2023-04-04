@@ -36,36 +36,26 @@ For example, this command uploads two files and creates an album named `screensh
 pd upload --album screenshots img1.png img2.png
 ```
 
-### Download a file
-`download` command downloads a file from Pixeldrain and writes it to STDOUT.
-
-```shell-session
-$ pd download <file ID | URL>
-```
-
-If `-o` option is given with a directory path, the downloaded file is stored in
-the directory instead of writing to STDOUT.
-
-For example, this command downloads a file `abcdefg` in `~/Download`:
-```shell-session
-$ pd download abcdefg -o ~/Download
-```
-
-### Upload/Download a directory
-Since this application supports uploading a file from STDIN and downloading a file to STDOUT,
-it's also able to upload/download directories with `tar` command,.
+#### Upload a directory
+Since this application supports uploading a file from STDIN, you can upload a directory with `tar` command.
 For example, this command uploads `~/Documents` directory:
 
-```shell-session
-$ tar zcf - ~/Documents | pd upload -:documents.tar.gz
+```shell
+tar zcf - ~/Documents | pd upload -:documents.tar.gz
 ```
 
-and this command downloads the file:
 
-```shell-session
-$ pd download <file id> | tar zxf - -C ~/Downloads
+### Download files
+```shell
+pd download <URL>...
 ```
 
+`download` command downloads files from Pixeldrain and stores it in the current directory by default.
+
+If `--dir` or `-o` option is given with a directory path, the downloaded file is stored in the directory.
+
+If the given URL refers an album which consists of multiple files, this command asks which file you want to download.
+If you want to download all files without any interaction, use `--all` flag.
 
 
 ## Installation
