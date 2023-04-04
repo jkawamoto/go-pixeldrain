@@ -44,6 +44,12 @@ For example, this command uploads `~/Documents` directory:
 tar zcf - ~/Documents | pd upload -:documents.tar.gz
 ```
 
+#### Upload to your account
+If you want to upload files to your account, give your API key with `--api-key` flag or via `PIXELDRAIN_API_KEY`
+environment variable.
+
+An API key can be obtained from https://pixeldrain.com/user/api_keys.
+
 
 ### Download files
 ```shell
