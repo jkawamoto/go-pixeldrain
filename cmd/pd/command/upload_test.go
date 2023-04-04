@@ -11,7 +11,6 @@ package command
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"flag"
 	"io"
 	"os"
@@ -32,22 +31,6 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
-
-func checkAPIKey(t *testing.T, authInfo runtime.ClientAuthInfoWriter, apiKey string) {
-	t.Helper()
-
-	req := &runtime.TestClientRequest{}
-	if err := authInfo.AuthenticateRequest(req, nil); err != nil {
-		t.Fatal(err)
-	}
-	s, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(req.Headers.Get(runtime.HeaderAuthorization), "Basic "))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(s), apiKey) {
-		t.Errorf("expect api key, got %v", string(s))
-	}
-}
 
 func TestUpload(t *testing.T) {
 	apiKey := "test-key"
