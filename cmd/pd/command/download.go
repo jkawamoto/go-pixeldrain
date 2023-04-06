@@ -48,18 +48,14 @@ func downloadURL(ctx *cli.Context, url, dir string) error {
 }
 
 func download(ctx *cli.Context, info *models.FileInfo, dir string) error {
-	out := ctx.App.Writer
-	if dir != "" {
-		var fp io.WriteCloser
-		fp, err := os.OpenFile(filepath.Join(dir, info.Name), os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			err = errors.Join(err, fp.Close())
-		}()
-		out = fp
+	var f io.WriteCloser
+	f, err := os.OpenFile(filepath.Join(dir, info.Name), os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
 	}
+	defer func() {
+		err = errors.Join(err, f.Close())
+	}()
 
 	bar := pb.New64(info.Size)
 	bar.Set(pb.SIBytesPrefix, true)
@@ -68,10 +64,10 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string) error {
 	bar.Start()
 	defer bar.Finish()
 
-	_, err := pixeldrain.Default.File.DownloadFile(
+	_, err = pixeldrain.Default.File.DownloadFile(
 		file.NewDownloadFileParamsWithContext(ctx.Context).WithID(swag.StringValue(info.ID)),
 		auth.Extract(ctx.Context),
-		bar.NewProxyWriter(out),
+		bar.NewProxyWriter(f),
 	)
 	if err != nil {
 		return pixeldrain.NewError(err)
