@@ -62,6 +62,8 @@ func upload(ctx *cli.Context, path, name string) (_ string, err error) {
 		bar.SetWriter(ctx.App.ErrWriter)
 		bar.Start()
 		defer bar.Finish()
+
+		r = bar.NewProxyReader(r)
 	}
 
 	res, err := pixeldrain.Default.File.UploadFile(
