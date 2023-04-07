@@ -3,6 +3,7 @@ module github.com/jkawamoto/go-pixeldrain
 go 1.20
 
 require (
+	filippo.io/age v1.1.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/cheggaaa/pb/v3 v3.1.2
 	github.com/go-openapi/errors v0.20.3
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -42,6 +44,7 @@ require (
 	go.mongodb.org/mongo-driver v1.11.4 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

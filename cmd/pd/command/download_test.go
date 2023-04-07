@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"filippo.io/age"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/swag"
@@ -64,7 +65,14 @@ type DownloadFileFunc = func(
 
 func TestCmdDownload(t *testing.T) {
 	apiKey := "test-key"
-	getFileInfo := func(ctx context.Context) GetFileInfoFunc {
+	identity, err := age.GenerateX25519Identity()
+	if err != nil {
+		t.Fatal(err)
+	}
+	recipient := identity.Recipient()
+	dir := t.TempDir()
+
+	getFileInfo := func(ctx context.Context, encrypted bool) GetFileInfoFunc {
 		return func(
 			params *file.GetFileInfoParams,
 			authInfo runtime.ClientAuthInfoWriter,
@@ -79,17 +87,21 @@ func TestCmdDownload(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			ext := ".download"
+			if encrypted {
+				ext = ext + ".age"
+			}
 			return &file.GetFileInfoOK{
 				Payload: &models.FileInfo{
 					ID:   swag.String(params.ID),
-					Name: params.ID + ".download",
+					Name: params.ID + ext,
 					Size: info.Size(),
 				},
 			}, nil
 
 		}
 	}
-	downloadFile := func(ctx context.Context) DownloadFileFunc {
+	downloadFile := func(ctx context.Context, recipient age.Recipient) DownloadFileFunc {
 		return func(
 			params *file.DownloadFileParams,
 			authInfo runtime.ClientAuthInfoWriter,
@@ -110,6 +122,18 @@ func TestCmdDownload(t *testing.T) {
 					t.Fatal(err)
 				}
 			}()
+			if recipient != nil {
+				w, err := age.Encrypt(writer, recipient)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer func() {
+					if err := w.Close(); err != nil {
+						t.Fatal(err)
+					}
+				}()
+				writer = w
+			}
 			if _, err = io.Copy(writer, f); err != nil {
 				t.Fatal(err)
 			}
@@ -136,8 +160,8 @@ func TestCmdDownload(t *testing.T) {
 			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
 				t.Helper()
 
-				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx))
-				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx))
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil))
 			},
 			args:   []string{pixeldrain.DownloadURL("doc.go")},
 			expect: []string{"doc.go"},
@@ -149,11 +173,11 @@ func TestCmdDownload(t *testing.T) {
 
 				m.EXPECT().
 					GetFileInfo(gomock.Any(), gomock.Any()).
-					DoAndReturn(getFileInfo(ctx)).
+					DoAndReturn(getFileInfo(ctx, false)).
 					Times(2)
 				m.EXPECT().
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
-					DoAndReturn(downloadFile(ctx)).
+					DoAndReturn(downloadFile(ctx, nil)).
 					Times(2)
 			},
 			args:   []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")},
@@ -200,11 +224,29 @@ func TestCmdDownload(t *testing.T) {
 
 				m.EXPECT().
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
-					DoAndReturn(downloadFile(ctx)).
+					DoAndReturn(downloadFile(ctx, nil)).
 					Times(2)
 			},
 			args:   []string{pixeldrain.ListURL("abc")},
 			expect: []string{"doc.go", "download.go"},
+		},
+		{
+			name: "download one encrypted file",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+				t.Helper()
+
+				err := os.WriteFile(filepath.Join(dir, "key.txt"), []byte(identity.String()), 0600)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, true))
+				m.EXPECT().
+					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoAndReturn(downloadFile(ctx, recipient))
+			},
+			args:   []string{"--identity", filepath.Join(dir, "key.txt"), pixeldrain.DownloadURL("doc.go")},
+			expect: []string{"doc.go"},
 		},
 	}
 	for _, tc := range cases {
@@ -217,6 +259,7 @@ func TestCmdDownload(t *testing.T) {
 			flagSet := flag.NewFlagSet("download", flag.PanicOnError)
 			flagSet.String(FlagDirectory, dir, "")
 			flagSet.Bool(FlagAll, true, "")
+			flagSet.String(FlagIdentity, "", "")
 			err := flagSet.Parse(tc.args)
 			if err != nil {
 				t.Fatal(err)
