@@ -19,6 +19,12 @@ const (
 	FlagDirectory = "dir"
 	// FlagAll is the flag to download all files in a list.
 	FlagAll = "all"
+	// FlagRecipient is the flag to specify recipient's public key.
+	FlagRecipient = "recipient"
+	// FlagRecipientFile is the flag to specify a path to the file that contains recipients' public keys.
+	FlagRecipientFile = "recipient-file"
+	// FlagIdentity is the flag to specify a path to the file that contains the user's private keys.
+	FlagIdentity = "identity"
 )
 
 // Commands manage sub commands.
@@ -34,7 +40,19 @@ var Commands = []*cli.Command{
 			&cli.StringFlag{
 				Name: FlagAlbumName,
 				Usage: "If multiple files are uploaded, an album consisting of those files will be created. " +
-					"This flag can specifies the album `name`.",
+					"This flag can specifies the album `NAME`.",
+			},
+			&cli.StringSliceFlag{
+				Name:     FlagRecipient,
+				Aliases:  []string{"r"},
+				Category: "End-to-end encryption",
+				Usage:    "Encrypt to the specified `RECIPIENT`. Can be repeated.",
+			},
+			&cli.StringFlag{
+				Name:     FlagRecipientFile,
+				Aliases:  []string{"R"},
+				Category: "End-to-end encryption",
+				Usage:    "Encrypt to recipients listed at `PATH`.",
 			},
 		},
 	}, {
@@ -54,6 +72,12 @@ var Commands = []*cli.Command{
 			&cli.BoolFlag{
 				Name:  FlagAll,
 				Usage: "if an album URL is given, download all files in it",
+			},
+			&cli.StringFlag{
+				Name:     FlagIdentity,
+				Aliases:  []string{"i"},
+				Category: "End-to-end encryption",
+				Usage:    "Use the identity file at `PATH`.",
 			},
 		},
 	},
