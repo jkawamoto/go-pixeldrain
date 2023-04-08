@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"filippo.io/age"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cheggaaa/pb/v3"
@@ -35,7 +36,7 @@ func getID(url string) string {
 	return url[strings.LastIndex(url, "/")+1:]
 }
 
-func downloadURL(ctx *cli.Context, url, dir string) error {
+func downloadURL(ctx *cli.Context, url, dir string, identities []age.Identity) error {
 	res, err := pixeldrain.Default.File.GetFileInfo(
 		file.NewGetFileInfoParamsWithContext(ctx.Context).WithID(getID(url)),
 		auth.Extract(ctx.Context),
@@ -44,18 +45,27 @@ func downloadURL(ctx *cli.Context, url, dir string) error {
 		return pixeldrain.NewError(err)
 	}
 
-	return download(ctx, res.Payload, dir)
+	return download(ctx, res.Payload, dir, identities)
 }
 
-func download(ctx *cli.Context, info *models.FileInfo, dir string) error {
-	var f io.WriteCloser
-	f, err := os.OpenFile(filepath.Join(dir, info.Name), os.O_CREATE|os.O_WRONLY, 0644)
+func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []age.Identity) error {
+	var encrypted bool
+	if strings.HasSuffix(info.Name, AgeExt) && len(identities) != 0 {
+		info.Name = strings.TrimSuffix(info.Name, AgeExt)
+		encrypted = true
+	}
+
+	var w io.WriteCloser
+	w, err := os.OpenFile(filepath.Join(dir, info.Name), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err = errors.Join(err, f.Close())
+		err = errors.Join(err, w.Close())
 	}()
+	if encrypted {
+		w = Decrypt(w, identities)
+	}
 
 	bar := pb.New64(info.Size)
 	bar.Set(pb.SIBytesPrefix, true)
@@ -67,7 +77,7 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string) error {
 	_, err = pixeldrain.Default.File.DownloadFile(
 		file.NewDownloadFileParamsWithContext(ctx.Context).WithID(swag.StringValue(info.ID)),
 		auth.Extract(ctx.Context),
-		bar.NewProxyWriter(f),
+		bar.NewProxyWriter(w),
 	)
 	if err != nil {
 		return pixeldrain.NewError(err)
@@ -80,6 +90,15 @@ func CmdDownload(c *cli.Context) error {
 		return cli.Exit(fmt.Sprintf("expected at least 1 argument but %d given", c.NArg()), status.InvalidArgument)
 	}
 
+	var identities []age.Identity
+	if name := c.String(FlagIdentity); name != "" {
+		res, err := parseIdentityFile(name)
+		if err != nil {
+			return cli.Exit(err, status.InvalidArgument)
+		}
+		identities = res
+	}
+
 	dir := c.String(FlagDirectory)
 	for _, url := range c.Args().Slice() {
 		isList, err := pixeldrain.IsListURL(url)
@@ -89,7 +108,7 @@ func CmdDownload(c *cli.Context) error {
 
 		// if the given URL doesn't points a list, download it and continue.
 		if !isList {
-			if err = downloadURL(c, url, dir); err != nil {
+			if err = downloadURL(c, url, dir, identities); err != nil {
 				return cli.Exit(err, status.APIError)
 			}
 			continue
@@ -114,7 +133,7 @@ func CmdDownload(c *cli.Context) error {
 		}
 		if all {
 			for _, f := range res.Payload.Files {
-				if err = download(c, f, dir); err != nil {
+				if err = download(c, f, dir, identities); err != nil {
 					return cli.Exit(err, status.APIError)
 				}
 			}
@@ -135,7 +154,7 @@ func CmdDownload(c *cli.Context) error {
 		}
 		for _, f := range res.Payload.Files {
 			if contains(names, f.Name) {
-				if err = download(c, f, dir); err != nil {
+				if err = download(c, f, dir, identities); err != nil {
 					return cli.Exit(err, status.APIError)
 				}
 			}
@@ -152,4 +171,16 @@ func contains(ar []string, v string) bool {
 		}
 	}
 	return false
+}
+
+func parseIdentityFile(name string) (_ []age.Identity, err error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, f.Close())
+	}()
+
+	return age.ParseIdentities(f)
 }

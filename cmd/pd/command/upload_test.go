@@ -14,9 +14,11 @@ import (
 	"flag"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"filippo.io/age"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/swag"
@@ -35,6 +37,12 @@ import (
 
 func TestUpload(t *testing.T) {
 	apiKey := "test-key"
+	identity, err := age.GenerateX25519Identity()
+	if err != nil {
+		t.Fatal(err)
+	}
+	recipient := identity.Recipient()
+	dir := t.TempDir()
 
 	cases := []struct {
 		name   string
@@ -323,6 +331,105 @@ func TestUpload(t *testing.T) {
 			},
 			expect: pixeldrain.ListURL("abc") + "\n",
 		},
+		{
+			name: "encrypt with a recipient's public key",
+			args: []string{"--recipient", recipient.String(), "doc.go"},
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+				t.Helper()
+
+				m.EXPECT().
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
+
+						r, err := age.Decrypt(params.File, identity)
+						if err != nil {
+							t.Fatal(err)
+						}
+						data, err := io.ReadAll(r)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if err = params.File.Close(); err != nil {
+							t.Fatal(err)
+						}
+
+						expect, err := os.ReadFile(strings.TrimSuffix(params.File.Name(), AgeExt))
+						if err != nil {
+							t.Fatal(err)
+						}
+						if !bytes.Equal(expect, data) {
+							t.Errorf("expect %v, got %v", expect, data)
+						}
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String(params.File.Name()),
+								Success: swag.Bool(true),
+							},
+						}, nil
+					})
+			},
+			expect: pixeldrain.DownloadURL("doc.go.age") + "\n",
+		},
+		{
+			name: "encrypt with a recipient file",
+			args: []string{"--recipient-file", filepath.Join(dir, "key.txt"), "doc.go"},
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+				t.Helper()
+
+				err := os.WriteFile(filepath.Join(dir, "key.txt"), []byte(recipient.String()), 0600)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				m.EXPECT().
+					UploadFile(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(
+						params *file.UploadFileParams,
+						authInfo runtime.ClientAuthInfoWriter,
+						opts ...file.ClientOption,
+					) (*file.UploadFileCreated, error) {
+						if params.Context != ctx {
+							t.Errorf("expect %v, got %v", ctx, params.Context)
+						}
+						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
+
+						r, err := age.Decrypt(params.File, identity)
+						if err != nil {
+							t.Fatal(err)
+						}
+						data, err := io.ReadAll(r)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if err = params.File.Close(); err != nil {
+							t.Fatal(err)
+						}
+
+						expect, err := os.ReadFile(strings.TrimSuffix(params.File.Name(), AgeExt))
+						if err != nil {
+							t.Fatal(err)
+						}
+						if !bytes.Equal(expect, data) {
+							t.Errorf("expect %v, got %v", expect, data)
+						}
+						return &file.UploadFileCreated{
+							Payload: &models.SuccessResponse{
+								ID:      swag.String(params.File.Name()),
+								Success: swag.Bool(true),
+							},
+						}, nil
+					})
+			},
+			expect: pixeldrain.DownloadURL("doc.go.age") + "\n",
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -331,6 +438,8 @@ func TestUpload(t *testing.T) {
 
 			flagSet := flag.NewFlagSet("upload", flag.PanicOnError)
 			flagSet.String(FlagAlbumName, "", "")
+			flagSet.Var(&cli.StringSlice{}, FlagRecipient, "")
+			flagSet.String(FlagRecipientFile, "", "")
 			err := flagSet.Parse(tc.args)
 			if err != nil {
 				t.Fatal(err)

@@ -17,6 +17,8 @@ import (
 	"strings"
 	"time"
 
+	"filippo.io/age"
+	"filippo.io/age/agessh"
 	"github.com/cheggaaa/pb/v3"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
@@ -30,31 +32,33 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
+var ErrUnsupportedPublicKey = errors.New("not supported public key")
+
 // upload uploads the given contents with the given name via the given client, and returns the ID of the file.
 // If path is "-", read contents from stdin. If name is empty, use the base name of the path.
-func upload(ctx *cli.Context, path, name string) (_ string, err error) {
+func upload(ctx *cli.Context, path, name string, recipients []age.Recipient) (_ string, err error) {
 	if name == "" {
 		name = filepath.Base(path)
 	}
 
-	var r io.Reader
+	var r io.ReadCloser
 	if path == "-" {
-		r = ctx.App.Reader
+		r = io.NopCloser(ctx.App.Reader)
 	} else {
-		f, e := os.Open(path)
-		if e != nil {
-			return "", e
+		r, err = os.Open(path)
+		if err != nil {
+			return "", err
 		}
 		defer func() {
-			if e := f.Close(); e != nil && !errors.Is(e, os.ErrClosed) {
+			if e := r.Close(); e != nil && !errors.Is(e, os.ErrClosed) {
 				err = errors.Join(err, e)
 			}
 		}()
-		r = f
 
-		info, e := f.Stat()
-		if e != nil {
-			return "", e
+		var info os.FileInfo
+		info, err = os.Stat(path)
+		if err != nil {
+			return "", err
 		}
 		bar := pb.New(int(info.Size()))
 		bar.Set(pb.SIBytesPrefix, true)
@@ -64,6 +68,14 @@ func upload(ctx *cli.Context, path, name string) (_ string, err error) {
 		defer bar.Finish()
 
 		r = bar.NewProxyReader(r)
+	}
+
+	if len(recipients) != 0 {
+		r = Encrypt(r, recipients)
+		defer func() {
+			err = errors.Join(err, r.Close())
+		}()
+		name = name + AgeExt
 	}
 
 	res, err := pixeldrain.Default.File.UploadFile(
@@ -82,11 +94,23 @@ func CmdUpload(c *cli.Context) error {
 		return cli.Exit(fmt.Sprintf("expected at least 1 argument but %d given", c.NArg()), status.InvalidArgument)
 	}
 
+	recipients, err := parseRecipients(c.StringSlice(FlagRecipient))
+	if err != nil {
+		return cli.Exit(err, status.InvalidArgument)
+	}
+	if name := c.String(FlagRecipientFile); name != "" {
+		rs, err := parseRecipientFile(name)
+		if err != nil {
+			return cli.Exit(err, status.InvalidArgument)
+		}
+		recipients = append(recipients, rs...)
+	}
+
 	var ids []string
 	for i := 0; i != c.NArg(); i++ {
 		path, name, _ := strings.Cut(c.Args().Get(i), ":")
 
-		id, err := upload(c, path, name)
+		id, err := upload(c, path, name, recipients)
 		if err != nil {
 			return cli.Exit(fmt.Errorf("failed to upload %v: %w", path, err), status.APIError)
 		}
@@ -123,4 +147,39 @@ func CmdUpload(c *cli.Context) error {
 
 	_, _ = fmt.Fprintln(c.App.Writer, pixeldrain.ListURL(swag.StringValue(res.Payload.ID)))
 	return nil
+}
+
+func parseRecipients(recipients []string) ([]age.Recipient, error) {
+	res := make([]age.Recipient, len(recipients))
+	for i, s := range recipients {
+		switch {
+		case strings.HasPrefix(s, "age1"):
+			r, err := age.ParseX25519Recipient(s)
+			if err != nil {
+				return nil, err
+			}
+			res[i] = r
+		case strings.HasPrefix(s, "ssh-"):
+			r, err := agessh.ParseRecipient(s)
+			if err != nil {
+				return nil, err
+			}
+			res[i] = r
+		default:
+			return nil, ErrUnsupportedPublicKey
+		}
+	}
+	return res, nil
+}
+
+func parseRecipientFile(name string) (_ []age.Recipient, err error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = errors.Join(err, f.Close())
+	}()
+
+	return age.ParseRecipients(f)
 }
