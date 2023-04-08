@@ -9,6 +9,7 @@
 package command
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
@@ -108,8 +109,11 @@ func CmdUpload(c *cli.Context) error {
 
 	var ids []string
 	for i := 0; i != c.NArg(); i++ {
-		path, name, _ := strings.Cut(c.Args().Get(i), ":")
-
+		path, name, err := parseArgument(c.Args().Get(i))
+		if err != nil {
+			return cli.Exit(
+				fmt.Errorf("failed to parse argument %q: %w", c.Args().Get(i), err), status.InvalidArgument)
+		}
 		id, err := upload(c, path, name, recipients)
 		if err != nil {
 			return cli.Exit(fmt.Errorf("failed to upload %v: %w", path, err), status.APIError)
@@ -182,4 +186,25 @@ func parseRecipientFile(name string) (_ []age.Recipient, err error) {
 	}()
 
 	return age.ParseRecipients(f)
+}
+
+func parseArgument(arg string) (path string, name string, _ error) {
+	volume := filepath.VolumeName(arg)
+	arg = strings.TrimPrefix(arg, volume)
+
+	r := csv.NewReader(strings.NewReader(arg))
+	r.Comma = ':'
+	res, err := r.Read()
+	if err != nil {
+		return "", "", err
+	}
+
+	switch len(res) {
+	case 0:
+		return "", "", nil
+	case 1:
+		return volume + res[0], "", nil
+	default:
+		return volume + res[0], res[1], nil
+	}
 }
