@@ -25,7 +25,7 @@ const (
 	// Name defines the basename of this program.
 	Name = "pd"
 	// Version defines current version number.
-	Version = "0.7.0"
+	Version = "0.7.1"
 )
 
 // commandNotFound shows error message and exit when a given command is not found.
