@@ -11,6 +11,10 @@ repos:
         exclude: ^\.bumpversion\.cfg$
       - id: trailing-whitespace
       - id: detect-private-key
+  - repo: https://github.com/APIDevTools/swagger-cli
+    rev: v4.0.4
+    hooks:
+      - id: swagger-validation
   - repo: https://github.com/golangci/golangci-lint
     rev: v1.63.4
     hooks:
