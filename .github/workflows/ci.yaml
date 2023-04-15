@@ -14,19 +14,13 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: ">=1.20"
-      - name: Install pre-commit
-        run: pip install pre-commit
+      - name: Run pre-commit hook
+        uses: pre-commit/action@v3.0.0
       - name: Run tests
         run: go test -race -coverprofile=coverage.out -covermode=atomic -v ./...
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-      - name: Run lints
-        run: pre-commit run --all-files
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-  windows:
+  test-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
