@@ -254,6 +254,11 @@ func (o *ListFileListsOKBody) contextValidateLists(ctx context.Context, formats 
 	for i := 0; i < len(o.Lists); i++ {
 
 		if o.Lists[i] != nil {
+
+			if swag.IsZero(o.Lists[i]) { // not required
+				return nil
+			}
+
 			if err := o.Lists[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listFileListsOK" + "." + "lists" + "." + strconv.Itoa(i))

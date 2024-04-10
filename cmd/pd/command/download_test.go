@@ -1,6 +1,6 @@
 // download_test.go
 //
-// Copyright (c) 2018-2023 Junpei Kawamoto
+// Copyright (c) 2018-2024 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -11,6 +11,7 @@ package command
 import (
 	"bytes"
 	"context"
+	"errors"
 	"flag"
 	"io"
 	"os"
@@ -276,7 +277,8 @@ func TestCmdDownload(t *testing.T) {
 
 			err = CmdDownload(c)
 			if err != nil || tc.exit != 0 {
-				if e, ok := err.(cli.ExitCoder); !ok {
+				var e cli.ExitCoder
+				if !errors.As(err, &e) {
 					t.Errorf("expect an ExitCoder, got %v", err)
 				} else if e.ExitCode() != tc.exit {
 					t.Errorf("expect %v, got %v", tc.exit, e.ExitCode())

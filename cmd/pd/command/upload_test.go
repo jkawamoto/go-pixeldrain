@@ -1,6 +1,6 @@
 // upload_test.go
 //
-// Copyright (c) 2018-2023 Junpei Kawamoto
+// Copyright (c) 2018-2024 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -11,6 +11,7 @@ package command
 import (
 	"bytes"
 	"context"
+	"errors"
 	"flag"
 	"io"
 	"os"
@@ -460,10 +461,11 @@ func TestUpload(t *testing.T) {
 
 			err = CmdUpload(c)
 			if err != nil || tc.exit != 0 {
-				if e, ok := err.(cli.ExitCoder); !ok {
+				var e cli.ExitCoder
+				if !errors.As(err, &e) {
 					t.Errorf("expect an ExitCoder, got %v", err)
 				} else if e.ExitCode() != tc.exit {
-					t.Errorf("expect %v, got %v", tc.exit, e.ExitCode())
+					t.Errorf("expect %v, got %v　(%v)", tc.exit, e.ExitCode(), e)
 				}
 			}
 
@@ -490,6 +492,11 @@ func Test_parseArgument(t *testing.T) {
 			wantName: "case",
 		},
 		{
+			arg:      "-:stdin",
+			wantPath: "-",
+			wantName: "stdin",
+		},
+		{
 			arg:      "\"quoted path only\"",
 			wantPath: "quoted path only",
 			wantName: "",
@@ -498,6 +505,11 @@ func Test_parseArgument(t *testing.T) {
 			arg:      "\"quoted path only\":\"quoted name\"",
 			wantPath: "quoted path only",
 			wantName: "quoted name",
+		},
+		{
+			arg:      "-:\"stdin\"",
+			wantPath: "-",
+			wantName: "stdin",
 		},
 	}
 	for _, tt := range tests {

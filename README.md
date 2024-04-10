@@ -95,7 +95,7 @@ To build the newest version, use go get command:
 $ go get github.com/jkawamoto/go-pixeldrain
 ```
 
-Otherwise, compiled binaries are also available in [Github](https://github.com/jkawamoto/go-pixeldrain/releases).
+Otherwise, compiled binaries are also available in [GitHub](https://github.com/jkawamoto/go-pixeldrain/releases).
 
 
 ## License

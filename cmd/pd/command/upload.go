@@ -1,6 +1,6 @@
 // upload.go
 //
-// Copyright (c) 2018-2023 Junpei Kawamoto
+// Copyright (c) 2018-2024 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -189,6 +189,14 @@ func parseRecipientFile(name string) (_ []age.Recipient, err error) {
 }
 
 func parseArgument(arg string) (path string, name string, _ error) {
+	if strings.HasPrefix(arg, "-:") {
+		name = strings.TrimPrefix(arg, "-:")
+		if strings.HasPrefix(name, "\"") && strings.HasSuffix(name, "\"") {
+			name = name[1 : len(name)-1]
+		}
+		return "-", name, nil
+	}
+
 	volume := filepath.VolumeName(arg)
 	arg = strings.TrimPrefix(arg, volume)
 
