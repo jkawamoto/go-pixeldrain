@@ -10,7 +10,6 @@ import (
 
 	runtime "github.com/go-openapi/runtime"
 	gomock "github.com/golang/mock/gomock"
-
 	file "github.com/jkawamoto/go-pixeldrain/client/file"
 	list "github.com/jkawamoto/go-pixeldrain/client/list"
 	user "github.com/jkawamoto/go-pixeldrain/client/user"
