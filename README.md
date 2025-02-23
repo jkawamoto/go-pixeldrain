@@ -92,7 +92,7 @@ $ brew install pixeldrain
 To build the newest version, use go get command:
 
 ```
-$ go get github.com/jkawamoto/go-pixeldrain
+$ go install github.com/jkawamoto/go-pixeldrain/cmd/pd@latest
 ```
 
 Otherwise, compiled binaries are also available in [GitHub](https://github.com/jkawamoto/go-pixeldrain/releases).
