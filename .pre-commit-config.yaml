@@ -16,6 +16,6 @@ repos:
     hooks:
       - id: swagger-validation
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.63.4
+    rev: v2.1.1
     hooks:
       - id: golangci-lint
