@@ -22,10 +22,11 @@ pd upload img.png:another.png
 ```
 
 If `path` is `-`, the uploading file is read from stdin. In this case, it's recommended to give a file name.
+To avoid being interpreted as an option flag, it is necessary to prepend `--` before the argument in this case.
 For example, this command reads data from stdin and uploads it as `output.log`:
 
 ```shell
-pd upload -:output.log
+pd upload -- -:output.log
 ```
 
 If multiple files are given, an album consists of them will be created. By default, the album has a random name.
@@ -38,10 +39,11 @@ pd upload --album screenshots img1.png img2.png
 
 #### Upload a directory
 Since this application supports uploading a file from STDIN, you can upload a directory with `tar` command.
+To ensure the argument is not interpreted as an option flag, prepend `--` before the argument.
 For example, this command uploads `~/Documents` directory:
 
 ```shell
-tar zcf - ~/Documents | pd upload -:documents.tar.gz
+tar zcf - ~/Documents | pd upload -- -:documents.tar.gz
 ```
 
 #### Upload to your account
