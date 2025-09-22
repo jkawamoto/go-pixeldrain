@@ -24,9 +24,10 @@ import (
 const (
 	// Name defines the basename of this program.
 	Name = "pd"
-	// Version defines current version number.
-	Version = "0.7.3"
 )
+
+// version defines current version number.
+var version = ""
 
 // commandNotFound shows error message and exit when a given command is not found.
 func commandNotFound(c *cli.Context, command string) {
@@ -38,7 +39,7 @@ func commandNotFound(c *cli.Context, command string) {
 func initApp() *cli.App {
 	app := cli.NewApp()
 	app.Name = Name
-	app.Version = Version
+	app.Version = version
 	app.Authors = []*cli.Author{
 		{
 			Name:  "Junpei Kawamoto",
