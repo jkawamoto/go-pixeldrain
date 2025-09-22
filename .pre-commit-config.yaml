@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-merge-conflict
       - id: check-json
@@ -16,6 +16,6 @@ repos:
     hooks:
       - id: swagger-validation
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.1.1
+    rev: v2.5.0
     hooks:
       - id: golangci-lint
