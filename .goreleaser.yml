@@ -1,17 +1,14 @@
+version: 2
 project_name: pd
 builds:
   - main: ./cmd/pd
-    goos:
-      - linux
-      - windows
-      - darwin
     goarch:
       - amd64
       - arm64
 archives:
   - format_overrides:
       - goos: windows
-        format: zip
+        formats: [ zip ]
 checksum:
   name_template: checksums.txt
 changelog:
@@ -28,7 +25,7 @@ brews:
     homepage: https://jkawamoto.github.io/go-pixeldrain/
     description: "Share files with decentralized cloud storage."
     license: "MIT"
-    tap:
+    repository:
       owner: jkawamoto
       name: homebrew-pixeldrain
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
