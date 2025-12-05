@@ -1,8 +1,7 @@
 # A Pixeldrain client
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![Go application](https://github.com/jkawamoto/go-pixeldrain/actions/workflows/ci.yaml/badge.svg)](https://github.com/jkawamoto/go-pixeldrain/actions/workflows/ci.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jkawamoto/go-pixeldrain.svg)](https://pkg.go.dev/github.com/jkawamoto/go-pixeldrain)
-[![codecov](https://codecov.io/gh/jkawamoto/go-pixeldrain/branch/master/graph/badge.svg?token=ppX3MVIqWA)](https://codecov.io/gh/jkawamoto/go-pixeldrain)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 
 ## Usage

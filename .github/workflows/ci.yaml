@@ -17,9 +17,7 @@ jobs:
       - name: Run pre-commit hook
         uses: pre-commit/action@v3.0.1
       - name: Run tests
-        run: go test -race -coverprofile=coverage.out -covermode=atomic -v ./...
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        run: go test -race -v ./...
   test-windows:
     runs-on: windows-latest
     steps:

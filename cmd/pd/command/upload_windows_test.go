@@ -1,7 +1,7 @@
 //
 // upload_windows_test.go
 //
-// Copyright (c) 2018-2023 Junpei Kawamoto
+// Copyright (c) 2018-2025 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
