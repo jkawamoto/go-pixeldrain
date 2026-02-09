@@ -72,7 +72,6 @@ func TestCmdDownload(t *testing.T) {
 		t.Fatal(err)
 	}
 	recipient := identity.Recipient()
-	dir := t.TempDir()
 
 	getFileInfo := func(ctx context.Context, encrypted bool) GetFileInfoFunc {
 		return func(
@@ -162,7 +161,7 @@ func TestCmdDownload(t *testing.T) {
 	cases := []struct {
 		name   string
 		init   func(*testing.T, context.Context, *mock.MockClientService, string)
-		args   []string
+		args   func(string) []string
 		expect []string
 		exit   int
 	}{
@@ -178,7 +177,7 @@ func TestCmdDownload(t *testing.T) {
 				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
 				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil, 0))
 			},
-			args:   []string{pixeldrain.DownloadURL("doc.go")},
+			args:   func(dir string) []string { return []string{pixeldrain.DownloadURL("doc.go")} },
 			expect: []string{"doc.go"},
 		},
 		{
@@ -195,7 +194,9 @@ func TestCmdDownload(t *testing.T) {
 					DoAndReturn(downloadFile(ctx, nil, 0)).
 					Times(2)
 			},
-			args:   []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")},
+			args: func(dir string) []string {
+				return []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")}
+			},
 			expect: []string{"doc.go", "download.go"},
 		},
 		{
@@ -242,7 +243,7 @@ func TestCmdDownload(t *testing.T) {
 					DoAndReturn(downloadFile(ctx, nil, 0)).
 					Times(2)
 			},
-			args:   []string{pixeldrain.ListURL("abc")},
+			args:   func(dir string) []string { return []string{pixeldrain.ListURL("abc")} },
 			expect: []string{"doc.go", "download.go"},
 		},
 		{
@@ -260,7 +261,9 @@ func TestCmdDownload(t *testing.T) {
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(downloadFile(ctx, recipient, 0))
 			},
-			args:   []string{"--identity", filepath.Join(dir, "key.txt"), pixeldrain.DownloadURL("doc.go")},
+			args: func(dir string) []string {
+				return []string{"--identity", filepath.Join(dir, "key.txt"), pixeldrain.DownloadURL("doc.go")}
+			},
 			expect: []string{"doc.go"},
 		},
 		{
@@ -301,7 +304,7 @@ func TestCmdDownload(t *testing.T) {
 					return downloadFile(ctx, nil, int64(partialSize))(params, authInfo, writer, opts...)
 				})
 			},
-			args:   []string{"--continue", pixeldrain.DownloadURL("doc.go")},
+			args:   func(dir string) []string { return []string{"--continue", pixeldrain.DownloadURL("doc.go")} },
 			expect: []string{"doc.go"},
 		},
 	}
@@ -317,7 +320,12 @@ func TestCmdDownload(t *testing.T) {
 			flagSet.Bool(FlagAll, true, "")
 			flagSet.Bool(FlagContinue, false, "")
 			flagSet.String(FlagIdentity, "", "")
-			err := flagSet.Parse(tc.args)
+
+			var args []string
+			if tc.args != nil {
+				args = tc.args(dir)
+			}
+			err := flagSet.Parse(args)
 			if err != nil {
 				t.Fatal(err)
 			}
