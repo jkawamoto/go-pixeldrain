@@ -62,7 +62,7 @@ type DownloadFileFunc = func(
 	runtime.ClientAuthInfoWriter,
 	io.Writer,
 	...file.ClientOption,
-) (*file.DownloadFileOK, error)
+) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error)
 
 func TestCmdDownload(t *testing.T) {
 	apiKey := "test-key"
@@ -108,7 +108,7 @@ func TestCmdDownload(t *testing.T) {
 			authInfo runtime.ClientAuthInfoWriter,
 			writer io.Writer,
 			opts ...file.ClientOption,
-		) (*file.DownloadFileOK, error) {
+		) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
 			if params.Context != ctx {
 				t.Errorf("expect %v, got %v", ctx, params.Context)
 			}
@@ -141,7 +141,7 @@ func TestCmdDownload(t *testing.T) {
 
 			return &file.DownloadFileOK{
 				Payload: writer,
-			}, nil
+			}, nil, nil
 		}
 	}
 

@@ -6,6 +6,7 @@ package file
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -86,11 +87,13 @@ func (o *UploadFileCreated) Code() int {
 }
 
 func (o *UploadFileCreated) Error() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFileCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /file][%d] uploadFileCreated %s", 201, payload)
 }
 
 func (o *UploadFileCreated) String() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFileCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /file][%d] uploadFileCreated %s", 201, payload)
 }
 
 func (o *UploadFileCreated) GetPayload() *models.SuccessResponse {
@@ -158,11 +161,13 @@ func (o *UploadFileDefault) Code() int {
 }
 
 func (o *UploadFileDefault) Error() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /file][%d] uploadFile default %s", o._statusCode, payload)
 }
 
 func (o *UploadFileDefault) String() string {
-	return fmt.Sprintf("[POST /file][%d] uploadFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /file][%d] uploadFile default %s", o._statusCode, payload)
 }
 
 func (o *UploadFileDefault) GetPayload() *models.StandardError {

@@ -6,6 +6,7 @@ package file
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -85,11 +86,11 @@ func (o *GetFileThumbnailOK) Code() int {
 }
 
 func (o *GetFileThumbnailOK) Error() string {
-	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK ", 200)
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK", 200)
 }
 
 func (o *GetFileThumbnailOK) String() string {
-	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK ", 200)
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnailOK", 200)
 }
 
 func (o *GetFileThumbnailOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -146,11 +147,13 @@ func (o *GetFileThumbnailDefault) Code() int {
 }
 
 func (o *GetFileThumbnailDefault) Error() string {
-	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default %s", o._statusCode, payload)
 }
 
 func (o *GetFileThumbnailDefault) String() string {
-	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}/thumbnail][%d] getFileThumbnail default %s", o._statusCode, payload)
 }
 
 func (o *GetFileThumbnailDefault) GetPayload() *models.StandardError {

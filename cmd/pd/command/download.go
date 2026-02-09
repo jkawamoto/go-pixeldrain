@@ -84,7 +84,7 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 	bar.Start()
 	defer bar.Finish()
 
-	_, err = pixeldrain.Default.File.DownloadFile(
+	_, _, err = pixeldrain.Default.File.DownloadFile(
 		file.NewDownloadFileParamsWithContext(ctx.Context).WithID(swag.StringValue(info.ID)),
 		auth.Extract(ctx.Context),
 		bar.NewProxyWriter(w),
