@@ -57,16 +57,26 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 
 	filePath := filepath.Join(dir, info.Name)
 
-	// Check if continue flag is set and file already exists with matching size, and skip downloading if so.
+	var resumeFrom int64 = 0
+	var openFlags int = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+
+	// Handle resume logic when continue flag is set
 	if ctx.Bool(FlagContinue) {
-		if stat, err := os.Stat(filePath); err == nil && stat.Size() == info.Size {
-			fmt.Fprintf(ctx.App.ErrWriter, "%s (SKIPPED)\n", info.Name)
-			return nil
+		if stat, err := os.Stat(filePath); err == nil {
+			if stat.Size() == info.Size {
+				// File already complete, skip
+				fmt.Fprintf(ctx.App.ErrWriter, "%s (skipped)\n", info.Name)
+				return nil
+			} else if stat.Size() < info.Size && !encrypted {
+				// Resume from current position
+				resumeFrom = stat.Size()
+				openFlags = os.O_WRONLY | os.O_APPEND
+			}
 		}
 	}
 
 	var w io.WriteCloser
-	w, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	w, err := os.OpenFile(filePath, openFlags, 0644)
 	if err != nil {
 		return err
 	}
@@ -77,15 +87,28 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 		w = Decrypt(w, identities)
 	}
 
+	// Set up progress bar
 	bar := pb.New64(info.Size)
 	bar.Set(pb.SIBytesPrefix, true)
 	bar.Set("prefix", info.Name+" ")
 	bar.SetWriter(ctx.App.ErrWriter)
+	if resumeFrom > 0 {
+		bar.SetCurrent(resumeFrom)
+	}
 	bar.Start()
 	defer bar.Finish()
 
+	// Prepare download parameters
+	params := file.NewDownloadFileParamsWithContext(ctx.Context).WithID(swag.StringValue(info.ID))
+
+	// Set Range header if resuming
+	if resumeFrom > 0 {
+		rangeHeader := fmt.Sprintf("bytes=%d-", resumeFrom)
+		params = params.WithRange(&rangeHeader)
+	}
+
 	_, _, err = pixeldrain.Default.File.DownloadFile(
-		file.NewDownloadFileParamsWithContext(ctx.Context).WithID(swag.StringValue(info.ID)),
+		params,
 		auth.Extract(ctx.Context),
 		bar.NewProxyWriter(w),
 	)
