@@ -55,8 +55,18 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 		encrypted = true
 	}
 
+	filePath := filepath.Join(dir, info.Name)
+
+	// Check if continue flag is set and file already exists with matching size, and skip downloading if so.
+	if ctx.Bool(FlagContinue) {
+		if stat, err := os.Stat(filePath); err == nil && stat.Size() == info.Size {
+			fmt.Fprintf(ctx.App.ErrWriter, "%s (SKIPPED)\n", info.Name)
+			return nil
+		}
+	}
+
 	var w io.WriteCloser
-	w, err := os.OpenFile(filepath.Join(dir, info.Name), os.O_CREATE|os.O_WRONLY, 0644)
+	w, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
