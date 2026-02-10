@@ -1,6 +1,6 @@
 // doc.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -8,5 +8,5 @@
 
 // Package pixeldrain provides a Pixeldrain client.
 //
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.32.3 generate client -f ./openapi.yaml -t .
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.33.1 generate client -f ./openapi.yaml -t .
 package pixeldrain

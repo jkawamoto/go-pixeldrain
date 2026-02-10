@@ -7,6 +7,7 @@ package file
 
 import (
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 
@@ -22,7 +23,7 @@ type GetFileInfoReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetFileInfoReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetFileInfoReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetFileInfoOK()
@@ -105,7 +106,7 @@ func (o *GetFileInfoOK) readResponse(response runtime.ClientResponse, consumer r
 	o.Payload = new(models.FileInfo)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -179,7 +180,7 @@ func (o *GetFileInfoDefault) readResponse(response runtime.ClientResponse, consu
 	o.Payload = new(models.StandardError)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 

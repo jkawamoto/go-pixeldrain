@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	stderrors "errors"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -65,11 +66,15 @@ func (m *GetFileListResponse) validateFiles(formats strfmt.Registry) error {
 
 		if m.Files[i] != nil {
 			if err := m.Files[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("files" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -104,11 +109,15 @@ func (m *GetFileListResponse) contextValidateFiles(ctx context.Context, formats 
 			}
 
 			if err := m.Files[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("files" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}

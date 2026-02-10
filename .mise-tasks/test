@@ -1,0 +1,29 @@
+#!/bin/bash
+#MISE description="End-to-end test that verifies file upload and download functionality"
+
+set -e
+
+cleanup() {
+    if [ -f "/tmp/LICENSE" ]; then
+        rm -f /tmp/LICENSE
+    fi
+}
+trap cleanup EXIT
+
+echo "=== Uploading LICENSE file ==="
+download_url=$(go run ./cmd/pd upload LICENSE)
+echo "$download_url"
+
+echo ""
+echo "=== Downloading file ==="
+go run ./cmd/pd download -o /tmp "$download_url"
+
+echo ""
+echo "=== Verifying file integrity ==="
+if cmp -s LICENSE /tmp/LICENSE; then
+    echo "✓ SUCCESS: Files are identical!"
+    exit 0
+else
+    echo "✗ ERROR: Files are different!"
+    exit 1
+fi

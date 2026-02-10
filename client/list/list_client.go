@@ -67,7 +67,7 @@ CreateFileList creates a list of files that can be viewed together on the file v
 Creates a list of files that can be viewed together on the file viewer page.
 */
 func (a *Client) CreateFileList(params *CreateFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*CreateFileListCreated, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewCreateFileListParams()
 	}
@@ -87,17 +87,22 @@ func (a *Client) CreateFileList(params *CreateFileListParams, authInfo runtime.C
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*CreateFileListCreated)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CreateFileListDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -107,7 +112,7 @@ GetFileList returns information about a file list and the files in it
 Returns information about a file list and the files in it.
 */
 func (a *Client) GetFileList(params *GetFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileListOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewGetFileListParams()
 	}
@@ -127,17 +132,22 @@ func (a *Client) GetFileList(params *GetFileListParams, authInfo runtime.ClientA
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*GetFileListOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetFileListDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
