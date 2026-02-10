@@ -19,6 +19,8 @@ const (
 	FlagDirectory = "dir"
 	// FlagAll is the flag to download all files in a list.
 	FlagAll = "all"
+	// FlagContinue is the flag to continue downloading by skipping files that already exist with matching sizes.
+	FlagContinue = "continue"
 	// FlagRecipient is the flag to specify recipient's public key.
 	FlagRecipient = "recipient"
 	// FlagRecipientFile is the flag to specify a path to the file that contains recipients' public keys.
@@ -83,6 +85,11 @@ var Commands = []*cli.Command{
 			&cli.BoolFlag{
 				Name:  FlagAll,
 				Usage: "if an album URL is given, download all files in it",
+			},
+			&cli.BoolFlag{
+				Name:    FlagContinue,
+				Aliases: []string{"C"},
+				Usage:   "continue downloading by skipping files that already exist with matching sizes",
 			},
 			&cli.StringFlag{
 				Name:     FlagIdentity,

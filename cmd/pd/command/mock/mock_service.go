@@ -79,7 +79,7 @@ func (mr *MockClientServiceMockRecorder) DeleteFile(params, authInfo interface{}
 }
 
 // DownloadFile mocks base method.
-func (m *MockClientService) DownloadFile(params *file.DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...file.ClientOption) (*file.DownloadFileOK, error) {
+func (m *MockClientService) DownloadFile(params *file.DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...file.ClientOption) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{params, authInfo, writer}
 	for _, a := range opts {
@@ -87,8 +87,9 @@ func (m *MockClientService) DownloadFile(params *file.DownloadFileParams, authIn
 	}
 	ret := m.ctrl.Call(m, "DownloadFile", varargs...)
 	ret0, _ := ret[0].(*file.DownloadFileOK)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*file.DownloadFilePartialContent)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // DownloadFile indicates an expected call of DownloadFile.

@@ -7,6 +7,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -90,11 +91,13 @@ func (o *ListFileListsOK) Code() int {
 }
 
 func (o *ListFileListsOK) Error() string {
-	return fmt.Sprintf("[GET /user/lists][%d] listFileListsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /user/lists][%d] listFileListsOK %s", 200, payload)
 }
 
 func (o *ListFileListsOK) String() string {
-	return fmt.Sprintf("[GET /user/lists][%d] listFileListsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /user/lists][%d] listFileListsOK %s", 200, payload)
 }
 
 func (o *ListFileListsOK) GetPayload() *ListFileListsOKBody {
@@ -162,11 +165,13 @@ func (o *ListFileListsDefault) Code() int {
 }
 
 func (o *ListFileListsDefault) Error() string {
-	return fmt.Sprintf("[GET /user/lists][%d] listFileLists default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /user/lists][%d] listFileLists default %s", o._statusCode, payload)
 }
 
 func (o *ListFileListsDefault) String() string {
-	return fmt.Sprintf("[GET /user/lists][%d] listFileLists default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /user/lists][%d] listFileLists default %s", o._statusCode, payload)
 }
 
 func (o *ListFileListsDefault) GetPayload() *models.StandardError {

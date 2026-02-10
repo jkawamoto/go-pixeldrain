@@ -61,6 +61,20 @@ DownloadFileParams contains all the parameters to send to the API endpoint
 */
 type DownloadFileParams struct {
 
+	/* IfRange.
+
+	   Make the range request conditional. Can be an ETag or a Last-Modified date. If the resource has changed, the full file will be returned with 200 status instead of a partial response.
+
+	*/
+	IfRange *string
+
+	/* Range.
+
+	   Specify the byte range to download. Format: "bytes=start-end" or "bytes=start-" for suffix. Examples: "bytes=0-1023" (first 1024 bytes), "bytes=1024-" (from byte 1024 to end)
+
+	*/
+	Range *string
+
 	/* ID.
 
 	   ID of the file to request
@@ -120,6 +134,28 @@ func (o *DownloadFileParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithIfRange adds the ifRange to the download file params
+func (o *DownloadFileParams) WithIfRange(ifRange *string) *DownloadFileParams {
+	o.SetIfRange(ifRange)
+	return o
+}
+
+// SetIfRange adds the ifRange to the download file params
+func (o *DownloadFileParams) SetIfRange(ifRange *string) {
+	o.IfRange = ifRange
+}
+
+// WithRange adds the rangeVar to the download file params
+func (o *DownloadFileParams) WithRange(rangeVar *string) *DownloadFileParams {
+	o.SetRange(rangeVar)
+	return o
+}
+
+// SetRange adds the range to the download file params
+func (o *DownloadFileParams) SetRange(rangeVar *string) {
+	o.Range = rangeVar
+}
+
 // WithID adds the id to the download file params
 func (o *DownloadFileParams) WithID(id string) *DownloadFileParams {
 	o.SetID(id)
@@ -138,6 +174,22 @@ func (o *DownloadFileParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
+
+	if o.IfRange != nil {
+
+		// header param If-Range
+		if err := r.SetHeaderParam("If-Range", *o.IfRange); err != nil {
+			return err
+		}
+	}
+
+	if o.Range != nil {
+
+		// header param Range
+		if err := r.SetHeaderParam("Range", *o.Range); err != nil {
+			return err
+		}
+	}
 
 	// path param id
 	if err := r.SetPathParam("id", o.ID); err != nil {

@@ -7,6 +7,7 @@ package file
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -88,11 +89,13 @@ func (o *DeleteFileOK) Code() int {
 }
 
 func (o *DeleteFileOK) Error() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK %s", 200, payload)
 }
 
 func (o *DeleteFileOK) String() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFileOK %s", 200, payload)
 }
 
 func (o *DeleteFileOK) GetPayload() *DeleteFileOKBody {
@@ -160,11 +163,13 @@ func (o *DeleteFileDefault) Code() int {
 }
 
 func (o *DeleteFileDefault) Error() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default %s", o._statusCode, payload)
 }
 
 func (o *DeleteFileDefault) String() string {
-	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /file/{id}][%d] deleteFile default %s", o._statusCode, payload)
 }
 
 func (o *DeleteFileDefault) GetPayload() *models.StandardError {

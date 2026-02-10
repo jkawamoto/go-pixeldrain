@@ -6,11 +6,14 @@ package file
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -30,6 +33,18 @@ func (o *DownloadFileReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+	case 206:
+		result := NewDownloadFilePartialContent(o.writer)
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return result, nil
+	case 416:
+		result := NewDownloadFileRequestRangeNotSatisfiable()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	default:
 		result := NewDownloadFileDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -53,9 +68,30 @@ func NewDownloadFileOK(writer io.Writer) *DownloadFileOK {
 /*
 DownloadFileOK describes a response with status code 200, with default header values.
 
-A file output stream.
+The complete file output stream.
 */
 type DownloadFileOK struct {
+
+	/* Indicates that the server supports range requests. Always "bytes".
+	 */
+	AcceptRanges string
+
+	/* The size of the complete file in bytes.
+	 */
+	ContentLength int64
+
+	/* The MIME type of the file.
+	 */
+	ContentType string
+
+	/* Entity tag for the file, used for cache validation and conditional range requests.
+	 */
+	ETag string
+
+	/* The last modification date of the file.
+	 */
+	LastModified string
+
 	Payload io.Writer
 }
 
@@ -90,11 +126,11 @@ func (o *DownloadFileOK) Code() int {
 }
 
 func (o *DownloadFileOK) Error() string {
-	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK", 200)
 }
 
 func (o *DownloadFileOK) String() string {
-	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileOK", 200)
 }
 
 func (o *DownloadFileOK) GetPayload() io.Writer {
@@ -102,6 +138,280 @@ func (o *DownloadFileOK) GetPayload() io.Writer {
 }
 
 func (o *DownloadFileOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// hydrates response header Accept-Ranges
+	hdrAcceptRanges := response.GetHeader("Accept-Ranges")
+
+	if hdrAcceptRanges != "" {
+		o.AcceptRanges = hdrAcceptRanges
+	}
+
+	// hydrates response header Content-Length
+	hdrContentLength := response.GetHeader("Content-Length")
+
+	if hdrContentLength != "" {
+		valcontentLength, err := swag.ConvertInt64(hdrContentLength)
+		if err != nil {
+			return errors.InvalidType("Content-Length", "header", "int64", hdrContentLength)
+		}
+		o.ContentLength = valcontentLength
+	}
+
+	// hydrates response header Content-Type
+	hdrContentType := response.GetHeader("Content-Type")
+
+	if hdrContentType != "" {
+		o.ContentType = hdrContentType
+	}
+
+	// hydrates response header ETag
+	hdrETag := response.GetHeader("ETag")
+
+	if hdrETag != "" {
+		o.ETag = hdrETag
+	}
+
+	// hydrates response header Last-Modified
+	hdrLastModified := response.GetHeader("Last-Modified")
+
+	if hdrLastModified != "" {
+		o.LastModified = hdrLastModified
+	}
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewDownloadFilePartialContent creates a DownloadFilePartialContent with default headers values
+func NewDownloadFilePartialContent(writer io.Writer) *DownloadFilePartialContent {
+	return &DownloadFilePartialContent{
+
+		Payload: writer,
+	}
+}
+
+/*
+DownloadFilePartialContent describes a response with status code 206, with default header values.
+
+Partial content. The requested byte range of the file.
+*/
+type DownloadFilePartialContent struct {
+
+	/* Indicates that the server supports range requests. Always "bytes".
+	 */
+	AcceptRanges string
+
+	/* The size of the returned range in bytes.
+	 */
+	ContentLength int64
+
+	/* Specifies which part of the full entity is being returned. Format: "bytes start-end/total" (e.g., "bytes 0-1023/146515")
+
+	 */
+	ContentRange string
+
+	/* The MIME type of the file.
+	 */
+	ContentType string
+
+	/* Entity tag for the file, used for cache validation.
+	 */
+	ETag string
+
+	/* The last modification date of the file.
+	 */
+	LastModified string
+
+	Payload io.Writer
+}
+
+// IsSuccess returns true when this download file partial content response has a 2xx status code
+func (o *DownloadFilePartialContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this download file partial content response has a 3xx status code
+func (o *DownloadFilePartialContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this download file partial content response has a 4xx status code
+func (o *DownloadFilePartialContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this download file partial content response has a 5xx status code
+func (o *DownloadFilePartialContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this download file partial content response a status code equal to that given
+func (o *DownloadFilePartialContent) IsCode(code int) bool {
+	return code == 206
+}
+
+// Code gets the status code for the download file partial content response
+func (o *DownloadFilePartialContent) Code() int {
+	return 206
+}
+
+func (o *DownloadFilePartialContent) Error() string {
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFilePartialContent", 206)
+}
+
+func (o *DownloadFilePartialContent) String() string {
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFilePartialContent", 206)
+}
+
+func (o *DownloadFilePartialContent) GetPayload() io.Writer {
+	return o.Payload
+}
+
+func (o *DownloadFilePartialContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// hydrates response header Accept-Ranges
+	hdrAcceptRanges := response.GetHeader("Accept-Ranges")
+
+	if hdrAcceptRanges != "" {
+		o.AcceptRanges = hdrAcceptRanges
+	}
+
+	// hydrates response header Content-Length
+	hdrContentLength := response.GetHeader("Content-Length")
+
+	if hdrContentLength != "" {
+		valcontentLength, err := swag.ConvertInt64(hdrContentLength)
+		if err != nil {
+			return errors.InvalidType("Content-Length", "header", "int64", hdrContentLength)
+		}
+		o.ContentLength = valcontentLength
+	}
+
+	// hydrates response header Content-Range
+	hdrContentRange := response.GetHeader("Content-Range")
+
+	if hdrContentRange != "" {
+		o.ContentRange = hdrContentRange
+	}
+
+	// hydrates response header Content-Type
+	hdrContentType := response.GetHeader("Content-Type")
+
+	if hdrContentType != "" {
+		o.ContentType = hdrContentType
+	}
+
+	// hydrates response header ETag
+	hdrETag := response.GetHeader("ETag")
+
+	if hdrETag != "" {
+		o.ETag = hdrETag
+	}
+
+	// hydrates response header Last-Modified
+	hdrLastModified := response.GetHeader("Last-Modified")
+
+	if hdrLastModified != "" {
+		o.LastModified = hdrLastModified
+	}
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewDownloadFileRequestRangeNotSatisfiable creates a DownloadFileRequestRangeNotSatisfiable with default headers values
+func NewDownloadFileRequestRangeNotSatisfiable() *DownloadFileRequestRangeNotSatisfiable {
+	return &DownloadFileRequestRangeNotSatisfiable{}
+}
+
+/*
+DownloadFileRequestRangeNotSatisfiable describes a response with status code 416, with default header values.
+
+Range Not Satisfiable. The requested range is invalid or out of bounds. This occurs when the requested byte range exceeds the file size or is malformed.
+*/
+type DownloadFileRequestRangeNotSatisfiable struct {
+
+	/* Indicates that the server supports range requests. Always "bytes".
+	 */
+	AcceptRanges string
+
+	/* Indicates the acceptable range for the resource. Format: "bytes [*]/total" (e.g., "bytes [*]/146515")
+
+	 */
+	ContentRange string
+
+	Payload *models.StandardError
+}
+
+// IsSuccess returns true when this download file request range not satisfiable response has a 2xx status code
+func (o *DownloadFileRequestRangeNotSatisfiable) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this download file request range not satisfiable response has a 3xx status code
+func (o *DownloadFileRequestRangeNotSatisfiable) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this download file request range not satisfiable response has a 4xx status code
+func (o *DownloadFileRequestRangeNotSatisfiable) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this download file request range not satisfiable response has a 5xx status code
+func (o *DownloadFileRequestRangeNotSatisfiable) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this download file request range not satisfiable response a status code equal to that given
+func (o *DownloadFileRequestRangeNotSatisfiable) IsCode(code int) bool {
+	return code == 416
+}
+
+// Code gets the status code for the download file request range not satisfiable response
+func (o *DownloadFileRequestRangeNotSatisfiable) Code() int {
+	return 416
+}
+
+func (o *DownloadFileRequestRangeNotSatisfiable) Error() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileRequestRangeNotSatisfiable %s", 416, payload)
+}
+
+func (o *DownloadFileRequestRangeNotSatisfiable) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFileRequestRangeNotSatisfiable %s", 416, payload)
+}
+
+func (o *DownloadFileRequestRangeNotSatisfiable) GetPayload() *models.StandardError {
+	return o.Payload
+}
+
+func (o *DownloadFileRequestRangeNotSatisfiable) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// hydrates response header Accept-Ranges
+	hdrAcceptRanges := response.GetHeader("Accept-Ranges")
+
+	if hdrAcceptRanges != "" {
+		o.AcceptRanges = hdrAcceptRanges
+	}
+
+	// hydrates response header Content-Range
+	hdrContentRange := response.GetHeader("Content-Range")
+
+	if hdrContentRange != "" {
+		o.ContentRange = hdrContentRange
+	}
+
+	o.Payload = new(models.StandardError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -160,11 +470,13 @@ func (o *DownloadFileDefault) Code() int {
 }
 
 func (o *DownloadFileDefault) Error() string {
-	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default %s", o._statusCode, payload)
 }
 
 func (o *DownloadFileDefault) String() string {
-	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /file/{id}][%d] downloadFile default %s", o._statusCode, payload)
 }
 
 func (o *DownloadFileDefault) GetPayload() *models.StandardError {

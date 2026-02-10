@@ -6,6 +6,7 @@ package list
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -86,11 +87,13 @@ func (o *CreateFileListCreated) Code() int {
 }
 
 func (o *CreateFileListCreated) Error() string {
-	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /list][%d] createFileListCreated %s", 201, payload)
 }
 
 func (o *CreateFileListCreated) String() string {
-	return fmt.Sprintf("[POST /list][%d] createFileListCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /list][%d] createFileListCreated %s", 201, payload)
 }
 
 func (o *CreateFileListCreated) GetPayload() *models.SuccessResponse {
@@ -158,11 +161,13 @@ func (o *CreateFileListDefault) Code() int {
 }
 
 func (o *CreateFileListDefault) Error() string {
-	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /list][%d] createFileList default %s", o._statusCode, payload)
 }
 
 func (o *CreateFileListDefault) String() string {
-	return fmt.Sprintf("[POST /list][%d] createFileList default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /list][%d] createFileList default %s", o._statusCode, payload)
 }
 
 func (o *CreateFileListDefault) GetPayload() *models.StandardError {

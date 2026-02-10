@@ -13,6 +13,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -62,7 +63,7 @@ type DownloadFileFunc = func(
 	runtime.ClientAuthInfoWriter,
 	io.Writer,
 	...file.ClientOption,
-) (*file.DownloadFileOK, error)
+) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error)
 
 func TestCmdDownload(t *testing.T) {
 	apiKey := "test-key"
@@ -71,7 +72,6 @@ func TestCmdDownload(t *testing.T) {
 		t.Fatal(err)
 	}
 	recipient := identity.Recipient()
-	dir := t.TempDir()
 
 	getFileInfo := func(ctx context.Context, encrypted bool) GetFileInfoFunc {
 		return func(
@@ -102,13 +102,13 @@ func TestCmdDownload(t *testing.T) {
 
 		}
 	}
-	downloadFile := func(ctx context.Context, recipient age.Recipient) DownloadFileFunc {
+	downloadFile := func(ctx context.Context, recipient age.Recipient, startByte int64) DownloadFileFunc {
 		return func(
 			params *file.DownloadFileParams,
 			authInfo runtime.ClientAuthInfoWriter,
 			writer io.Writer,
 			opts ...file.ClientOption,
-		) (*file.DownloadFileOK, error) {
+		) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
 			if params.Context != ctx {
 				t.Errorf("expect %v, got %v", ctx, params.Context)
 			}
@@ -135,20 +135,33 @@ func TestCmdDownload(t *testing.T) {
 				}()
 				writer = w
 			}
+
+			// Handle range requests
+			if startByte > 0 {
+				if _, err := f.Seek(startByte, io.SeekStart); err != nil {
+					t.Fatal(err)
+				}
+				if _, err = io.Copy(writer, f); err != nil {
+					t.Fatal(err)
+				}
+				return nil, &file.DownloadFilePartialContent{Payload: writer}, nil
+			}
+
+			// Normal (non-range) request
 			if _, err = io.Copy(writer, f); err != nil {
 				t.Fatal(err)
 			}
 
 			return &file.DownloadFileOK{
 				Payload: writer,
-			}, nil
+			}, nil, nil
 		}
 	}
 
 	cases := []struct {
 		name   string
-		init   func(*testing.T, context.Context, *mock.MockClientService)
-		args   []string
+		init   func(*testing.T, context.Context, *mock.MockClientService, string)
+		args   func(string) []string
 		expect []string
 		exit   int
 	}{
@@ -158,18 +171,18 @@ func TestCmdDownload(t *testing.T) {
 		},
 		{
 			name: "download one file",
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
 				t.Helper()
 
 				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
-				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil, 0))
 			},
-			args:   []string{pixeldrain.DownloadURL("doc.go")},
+			args:   func(dir string) []string { return []string{pixeldrain.DownloadURL("doc.go")} },
 			expect: []string{"doc.go"},
 		},
 		{
 			name: "download multiple files",
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
 				t.Helper()
 
 				m.EXPECT().
@@ -178,15 +191,17 @@ func TestCmdDownload(t *testing.T) {
 					Times(2)
 				m.EXPECT().
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
-					DoAndReturn(downloadFile(ctx, nil)).
+					DoAndReturn(downloadFile(ctx, nil, 0)).
 					Times(2)
 			},
-			args:   []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")},
+			args: func(dir string) []string {
+				return []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")}
+			},
 			expect: []string{"doc.go", "download.go"},
 		},
 		{
 			name: "download one list",
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
 				t.Helper()
 
 				m.EXPECT().
@@ -225,15 +240,15 @@ func TestCmdDownload(t *testing.T) {
 
 				m.EXPECT().
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
-					DoAndReturn(downloadFile(ctx, nil)).
+					DoAndReturn(downloadFile(ctx, nil, 0)).
 					Times(2)
 			},
-			args:   []string{pixeldrain.ListURL("abc")},
+			args:   func(dir string) []string { return []string{pixeldrain.ListURL("abc")} },
 			expect: []string{"doc.go", "download.go"},
 		},
 		{
 			name: "download one encrypted file",
-			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService) {
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
 				t.Helper()
 
 				err := os.WriteFile(filepath.Join(dir, "key.txt"), []byte(identity.String()), 0600)
@@ -244,9 +259,52 @@ func TestCmdDownload(t *testing.T) {
 				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, true))
 				m.EXPECT().
 					DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).
-					DoAndReturn(downloadFile(ctx, recipient))
+					DoAndReturn(downloadFile(ctx, recipient, 0))
 			},
-			args:   []string{"--identity", filepath.Join(dir, "key.txt"), pixeldrain.DownloadURL("doc.go")},
+			args: func(dir string) []string {
+				return []string{"--identity", filepath.Join(dir, "key.txt"), pixeldrain.DownloadURL("doc.go")}
+			},
+			expect: []string{"doc.go"},
+		},
+		{
+			name: "download with continue flag",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				t.Helper()
+
+				docContent, err := os.ReadFile("doc.go")
+				if err != nil {
+					t.Fatal(err)
+				}
+				partialSize := len(docContent) / 2
+				partialPath := filepath.Join(dir, "doc.go.download")
+				if err := os.WriteFile(partialPath, docContent[:partialSize], 0644); err != nil {
+					t.Fatal(err)
+				}
+
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(
+					params *file.DownloadFileParams,
+					authInfo runtime.ClientAuthInfoWriter,
+					writer io.Writer,
+					opts ...file.ClientOption,
+				) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
+					// Verify Range header is present and correct for continue download
+					if params.Range == nil {
+						t.Errorf("Expected Range header to be set for continue download, got nil")
+						return nil, nil, errors.New("missing Range header")
+					}
+
+					expectedRange := fmt.Sprintf("bytes=%d-", partialSize)
+					if *params.Range != expectedRange {
+						t.Errorf("Expected Range header %s, got %s", expectedRange, *params.Range)
+						return nil, nil, errors.New("incorrect Range header")
+					}
+
+					// Use the downloadFile logic with Range validation
+					return downloadFile(ctx, nil, int64(partialSize))(params, authInfo, writer, opts...)
+				})
+			},
+			args:   func(dir string) []string { return []string{"--continue", pixeldrain.DownloadURL("doc.go")} },
 			expect: []string{"doc.go"},
 		},
 	}
@@ -260,8 +318,14 @@ func TestCmdDownload(t *testing.T) {
 			flagSet := flag.NewFlagSet("download", flag.PanicOnError)
 			flagSet.String(FlagDirectory, dir, "")
 			flagSet.Bool(FlagAll, true, "")
+			flagSet.Bool(FlagContinue, false, "")
 			flagSet.String(FlagIdentity, "", "")
-			err := flagSet.Parse(tc.args)
+
+			var args []string
+			if tc.args != nil {
+				args = tc.args(dir)
+			}
+			err := flagSet.Parse(args)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -271,7 +335,7 @@ func TestCmdDownload(t *testing.T) {
 
 			m := mock.NewMockClientService(ctrl)
 			if tc.init != nil {
-				tc.init(t, c.Context, m)
+				tc.init(t, c.Context, m, dir)
 			}
 			RegisterMock(t, m)
 

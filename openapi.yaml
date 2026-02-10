@@ -66,7 +66,7 @@ paths:
         - file
       summary: Download a file.
       description: >
-        Returns the full file associated with the ID. Supports byte range requests.
+        Returns the full file associated with the ID. Supports byte range requests for resumable downloads.
 
         Warning: If a file is using too much bandwidth it can be rate limited.
         The rate limit will be enabled if a file has three times more downloads than views.
@@ -87,11 +87,81 @@ paths:
           in: path
           required: true
           description: ID of the file to request
+        - name: Range
+          type: string
+          in: header
+          required: false
+          description: >
+            Specify the byte range to download. Format: "bytes=start-end" or "bytes=start-" for suffix.
+            Examples: "bytes=0-1023" (first 1024 bytes), "bytes=1024-" (from byte 1024 to end)
+        - name: If-Range
+          type: string
+          in: header
+          required: false
+          description: >
+            Make the range request conditional. Can be an ETag or a Last-Modified date.
+            If the resource has changed, the full file will be returned with 200 status instead of a partial response.
       responses:
         200:
-          description: A file output stream.
+          description: The complete file output stream.
+          headers:
+            Accept-Ranges:
+              type: string
+              description: Indicates that the server supports range requests. Always "bytes".
+            Content-Length:
+              type: integer
+              description: The size of the complete file in bytes.
+            ETag:
+              type: string
+              description: Entity tag for the file, used for cache validation and conditional range requests.
+            Last-Modified:
+              type: string
+              description: The last modification date of the file.
+            Content-Type:
+              type: string
+              description: The MIME type of the file.
           schema:
             type: file
+        206:
+          description: Partial content. The requested byte range of the file.
+          headers:
+            Accept-Ranges:
+              type: string
+              description: Indicates that the server supports range requests. Always "bytes".
+            Content-Length:
+              type: integer
+              description: The size of the returned range in bytes.
+            Content-Range:
+              type: string
+              description: >
+                Specifies which part of the full entity is being returned.
+                Format: "bytes start-end/total" (e.g., "bytes 0-1023/146515")
+            ETag:
+              type: string
+              description: Entity tag for the file, used for cache validation.
+            Last-Modified:
+              type: string
+              description: The last modification date of the file.
+            Content-Type:
+              type: string
+              description: The MIME type of the file.
+          schema:
+            type: file
+        416:
+          description: >
+            Range Not Satisfiable. The requested range is invalid or out of bounds.
+            This occurs when the requested byte range exceeds the file size or is malformed.
+          headers:
+            Accept-Ranges:
+              type: string
+              description: Indicates that the server supports range requests. Always "bytes".
+            Content-Range:
+              type: string
+              description: >
+                Indicates the acceptable range for the resource.
+                Format: "bytes */total" (e.g., "bytes */146515")
+          schema:
+            $ref: "#/definitions/StandardError"
         default:
           description: Error Response
           schema:

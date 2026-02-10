@@ -9,12 +9,38 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new file API client.
 func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
+}
+
+// New creates a new file API client with basic auth credentials.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - user: user for basic authentication header.
+// - password: password for basic authentication header.
+func NewClientWithBasicAuth(host, basePath, scheme, user, password string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
+	return &Client{transport: transport, formats: strfmt.Default}
+}
+
+// New creates a new file API client with a bearer token for authentication.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - bearerToken: bearer token for Bearer authentication header.
+func NewClientWithBearerToken(host, basePath, scheme, bearerToken string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BearerToken(bearerToken)
+	return &Client{transport: transport, formats: strfmt.Default}
 }
 
 /*
@@ -25,14 +51,63 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-// ClientOption is the option for Client methods
+// ClientOption may be used to customize the behavior of Client methods.
 type ClientOption func(*runtime.ClientOperation)
+
+// This client is generated with a few options you might find useful for your swagger spec.
+//
+// Feel free to add you own set of options.
+
+// WithContentType allows the client to force the Content-Type header
+// to negotiate a specific Consumer from the server.
+//
+// You may use this option to set arbitrary extensions to your MIME media type.
+func WithContentType(mime string) ClientOption {
+	return func(r *runtime.ClientOperation) {
+		r.ConsumesMediaTypes = []string{mime}
+	}
+}
+
+// WithContentTypeApplicationJSON sets the Content-Type header to "application/json".
+func WithContentTypeApplicationJSON(r *runtime.ClientOperation) {
+	r.ConsumesMediaTypes = []string{"application/json"}
+}
+
+// WithContentTypeMultipartFormData sets the Content-Type header to "multipart/form-data".
+func WithContentTypeMultipartFormData(r *runtime.ClientOperation) {
+	r.ConsumesMediaTypes = []string{"multipart/form-data"}
+}
+
+// WithAccept allows the client to force the Accept header
+// to negotiate a specific Producer from the server.
+//
+// You may use this option to set arbitrary extensions to your MIME media type.
+func WithAccept(mime string) ClientOption {
+	return func(r *runtime.ClientOperation) {
+		r.ProducesMediaTypes = []string{mime}
+	}
+}
+
+// WithAcceptApplicationJSON sets the Accept header to "application/json".
+func WithAcceptApplicationJSON(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"application/json"}
+}
+
+// WithAcceptApplicationOctetStream sets the Accept header to "application/octet-stream".
+func WithAcceptApplicationOctetStream(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"application/octet-stream"}
+}
+
+// WithAcceptImagePng sets the Accept header to "image/png".
+func WithAcceptImagePng(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"image/png"}
+}
 
 // ClientService is the interface for Client methods
 type ClientService interface {
 	DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteFileOK, error)
 
-	DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error)
+	DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, *DownloadFilePartialContent, error)
 
 	GetFileInfo(params *GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileInfoOK, error)
 
@@ -86,12 +161,12 @@ func (a *Client) DeleteFile(params *DeleteFileParams, authInfo runtime.ClientAut
 /*
 	DownloadFile downloads a file
 
-	Returns the full file associated with the ID. Supports byte range requests.
+	Returns the full file associated with the ID. Supports byte range requests for resumable downloads.
 
 Warning: If a file is using too much bandwidth it can be rate limited. The rate limit will be enabled if a file has three times more downloads than views. The owner of a file can always download it. When a file is rate limited the user will need to fill out a captcha in order to continue downloading the file. The captcha will only appear on the file viewer page (pixeldrain.com/u/{id}). Rate limiting has been added to prevent the spread of viruses and to stop hotlinking. Hotlinking is only allowed when files are uploaded using a Pro account.
 Pixeldrain also includes a virus scanner. If a virus has been detected in a file the user will also have to fill in a captcha to download it.
 */
-func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, error) {
+func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...ClientOption) (*DownloadFileOK, *DownloadFilePartialContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDownloadFileParams()
@@ -115,15 +190,17 @@ func (a *Client) DownloadFile(params *DownloadFileParams, authInfo runtime.Clien
 
 	result, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	success, ok := result.(*DownloadFileOK)
-	if ok {
-		return success, nil
+	switch value := result.(type) {
+	case *DownloadFileOK:
+		return value, nil, nil
+	case *DownloadFilePartialContent:
+		return nil, value, nil
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DownloadFileDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return nil, nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

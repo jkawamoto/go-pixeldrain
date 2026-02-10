@@ -76,7 +76,7 @@ func Example_download() {
 	}()
 
 	// If a directory path is given, the downloaded file will be stored in the directory.
-	_, err = pixeldrain.Default.File.DownloadFile(
+	_, _, err = pixeldrain.Default.File.DownloadFile(
 		file.NewDownloadFileParamsWithContext(ctx).WithID(id),
 		client.BasicAuth("", apiKey),
 		f,
