@@ -8,6 +8,7 @@ package user
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +27,7 @@ type ListFilesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListFilesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListFilesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListFilesOK()
@@ -109,7 +110,7 @@ func (o *ListFilesOK) readResponse(response runtime.ClientResponse, consumer run
 	o.Payload = new(ListFilesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -183,7 +184,7 @@ func (o *ListFilesDefault) readResponse(response runtime.ClientResponse, consume
 	o.Payload = new(models.StandardError)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -226,11 +227,15 @@ func (o *ListFilesOKBody) validateFiles(formats strfmt.Registry) error {
 
 		if o.Files[i] != nil {
 			if err := o.Files[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listFilesOK" + "." + "files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listFilesOK" + "." + "files" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -265,11 +270,15 @@ func (o *ListFilesOKBody) contextValidateFiles(ctx context.Context, formats strf
 			}
 
 			if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listFilesOK" + "." + "files" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listFilesOK" + "." + "files" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}

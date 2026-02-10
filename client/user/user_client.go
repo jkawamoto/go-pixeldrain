@@ -67,7 +67,7 @@ ListFileLists returns file lists
 Returns file lists.
 */
 func (a *Client) ListFileLists(params *ListFileListsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*ListFileListsOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewListFileListsParams()
 	}
@@ -87,17 +87,22 @@ func (a *Client) ListFileLists(params *ListFileListsParams, authInfo runtime.Cli
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ListFileListsOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListFileListsDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -107,7 +112,7 @@ ListFiles returns a list of uploaded files
 Returns a list of uploaded files..
 */
 func (a *Client) ListFiles(params *ListFilesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*ListFilesOK, error) {
-	// TODO: Validate the params before sending
+	// NOTE: parameters are not validated before sending
 	if params == nil {
 		params = NewListFilesParams()
 	}
@@ -127,17 +132,22 @@ func (a *Client) ListFiles(params *ListFilesParams, authInfo runtime.ClientAuthI
 	for _, opt := range opts {
 		opt(op)
 	}
-
 	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
+
+	// only one success response has to be checked
 	success, ok := result.(*ListFilesOK)
 	if ok {
 		return success, nil
 	}
-	// unexpected success response
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListFilesDefault)
+
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
