@@ -1,6 +1,6 @@
 // upload_test.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -74,9 +74,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "doc.go" {
@@ -119,9 +116,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "manual" {
@@ -163,9 +157,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := params.File.Name(); name != "manual" {
@@ -205,9 +196,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
@@ -239,9 +227,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...list.ClientOption,
 					) (*list.CreateFileListCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if len(params.List.Files) != 2 {
@@ -280,9 +265,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
@@ -314,9 +296,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...list.ClientOption,
 					) (*list.CreateFileListCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if name := swag.StringValue(params.List.Title); !strings.HasPrefix(name, "album-") {
@@ -345,9 +324,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						r, err := age.Decrypt(params.File, identity)
@@ -397,9 +373,6 @@ func TestUpload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
 					) (*file.UploadFileCreated, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						r, err := age.Decrypt(params.File, identity)

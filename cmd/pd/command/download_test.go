@@ -1,6 +1,6 @@
 // download_test.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -79,9 +79,6 @@ func TestCmdDownload(t *testing.T) {
 			authInfo runtime.ClientAuthInfoWriter,
 			opts ...file.ClientOption,
 		) (*file.GetFileInfoOK, error) {
-			if params.Context != ctx {
-				t.Errorf("expect %v, got %v", ctx, params.Context)
-			}
 			testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 			info, err := os.Stat(params.ID)
@@ -109,9 +106,6 @@ func TestCmdDownload(t *testing.T) {
 			writer io.Writer,
 			opts ...file.ClientOption,
 		) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
-			if params.Context != ctx {
-				t.Errorf("expect %v, got %v", ctx, params.Context)
-			}
 			testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 			f, err := os.Open(params.ID)
@@ -211,9 +205,6 @@ func TestCmdDownload(t *testing.T) {
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...list.ClientOption,
 					) (*list.GetFileListOK, error) {
-						if params.Context != ctx {
-							t.Errorf("expect %v, got %v", ctx, params.Context)
-						}
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						if params.ID != "abc" {

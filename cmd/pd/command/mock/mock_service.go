@@ -5,6 +5,7 @@
 package mock
 
 import (
+	context "context"
 	io "io"
 	reflect "reflect"
 
@@ -58,6 +59,26 @@ func (mr *MockClientServiceMockRecorder) CreateFileList(params, authInfo interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFileList", reflect.TypeOf((*MockClientService)(nil).CreateFileList), varargs...)
 }
 
+// CreateFileListContext mocks base method.
+func (m *MockClientService) CreateFileListContext(ctx context.Context, params *list.CreateFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...list.ClientOption) (*list.CreateFileListCreated, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateFileListContext", varargs...)
+	ret0, _ := ret[0].(*list.CreateFileListCreated)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateFileListContext indicates an expected call of CreateFileListContext.
+func (mr *MockClientServiceMockRecorder) CreateFileListContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFileListContext", reflect.TypeOf((*MockClientService)(nil).CreateFileListContext), varargs...)
+}
+
 // DeleteFile mocks base method.
 func (m *MockClientService) DeleteFile(params *file.DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.DeleteFileOK, error) {
 	m.ctrl.T.Helper()
@@ -76,6 +97,26 @@ func (mr *MockClientServiceMockRecorder) DeleteFile(params, authInfo interface{}
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{params, authInfo}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockClientService)(nil).DeleteFile), varargs...)
+}
+
+// DeleteFileContext mocks base method.
+func (m *MockClientService) DeleteFileContext(ctx context.Context, params *file.DeleteFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.DeleteFileOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteFileContext", varargs...)
+	ret0, _ := ret[0].(*file.DeleteFileOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteFileContext indicates an expected call of DeleteFileContext.
+func (mr *MockClientServiceMockRecorder) DeleteFileContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFileContext", reflect.TypeOf((*MockClientService)(nil).DeleteFileContext), varargs...)
 }
 
 // DownloadFile mocks base method.
@@ -99,6 +140,27 @@ func (mr *MockClientServiceMockRecorder) DownloadFile(params, authInfo, writer i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFile", reflect.TypeOf((*MockClientService)(nil).DownloadFile), varargs...)
 }
 
+// DownloadFileContext mocks base method.
+func (m *MockClientService) DownloadFileContext(ctx context.Context, params *file.DownloadFileParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer, opts ...file.ClientOption) (*file.DownloadFileOK, *file.DownloadFilePartialContent, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo, writer}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DownloadFileContext", varargs...)
+	ret0, _ := ret[0].(*file.DownloadFileOK)
+	ret1, _ := ret[1].(*file.DownloadFilePartialContent)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// DownloadFileContext indicates an expected call of DownloadFileContext.
+func (mr *MockClientServiceMockRecorder) DownloadFileContext(ctx, params, authInfo, writer interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo, writer}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFileContext", reflect.TypeOf((*MockClientService)(nil).DownloadFileContext), varargs...)
+}
+
 // GetFileInfo mocks base method.
 func (m *MockClientService) GetFileInfo(params *file.GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.GetFileInfoOK, error) {
 	m.ctrl.T.Helper()
@@ -117,6 +179,26 @@ func (mr *MockClientServiceMockRecorder) GetFileInfo(params, authInfo interface{
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{params, authInfo}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileInfo", reflect.TypeOf((*MockClientService)(nil).GetFileInfo), varargs...)
+}
+
+// GetFileInfoContext mocks base method.
+func (m *MockClientService) GetFileInfoContext(ctx context.Context, params *file.GetFileInfoParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.GetFileInfoOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetFileInfoContext", varargs...)
+	ret0, _ := ret[0].(*file.GetFileInfoOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFileInfoContext indicates an expected call of GetFileInfoContext.
+func (mr *MockClientServiceMockRecorder) GetFileInfoContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileInfoContext", reflect.TypeOf((*MockClientService)(nil).GetFileInfoContext), varargs...)
 }
 
 // GetFileList mocks base method.
@@ -139,6 +221,26 @@ func (mr *MockClientServiceMockRecorder) GetFileList(params, authInfo interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileList", reflect.TypeOf((*MockClientService)(nil).GetFileList), varargs...)
 }
 
+// GetFileListContext mocks base method.
+func (m *MockClientService) GetFileListContext(ctx context.Context, params *list.GetFileListParams, authInfo runtime.ClientAuthInfoWriter, opts ...list.ClientOption) (*list.GetFileListOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetFileListContext", varargs...)
+	ret0, _ := ret[0].(*list.GetFileListOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFileListContext indicates an expected call of GetFileListContext.
+func (mr *MockClientServiceMockRecorder) GetFileListContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileListContext", reflect.TypeOf((*MockClientService)(nil).GetFileListContext), varargs...)
+}
+
 // GetFileThumbnail mocks base method.
 func (m *MockClientService) GetFileThumbnail(params *file.GetFileThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.GetFileThumbnailOK, error) {
 	m.ctrl.T.Helper()
@@ -157,6 +259,26 @@ func (mr *MockClientServiceMockRecorder) GetFileThumbnail(params, authInfo inter
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{params, authInfo}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileThumbnail", reflect.TypeOf((*MockClientService)(nil).GetFileThumbnail), varargs...)
+}
+
+// GetFileThumbnailContext mocks base method.
+func (m *MockClientService) GetFileThumbnailContext(ctx context.Context, params *file.GetFileThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.GetFileThumbnailOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetFileThumbnailContext", varargs...)
+	ret0, _ := ret[0].(*file.GetFileThumbnailOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFileThumbnailContext indicates an expected call of GetFileThumbnailContext.
+func (mr *MockClientServiceMockRecorder) GetFileThumbnailContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileThumbnailContext", reflect.TypeOf((*MockClientService)(nil).GetFileThumbnailContext), varargs...)
 }
 
 // ListFileLists mocks base method.
@@ -179,6 +301,26 @@ func (mr *MockClientServiceMockRecorder) ListFileLists(params, authInfo interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFileLists", reflect.TypeOf((*MockClientService)(nil).ListFileLists), varargs...)
 }
 
+// ListFileListsContext mocks base method.
+func (m *MockClientService) ListFileListsContext(ctx context.Context, params *user.ListFileListsParams, authInfo runtime.ClientAuthInfoWriter, opts ...user.ClientOption) (*user.ListFileListsOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListFileListsContext", varargs...)
+	ret0, _ := ret[0].(*user.ListFileListsOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListFileListsContext indicates an expected call of ListFileListsContext.
+func (mr *MockClientServiceMockRecorder) ListFileListsContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFileListsContext", reflect.TypeOf((*MockClientService)(nil).ListFileListsContext), varargs...)
+}
+
 // ListFiles mocks base method.
 func (m *MockClientService) ListFiles(params *user.ListFilesParams, authInfo runtime.ClientAuthInfoWriter, opts ...user.ClientOption) (*user.ListFilesOK, error) {
 	m.ctrl.T.Helper()
@@ -199,8 +341,28 @@ func (mr *MockClientServiceMockRecorder) ListFiles(params, authInfo interface{},
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFiles", reflect.TypeOf((*MockClientService)(nil).ListFiles), varargs...)
 }
 
+// ListFilesContext mocks base method.
+func (m *MockClientService) ListFilesContext(ctx context.Context, params *user.ListFilesParams, authInfo runtime.ClientAuthInfoWriter, opts ...user.ClientOption) (*user.ListFilesOK, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListFilesContext", varargs...)
+	ret0, _ := ret[0].(*user.ListFilesOK)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListFilesContext indicates an expected call of ListFilesContext.
+func (mr *MockClientServiceMockRecorder) ListFilesContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFilesContext", reflect.TypeOf((*MockClientService)(nil).ListFilesContext), varargs...)
+}
+
 // SetTransport mocks base method.
-func (m *MockClientService) SetTransport(transport runtime.ClientTransport) {
+func (m *MockClientService) SetTransport(transport runtime.ContextualTransport) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetTransport", transport)
 }
@@ -229,4 +391,24 @@ func (mr *MockClientServiceMockRecorder) UploadFile(params, authInfo interface{}
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{params, authInfo}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockClientService)(nil).UploadFile), varargs...)
+}
+
+// UploadFileContext mocks base method.
+func (m *MockClientService) UploadFileContext(ctx context.Context, params *file.UploadFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.UploadFileCreated, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UploadFileContext", varargs...)
+	ret0, _ := ret[0].(*file.UploadFileCreated)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadFileContext indicates an expected call of UploadFileContext.
+func (mr *MockClientServiceMockRecorder) UploadFileContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFileContext", reflect.TypeOf((*MockClientService)(nil).UploadFileContext), varargs...)
 }
