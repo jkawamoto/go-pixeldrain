@@ -8,5 +8,5 @@
 
 // Package pixeldrain provides a Pixeldrain client.
 //
-//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.33.1 generate client -f ./openapi.yaml -t .
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger@v0.36.2 generate client -f ./openapi.yaml -t .
 package pixeldrain
