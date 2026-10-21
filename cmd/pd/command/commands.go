@@ -17,6 +17,8 @@ const (
 	FlagAlbumName = "album"
 	// FlagDirectory is the flag name to specify an output directory where downloaded files will be stored.
 	FlagDirectory = "dir"
+	// FlagFilename is the flag name to specify the output filename.
+	FlagFilename = "filename"
 	// FlagAll is the flag to download all files in a list.
 	FlagAll = "all"
 	// FlagContinue is the flag to continue downloading by skipping files that already exist with matching sizes.
@@ -81,6 +83,10 @@ var Commands = []*cli.Command{
 				Aliases:     []string{"o"},
 				Usage:       "`path` to the directory where downloaded files will be stored",
 				DefaultText: ".",
+			},
+			&cli.StringFlag{
+				Name:  FlagFilename,
+				Usage: "override the downloaded file `name` (only valid for one file)",
 			},
 			&cli.BoolFlag{
 				Name:  FlagAll,

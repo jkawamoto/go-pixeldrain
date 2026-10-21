@@ -42,6 +42,8 @@
 //
 //	$ pd download URL -o ~/Download
 //
+// If --filename is given, it overrides the downloaded file name. This option can only be used when downloading one file.
+//
 // If recipients are specified with --recipient and/or --recipient-file flags to upload command,
 // files will be encrypted before being uploaded by age.
 // Encrypted files will have extension .age.
