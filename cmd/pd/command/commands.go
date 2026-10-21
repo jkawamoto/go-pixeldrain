@@ -104,5 +104,9 @@ var Commands = []*cli.Command{
 				Usage:    "Use the identity file at `PATH`.",
 			},
 		},
+	}, {
+		Name:   "mcp",
+		Usage:  "Run as an MCP server",
+		Action: CmdMCP,
 	},
 }

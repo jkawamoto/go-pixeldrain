@@ -83,6 +83,17 @@ Empty lines and lines starting with "#" are ignored as comments.
 
 See [age](https://github.com/FiloSottile/age) for the details of `age` and `age-keygen`.
 
+### MCP server
+```shell
+pd mcp
+```
+
+The MCP server provides `upload_text`, `download_file`, and `upload_files` tools.
+`upload_files` accepts files as `{name, data}`, where `data` is base64 (a base64
+data URI is also accepted); it returns a file URL for one file and a list URL
+for multiple files. Set `PIXELDRAIN_API_KEY` when uploads should belong to your
+Pixeldrain account.
+
 ## Installation
 If you're a Homebrew or Linuxbrew user, you can install this app by the following commands:
 
