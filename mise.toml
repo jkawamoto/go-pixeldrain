@@ -1,0 +1,43 @@
+min_version = "2026.10.4"
+
+[settings]
+experimental = true
+
+[tools]
+goreleaser = "latest"
+uv = "latest"
+fnox = "latest"
+
+[secrets.fnox]
+
+[tasks.pd]
+description = "Run the PixelDrain CLI application"
+run = "go run ./cmd/pd"
+secrets = ["PIXELDRAIN_API_KEY"]
+
+[tasks.generate]
+description = "Generate clients and mocks"
+run = [
+    "go generate ./...",
+    "go mod tidy"
+]
+
+[tasks.update]
+description = "Update dependencies, run tests and pre-commit hooks"
+run = [
+    "go get -u ./...",
+    "go mod tidy",
+    "go test ./...",
+    "uv tool run --with pre-commit-uv pre-commit autoupdate"
+]
+depends = "generate"
+depends_post = "pre-commit"
+
+[tasks.pre-commit]
+description = "Run file checks and linting on all files"
+alias = "p"
+run = "uv tool run --with pre-commit-uv pre-commit run -a"
+
+[tasks.snapshot]
+description = "Build snapshot release with goreleaser"
+run = "goreleaser build --snapshot --clean"
