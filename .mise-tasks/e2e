@@ -1,5 +1,6 @@
 #!/bin/bash
 #MISE description="End-to-end test that verifies file upload and download functionality"
+#MISE secrets=["PIXELDRAIN_API_KEY"]
 
 set -e
 

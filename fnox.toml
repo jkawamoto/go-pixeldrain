@@ -1,0 +1,10 @@
+root = true
+env = "exec"
+
+[providers.dotenv]
+type = "plain"
+file = ".env"
+format = "env"
+
+[secrets]
+PIXELDRAIN_API_KEY = { provider = "dotenv", value = "PIXELDRAIN_API_KEY" }
