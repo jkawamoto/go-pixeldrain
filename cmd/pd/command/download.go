@@ -36,26 +36,30 @@ func getID(url string) string {
 	return url[strings.LastIndex(url, "/")+1:]
 }
 
-func downloadURL(ctx *cli.Context, url, dir string, identities []age.Identity) error {
+func downloadURL(ctx *cli.Context, url string) (*models.FileInfo, error) {
 	res, err := pixeldrain.Default.File.GetFileInfo(
 		file.NewGetFileInfoParamsWithContext(ctx.Context).WithID(getID(url)),
 		auth.Extract(ctx.Context),
 	)
 	if err != nil {
-		return pixeldrain.NewError(err)
+		return nil, pixeldrain.NewError(err)
 	}
 
-	return download(ctx, res.Payload, dir, identities)
+	return res.Payload, nil
 }
 
-func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []age.Identity) error {
+func download(ctx *cli.Context, info *models.FileInfo, dir, filename string, identities []age.Identity) error {
 	var encrypted bool
 	if strings.HasSuffix(info.Name, AgeExt) && len(identities) != 0 {
 		info.Name = strings.TrimSuffix(info.Name, AgeExt)
 		encrypted = true
 	}
 
-	filePath := filepath.Join(dir, info.Name)
+	name := info.Name
+	if filename != "" {
+		name = filename
+	}
+	filePath := filepath.Join(dir, name)
 
 	var resumeFrom int64 = 0
 	var openFlags int = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
@@ -65,7 +69,7 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 		if stat, err := os.Stat(filePath); err == nil {
 			if stat.Size() == info.Size {
 				// File already complete, skip
-				fmt.Fprintf(ctx.App.ErrWriter, "%s (skipped)\n", info.Name)
+				fmt.Fprintf(ctx.App.ErrWriter, "%s (skipped)\n", name)
 				return nil
 			} else if stat.Size() < info.Size && !encrypted {
 				// Resume from current position
@@ -90,7 +94,7 @@ func download(ctx *cli.Context, info *models.FileInfo, dir string, identities []
 	// Set up progress bar
 	bar := pb.New64(info.Size)
 	bar.Set(pb.SIBytesPrefix, true)
-	bar.Set("prefix", info.Name+" ")
+	bar.Set("prefix", name+" ")
 	bar.SetWriter(ctx.App.ErrWriter)
 	if resumeFrom > 0 {
 		bar.SetCurrent(resumeFrom)
@@ -133,6 +137,9 @@ func CmdDownload(c *cli.Context) error {
 	}
 
 	dir := c.String(FlagDirectory)
+	filename := c.String(FlagFilename)
+	var files []*models.FileInfo
+	var err error
 	for _, url := range c.Args().Slice() {
 		isList, err := pixeldrain.IsListURL(url)
 		if err != nil {
@@ -141,9 +148,12 @@ func CmdDownload(c *cli.Context) error {
 
 		// if the given URL doesn't points a list, download it and continue.
 		if !isList {
-			if err = downloadURL(c, url, dir, identities); err != nil {
+			var f *models.FileInfo
+			f, err = downloadURL(c, url)
+			if err != nil {
 				return cli.Exit(err, status.APIError)
 			}
+			files = append(files, f)
 			continue
 		}
 
@@ -165,11 +175,7 @@ func CmdDownload(c *cli.Context) error {
 			all = true
 		}
 		if all {
-			for _, f := range res.Payload.Files {
-				if err = download(c, f, dir, identities); err != nil {
-					return cli.Exit(err, status.APIError)
-				}
-			}
+			files = append(files, res.Payload.Files...)
 			continue
 		}
 
@@ -187,10 +193,17 @@ func CmdDownload(c *cli.Context) error {
 		}
 		for _, f := range res.Payload.Files {
 			if contains(names, f.Name) {
-				if err = download(c, f, dir, identities); err != nil {
-					return cli.Exit(err, status.APIError)
-				}
+				files = append(files, f)
 			}
+		}
+	}
+
+	if filename != "" && len(files) != 1 {
+		return cli.Exit("--filename can only be used when downloading exactly one file", status.InvalidArgument)
+	}
+	for _, f := range files {
+		if err = download(c, f, dir, filename, identities); err != nil {
+			return cli.Exit(err, status.APIError)
 		}
 	}
 

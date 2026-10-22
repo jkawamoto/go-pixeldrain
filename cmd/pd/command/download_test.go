@@ -157,6 +157,7 @@ func TestCmdDownload(t *testing.T) {
 		init   func(*testing.T, context.Context, *mock.MockClientService, string)
 		args   func(string) []string
 		expect []string
+		output map[string]string
 		exit   int
 	}{
 		{
@@ -173,6 +174,19 @@ func TestCmdDownload(t *testing.T) {
 			},
 			args:   func(dir string) []string { return []string{pixeldrain.DownloadURL("doc.go")} },
 			expect: []string{"doc.go"},
+		},
+		{
+			name: "download one file with filename",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				t.Helper()
+
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil, 0))
+			},
+			args: func(dir string) []string {
+				return []string{"--filename", "renamed.txt", pixeldrain.DownloadURL("doc.go")}
+			},
+			output: map[string]string{"doc.go": "renamed.txt"},
 		},
 		{
 			name: "download multiple files",
@@ -192,6 +206,18 @@ func TestCmdDownload(t *testing.T) {
 				return []string{pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")}
 			},
 			expect: []string{"doc.go", "download.go"},
+		},
+		{
+			name: "filename with multiple files",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				t.Helper()
+
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false)).Times(2)
+			},
+			args: func(dir string) []string {
+				return []string{"--filename", "renamed.txt", pixeldrain.DownloadURL("doc.go"), pixeldrain.DownloadURL("download.go")}
+			},
+			exit: status.InvalidArgument,
 		},
 		{
 			name: "download one list",
@@ -308,6 +334,7 @@ func TestCmdDownload(t *testing.T) {
 
 			flagSet := flag.NewFlagSet("download", flag.PanicOnError)
 			flagSet.String(FlagDirectory, dir, "")
+			flagSet.String(FlagFilename, "", "")
 			flagSet.Bool(FlagAll, true, "")
 			flagSet.Bool(FlagContinue, false, "")
 			flagSet.String(FlagIdentity, "", "")
@@ -342,6 +369,9 @@ func TestCmdDownload(t *testing.T) {
 
 			for _, name := range tc.expect {
 				expectMatchFile(t, name, filepath.Join(dir, name+".download"))
+			}
+			for source, name := range tc.output {
+				expectMatchFile(t, source, filepath.Join(dir, name))
 			}
 		})
 	}

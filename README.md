@@ -60,6 +60,8 @@ pd download <URL>...
 
 If `--dir` or `-o` option is given with a directory path, the downloaded file is stored in the directory.
 
+If `--filename` is given, it overrides the downloaded file name. This option can only be used when downloading one file.
+
 If the given URL refers an album which consists of multiple files, this command asks which file you want to download.
 If you want to download all files without any interaction, use `--all` flag.
 
