@@ -8,6 +8,9 @@ cleanup() {
     if [ -f "/tmp/LICENSE" ]; then
         rm -f /tmp/LICENSE
     fi
+    if [ -f "/tmp/renamed-LICENSE" ]; then
+        rm -f /tmp/renamed-LICENSE
+    fi
 }
 trap cleanup EXIT
 
@@ -23,8 +26,21 @@ echo ""
 echo "=== Verifying file integrity ==="
 if cmp -s LICENSE /tmp/LICENSE; then
     echo "✓ SUCCESS: Files are identical!"
-    exit 0
 else
     echo "✗ ERROR: Files are different!"
+    exit 1
+fi
+
+echo ""
+echo "=== Downloading file with a custom filename ==="
+go run ./cmd/pd download -o /tmp --filename renamed-LICENSE "$download_url"
+
+echo ""
+echo "=== Verifying renamed file integrity ==="
+if cmp -s LICENSE /tmp/renamed-LICENSE; then
+    echo "✓ SUCCESS: Files are identical and the filename was changed!"
+    exit 0
+else
+    echo "✗ ERROR: Renamed files are different!"
     exit 1
 fi

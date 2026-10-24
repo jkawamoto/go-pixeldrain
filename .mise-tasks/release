@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#MISE description="Prepare a release pull request"
+#USAGE arg "<release-type>" help="Release type" {
+#USAGE   choices "major" "minor" "patch"
+#USAGE }
+
+set -euo pipefail
+
+if [[ -n "$(git status --porcelain)" ]]; then
+    echo "Working tree is not clean; commit or stash changes first." >&2
+    exit 1
+fi
+
+release_type=${usage_release_type?}
+git fetch origin main bump --tags
+git checkout bump
+git rebase origin/main
+
+latest_tag=$(git tag --list 'v*.*.*' --sort=-version:refname | head -n 1)
+if [[ ! "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+    echo "Could not determine the latest semantic version tag." >&2
+    exit 1
+fi
+
+major=${BASH_REMATCH[1]}
+minor=${BASH_REMATCH[2]}
+patch=${BASH_REMATCH[3]}
+case "$release_type" in
+    major) next_version="v$((major + 1)).0.0" ;;
+    minor) next_version="v${major}.$((minor + 1)).0" ;;
+    patch) next_version="v${major}.${minor}.$((patch + 1))" ;;
+esac
+
+mise run update
+if [[ -n "$(git status --porcelain)" ]]; then
+    git add -A
+    git commit -m "chore: update dependencies"
+fi
+
+git push --force-with-lease origin bump
+gh pr create \
+    --base main \
+    --head bump \
+    --title "chore: prepare ${next_version} release" \
+    --body "Prepare the ${next_version} release after merging this pull request."
