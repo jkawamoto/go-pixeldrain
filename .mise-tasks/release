@@ -41,5 +41,5 @@ git push --force-with-lease origin bump
 gh pr create \
     --base main \
     --head bump \
-    --title "chore: prepare ${next_version} release" \
+    --title "${next_version}" \
     --body "Prepare the ${next_version} release after merging this pull request."
