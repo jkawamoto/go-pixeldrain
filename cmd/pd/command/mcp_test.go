@@ -2,8 +2,18 @@ package command
 
 import (
 	"bytes"
+	"context"
 	"testing"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
+
+func TestMCPToolSchemas(t *testing.T) {
+	server := mcp.NewServer(&mcp.Implementation{Name: "test"}, nil)
+	mcp.AddTool(server, &mcp.Tool{Name: "upload_text"}, func(context.Context, *mcp.CallToolRequest, mcpTextInput) (*mcp.CallToolResult, mcpURLResult, error) {
+		return nil, mcpURLResult{}, nil
+	})
+}
 
 func TestDecodeMCPData(t *testing.T) {
 	for _, test := range []struct {

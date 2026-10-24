@@ -30,22 +30,22 @@ import (
 )
 
 type mcpTextInput struct {
-	Text string `json:"text" jsonschema:"description=Text to upload"`
-	Name string `json:"name,omitempty" jsonschema:"description=File name,default=text.txt"`
+	Text string `json:"text" jsonschema:"Text to upload"`
+	Name string `json:"name,omitempty" jsonschema:"File name (defaults to text.txt)"`
 }
 
 type mcpFile struct {
-	Name string `json:"name" jsonschema:"description=File name"`
-	Data string `json:"data" jsonschema:"description=Base64 encoded file data (data URI is also accepted)"`
+	Name string `json:"name" jsonschema:"File name"`
+	Data string `json:"data" jsonschema:"Base64 encoded file data (data URI is also accepted)"`
 }
 
 type mcpFilesInput struct {
-	Files []mcpFile `json:"files" jsonschema:"description=Files to upload,minItems=1"`
+	Files []mcpFile `json:"files" jsonschema:"Files to upload"`
 }
 
 type mcpURLInput struct {
-	URL  string `json:"url" jsonschema:"description=Pixeldrain file download URL"`
-	Path string `json:"path,omitempty" jsonschema:"description=Local output path; defaults to the downloaded file name"`
+	URL  string `json:"url" jsonschema:"Pixeldrain file download URL"`
+	Path string `json:"path,omitempty" jsonschema:"Local output path; defaults to the downloaded file name"`
 }
 
 type mcpURLResult struct {
