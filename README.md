@@ -101,6 +101,11 @@ If you're a Homebrew or Linuxbrew user, you can install this app by the followin
 $ brew tap jkawamoto/pixeldrain
 $ brew install pixeldrain
 ```
+Archlinux by aur
+
+```
+$ yay -S pixeldrain-jkawamoto-git 
+```
 
 To build the newest version, use go get command:
 
