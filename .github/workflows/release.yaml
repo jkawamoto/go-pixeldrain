@@ -35,27 +35,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v4.1.2
-      - name: Download and verify mcp-publisher
-        env:
-          MCP_PUBLISHER_VERSION: v1.8.6
+      - name: Install MCP Publisher
         run: |
-          set -euo pipefail
-          os="$(uname -s | tr '[:upper:]' '[:lower:]')"
-          arch="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
-          archive="mcp-publisher_${os}_${arch}.tar.gz"
-          base_url="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
-
-          curl --fail --location --silent --show-error --output "$archive" "$base_url/$archive"
-          curl --fail --location --silent --show-error --output "$archive.sigstore.json" "$base_url/$archive.sigstore.json"
-          cosign verify-blob \
-            --bundle "$archive.sigstore.json" \
-            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
-            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            "$archive"
-          tar xzf "$archive" mcp-publisher
-          rm -f "$archive" "$archive.sigstore.json"
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
       - name: Authenticate to MCP Registry
         run: ./mcp-publisher login github-oidc
       - name: Update version in server.json

@@ -3,7 +3,7 @@
   "name": "io.github.jkawamoto/pixeldrain",
   "title": "Pixeldrain",
   "description": "Upload, download, and share files, images, and text with Pixeldrain",
-  "version": "0.9.0",
+  "version": "",
   "websiteUrl": "https://github.com/jkawamoto/go-pixeldrain",
   "repository": {
     "url": "https://github.com/jkawamoto/go-pixeldrain",
