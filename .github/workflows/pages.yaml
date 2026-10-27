@@ -6,10 +6,12 @@ on:
       - main
     paths:
       - "docs/**"
+      - "assets/**"
       - ".github/workflows/pages.yaml"
   pull_request:
     paths:
       - "docs/**"
+      - "assets/**"
       - ".github/workflows/pages.yaml"
   workflow_dispatch:
 
