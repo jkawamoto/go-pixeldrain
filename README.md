@@ -95,7 +95,7 @@ Add `pixeldrain` to your MCP configuration (e.g. `claude_desktop_config.json`):
 > Setting `PIXELDRAIN_API_KEY` is optional. If configured, files uploaded by the AI agent will belong to your Pixeldrain account.
 
 ### Available MCP Tools:
-- `upload_files`: Upload one or more base64-encoded files (images, audio, archives) and return a file or album URL.
+- `upload_files`: Upload one or more files (images, audio, archives) and return a file or album URL. Each file uses `{name, data}`, where `data` can be a local file path, Base64, or a Base64 data URI.
 - `upload_text`: Upload plain text or markdown as a file and return a download URL.
 - `download_file`: Download a file from Pixeldrain to the local machine.
 

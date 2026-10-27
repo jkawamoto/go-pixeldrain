@@ -3,6 +3,8 @@ package command
 import (
 	"bytes"
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -33,5 +35,20 @@ func TestDecodeMCPData(t *testing.T) {
 				t.Fatalf("decodeMCPData() = %q, want %q", got, test.want)
 			}
 		})
+	}
+}
+
+func TestReadMCPDataFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "input.txt")
+	if err := os.WriteFile(path, []byte("hello"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := readMCPData(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(got, []byte("hello")) {
+		t.Fatalf("readMCPData() = %q, want %q", got, "hello")
 	}
 }
