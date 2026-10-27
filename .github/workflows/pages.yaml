@@ -2,12 +2,8 @@ name: GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - "docs/**"
-      - "assets/**"
-      - ".github/workflows/pages.yaml"
+    tags:
+      - "v*.*.*"
   pull_request:
     paths:
       - "docs/**"
@@ -49,7 +45,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/public
