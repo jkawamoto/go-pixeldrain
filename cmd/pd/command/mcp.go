@@ -36,7 +36,7 @@ type mcpTextInput struct {
 
 type mcpFile struct {
 	Name string `json:"name" jsonschema:"File name"`
-	Data string `json:"data" jsonschema:"Base64 encoded file data (data URI is also accepted)"`
+	Data string `json:"data" jsonschema:"Base64 encoded file data, data URI, or local file path"`
 }
 
 type mcpFilesInput struct {
@@ -96,7 +96,7 @@ func CmdMCP(c *cli.Context) error {
 			if f.Name == "" {
 				return nil, mcpURLResult{}, fmt.Errorf("files[%d].name is required", i)
 			}
-			data, err := decodeMCPData(f.Data)
+			data, err := readMCPData(f.Data)
 			if err != nil {
 				return nil, mcpURLResult{}, fmt.Errorf("files[%d].data: %w", i, err)
 			}
@@ -168,6 +168,19 @@ func downloadMCP(ctx context.Context, url, path string, authInfo runtime.ClientA
 		return "", pixeldrain.NewError(err)
 	}
 	return path, nil
+}
+
+func readMCPData(data string) ([]byte, error) {
+	if info, err := os.Stat(data); err == nil {
+		if info.IsDir() {
+			return nil, fmt.Errorf("%q is a directory", data)
+		}
+		return os.ReadFile(data)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	return decodeMCPData(data)
 }
 
 func decodeMCPData(data string) ([]byte, error) {
