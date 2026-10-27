@@ -20,13 +20,13 @@ PixelDrain CLI & MCP Server
 {{< /hextra/hero-badge >}}
 </div>
 
-<div class="hx-mb-10">
+<div class="hx-mb-16">
 {{< hextra/hero-subtitle >}}
 Upload, download, and share files, media, and albums directly from your terminal,&nbsp;<br class="sm:block hidden" />shell scripts, pipelines, and AI workflows without opening a browser.
 {{< /hextra/hero-subtitle >}}
 </div>
 
-<div class="hx-mb-12">
+<div class="hx-mb-16">
   {{< hextra/hero-button text="Get Started" link="docs" >}}
 </div>
 
