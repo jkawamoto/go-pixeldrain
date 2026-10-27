@@ -1,26 +1,29 @@
 ---
 title: "pd (Pixeldrain CLI & MCP Server)"
+layout: "hextra-home"
 toc: false
 ---
 
-<div class="hx-text-center">
+<div class="hx-text-center hx-w-full">
 
+<div class="hx-mt-6 hx-mb-6">
+{{< hextra/hero-headline >}}
+PixelDrain CLI & MCP Server
+{{< /hextra/hero-headline >}}
+</div>
+
+<div class="hx-mb-6">
 {{< hextra/hero-badge link="https://github.com/jkawamoto/go-pixeldrain/releases" >}}
   <div class="hx-w-2 hx-h-2 hx-rounded-full hx-bg-primary-400"></div>
   <span>Latest Release v0.9.0 &middot; MCP Ready</span>
   {{< icon name="arrow-circle-right" attributes="height=14" >}}
 {{< /hextra/hero-badge >}}
-
-<div class="hx-mt-6 hx-mb-6">
-  {{< hextra/hero-headline >}}
-    PixelDrain CLI & MCP Server
-  {{< /hextra/hero-headline >}}
 </div>
 
 <div class="hx-mb-10">
-  {{< hextra/hero-subtitle >}}
-    Upload, download, and share files, media, and albums directly from your terminal,&nbsp;<br class="sm:block hidden" />shell scripts, pipelines, and AI workflows without opening a browser.
-  {{< /hextra/hero-subtitle >}}
+{{< hextra/hero-subtitle >}}
+Upload, download, and share files, media, and albums directly from your terminal,&nbsp;<br class="sm:block hidden" />shell scripts, pipelines, and AI workflows without opening a browser.
+{{< /hextra/hero-subtitle >}}
 </div>
 
 <div class="hx-mb-12">
