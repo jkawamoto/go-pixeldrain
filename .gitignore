@@ -30,3 +30,8 @@ _testmain.go
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 /dist/
+
+# Hugo site build artifacts
+docs/public/
+docs/resources/
+.hugo_build.lock

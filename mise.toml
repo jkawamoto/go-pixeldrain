@@ -7,6 +7,7 @@ experimental = true
 goreleaser = "latest"
 uv = "latest"
 fnox = "latest"
+hugo-extended = "latest"
 
 [secrets.fnox]
 
@@ -41,3 +42,13 @@ run = "uv tool run --with pre-commit-uv pre-commit run -a"
 [tasks.snapshot]
 description = "Build snapshot release with goreleaser"
 run = "goreleaser build --snapshot --clean"
+
+[tasks.site-build]
+description = "Build Hugo documentation site"
+dir = "docs"
+run = "hugo --cleanDestinationDir"
+
+[tasks.site-serve]
+description = "Serve Hugo documentation site locally"
+dir = "docs"
+run = "hugo server --buildDrafts --disableFastRender"
