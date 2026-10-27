@@ -25,7 +25,6 @@ toc: false
 
 <div class="hx-mb-12">
   {{< hextra/hero-button text="Get Started" link="docs" >}}
-  {{< hextra/hero-button text="GitHub" link="https://github.com/jkawamoto/go-pixeldrain" type="secondary" >}}
 </div>
 
 </div>

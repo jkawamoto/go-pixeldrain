@@ -33,7 +33,6 @@ params:
     displayLogo: true
     logo:
       path: images/pd.png
-      link: /
       width: 24
       height: 24
   footer:
