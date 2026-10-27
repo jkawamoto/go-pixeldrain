@@ -361,6 +361,46 @@ func (mr *MockClientServiceMockRecorder) ListFilesContext(ctx, params, authInfo 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFilesContext", reflect.TypeOf((*MockClientService)(nil).ListFilesContext), varargs...)
 }
 
+// PutFile mocks base method.
+func (m *MockClientService) PutFile(params *file.PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.PutFileCreated, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutFile", varargs...)
+	ret0, _ := ret[0].(*file.PutFileCreated)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutFile indicates an expected call of PutFile.
+func (mr *MockClientServiceMockRecorder) PutFile(params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutFile", reflect.TypeOf((*MockClientService)(nil).PutFile), varargs...)
+}
+
+// PutFileContext mocks base method.
+func (m *MockClientService) PutFileContext(ctx context.Context, params *file.PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...file.ClientOption) (*file.PutFileCreated, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params, authInfo}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutFileContext", varargs...)
+	ret0, _ := ret[0].(*file.PutFileCreated)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutFileContext indicates an expected call of PutFileContext.
+func (mr *MockClientServiceMockRecorder) PutFileContext(ctx, params, authInfo interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params, authInfo}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutFileContext", reflect.TypeOf((*MockClientService)(nil).PutFileContext), varargs...)
+}
+
 // SetTransport mocks base method.
 func (m *MockClientService) SetTransport(transport runtime.ContextualTransport) {
 	m.ctrl.T.Helper()

@@ -60,6 +60,38 @@ paths:
           description: Error Response
           schema:
             $ref: "#/definitions/StandardError"
+  "/file/{name}":
+    put:
+      tags:
+        - file
+      summary: Upload a file.
+      description: >
+        Upload a file using the PUT API. The file should be sent as the raw request body.
+      operationId: putFile
+      consumes:
+        - application/octet-stream
+      parameters:
+        - name: name
+          type: string
+          in: path
+          required: true
+          description: Name of the file to upload
+        - name: file
+          in: body
+          required: true
+          schema:
+            type: string
+            format: binary
+          description: File to upload
+      responses:
+        201:
+          description: File is uploaded
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error Response
+          schema:
+            $ref: "#/definitions/StandardError"
   "/file/{id}":
     get:
       tags:

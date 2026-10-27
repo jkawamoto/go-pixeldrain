@@ -72,6 +72,11 @@ func WithContentTypeApplicationJSON(r *runtime.ClientOperation) {
 	r.ConsumesMediaTypes = []string{"application/json"}
 }
 
+// WithContentTypeApplicationOctetStream sets the Content-Type header to "application/octet-stream".
+func WithContentTypeApplicationOctetStream(r *runtime.ClientOperation) {
+	r.ConsumesMediaTypes = []string{"application/octet-stream"}
+}
+
 // WithContentTypeMultipartFormData sets the Content-Type header to "multipart/form-data".
 func WithContentTypeMultipartFormData(r *runtime.ClientOperation) {
 	r.ConsumesMediaTypes = []string{"multipart/form-data"}
@@ -128,6 +133,12 @@ type ClientService interface {
 
 	// GetFileThumbnailContext get a thumbnail image representing the file.
 	GetFileThumbnailContext(ctx context.Context, params *GetFileThumbnailParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetFileThumbnailOK, error)
+
+	// PutFile upload a file.
+	PutFile(params *PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutFileCreated, error)
+
+	// PutFileContext upload a file.
+	PutFileContext(ctx context.Context, params *PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutFileCreated, error)
 
 	// UploadFile upload a file.
 	UploadFile(params *UploadFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UploadFileCreated, error)
@@ -409,6 +420,74 @@ func (a *Client) GetFileThumbnailContext(ctx context.Context, params *GetFileThu
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetFileThumbnailDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+// PutFile uploads a file.
+//
+// Upload a file using the PUT API. The file should be sent as the raw request body.
+// .
+//
+// This method does not support injected context.
+// However, timeout and opentracing contexts are honored whenever enabled.
+//
+// If you need to pass a specific context, use [Client.PutFileContext] instead.
+func (a *Client) PutFile(params *PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutFileCreated, error) {
+	var ctx context.Context
+	if params.inner.ctx != nil {
+		ctx = params.inner.ctx
+	} else {
+		ctx = context.Background()
+	}
+
+	return a.PutFileContext(ctx, params, authInfo, opts...)
+}
+
+// PutFileContext uploads a file.
+//
+// Upload a file using the PUT API. The file should be sent as the raw request body.
+// .
+//
+// Do not use the deprecated [PutFileParams.Context] with this method: it would be ignored.
+func (a *Client) PutFileContext(ctx context.Context, params *PutFileParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutFileCreated, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewPutFileParams()
+	}
+
+	op := &runtime.ClientOperation{
+		ID:                 "putFile",
+		Method:             "PUT",
+		PathPattern:        "/file/{name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/octet-stream"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PutFileReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Client:             params.HTTPClient,
+	}
+
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.SubmitContext(ctx, op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*PutFileCreated)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*PutFileDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
