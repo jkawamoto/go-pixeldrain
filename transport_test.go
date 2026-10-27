@@ -73,3 +73,46 @@ func TestContentTypeFixer(t *testing.T) {
 		})
 	}
 }
+
+func TestOptimizeTransport(t *testing.T) {
+	t.Run("nil transport returns optimized transport", func(t *testing.T) {
+		rt := optimizeTransport(nil)
+		tr, ok := rt.(*http.Transport)
+		if !ok {
+			t.Fatalf("expected *http.Transport, got %T", rt)
+		}
+		if tr.WriteBufferSize != BufferSize {
+			t.Errorf("expected WriteBufferSize %d, got %d", BufferSize, tr.WriteBufferSize)
+		}
+		if tr.ReadBufferSize != BufferSize {
+			t.Errorf("expected ReadBufferSize %d, got %d", BufferSize, tr.ReadBufferSize)
+		}
+	})
+
+	t.Run("existing http.Transport gets enlarged buffers", func(t *testing.T) {
+		base := &http.Transport{}
+		rt := optimizeTransport(base)
+		tr, ok := rt.(*http.Transport)
+		if !ok {
+			t.Fatalf("expected *http.Transport, got %T", rt)
+		}
+		if tr.WriteBufferSize != BufferSize {
+			t.Errorf("expected WriteBufferSize %d, got %d", BufferSize, tr.WriteBufferSize)
+		}
+		if tr.ReadBufferSize != BufferSize {
+			t.Errorf("expected ReadBufferSize %d, got %d", BufferSize, tr.ReadBufferSize)
+		}
+		// ensure original was not mutated
+		if base.WriteBufferSize != 0 {
+			t.Errorf("expected original WriteBufferSize 0, got %d", base.WriteBufferSize)
+		}
+	})
+
+	t.Run("custom RoundTripper passed through", func(t *testing.T) {
+		mock := &mockRoundTripper{}
+		rt := optimizeTransport(mock)
+		if rt != mock {
+			t.Errorf("expected mock to be passed through, got %T", rt)
+		}
+	})
+}

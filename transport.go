@@ -59,23 +59,51 @@ func ContentTypeFixer(upstream runtime.ContextualTransport) runtime.ContextualTr
 	return &transport{upstream: upstream}
 }
 
+// BufferSize is the buffer size used for HTTP transport Read/Write buffers.
+const BufferSize = 1024 * 1024 // 1 MiB
+
+// newOptimizedTransport returns an http.Transport with enlarged Read/Write buffer sizes.
+func newOptimizedTransport() http.RoundTripper {
+	if tr, ok := http.DefaultTransport.(*http.Transport); ok {
+		cloned := tr.Clone()
+		cloned.WriteBufferSize = BufferSize
+		cloned.ReadBufferSize = BufferSize
+		return cloned
+	}
+	return http.DefaultTransport
+}
+
+// optimizeTransport ensures the transport uses the optimized buffer size if it is an *http.Transport.
+func optimizeTransport(upstream http.RoundTripper) http.RoundTripper {
+	if upstream == nil {
+		return newOptimizedTransport()
+	}
+	if tr, ok := upstream.(*http.Transport); ok {
+		cloned := tr.Clone()
+		if cloned.WriteBufferSize < BufferSize {
+			cloned.WriteBufferSize = BufferSize
+		}
+		if cloned.ReadBufferSize < BufferSize {
+			cloned.ReadBufferSize = BufferSize
+		}
+		return cloned
+	}
+	return upstream
+}
+
 // Submit sends the given operation and returns a response.
 func (t *transport) Submit(op *runtime.ClientOperation) (any, error) {
 	if op.Client == nil {
-		op.Client = &http.Client{
-			Transport: http.DefaultTransport,
-		}
+		op.Client = &http.Client{}
 	}
-	op.Client.Transport = newRoundTripper(op.Client.Transport, op.ProducesMediaTypes[0])
+	op.Client.Transport = newRoundTripper(optimizeTransport(op.Client.Transport), op.ProducesMediaTypes[0])
 	return t.upstream.Submit(op)
 }
 
 func (t *transport) SubmitContext(ctx context.Context, op *runtime.ClientOperation) (any, error) {
 	if op.Client == nil {
-		op.Client = &http.Client{
-			Transport: http.DefaultTransport,
-		}
+		op.Client = &http.Client{}
 	}
-	op.Client.Transport = newRoundTripper(op.Client.Transport, op.ProducesMediaTypes[0])
+	op.Client.Transport = newRoundTripper(optimizeTransport(op.Client.Transport), op.ProducesMediaTypes[0])
 	return t.upstream.SubmitContext(ctx, op)
 }
