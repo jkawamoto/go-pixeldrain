@@ -1,0 +1,13 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.jkawamoto/pixeldrain",
+  "title": "Pixeldrain",
+  "description": "Upload, download, and share files, images, and text with Pixeldrain",
+  "version": "",
+  "websiteUrl": "https://github.com/jkawamoto/go-pixeldrain",
+  "repository": {
+    "url": "https://github.com/jkawamoto/go-pixeldrain",
+    "source": "github",
+    "id": "124807862"
+  }
+}
