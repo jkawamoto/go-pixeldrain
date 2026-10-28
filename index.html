@@ -1,348 +1,54 @@
-<!DOCTYPE html>
-<html>
-  <head prefix="og: http://ogp.me/ns#">
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <base href="https://jkawamoto.github.io/go-pixeldrain/" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="generator" content="Hugo 0.53" />
-  <title>A PixelDrain Client: share files with decentralized cloud storage.</title>
-
-  <meta name="author" content="Junpei Kawamoto" />
-  
-  <meta name="description" content="Share files with PixelDrain, a decentralized cloud storage service based on Sia network. " />
-  
-
-  <meta property="og:type" content="article" />
-  <meta property="og:url" content="https://jkawamoto.github.io/go-pixeldrain/"/>
-  <meta property="og:title" content="A PixelDrain Client: share files with decentralized cloud storage." />
-  
-  <meta name="og:description" content="Share files with PixelDrain, a decentralized cloud storage service based on Sia network. " />
-  
-  <meta property="og:site_name" content="A PixelDrain Client: share files with decentralized cloud storage." />
-  <meta property="og:image" content="https://jkawamoto.github.io/go-pixeldrain/img/image.png" />
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@junkawamoto" />
-
-  
-  
-  <link rel="icon" href="https://jkawamoto.github.io/go-pixeldrain/favicon.ico" />
-  
-  
-  
-  
-  
-  <link rel="apple-touch-icon" href="https://jkawamoto.github.io/go-pixeldrain/img/apple-icon-152x152.png" sizes="152x152" />
-  
-  
-  <link rel="icon" type="image/png" href="https://jkawamoto.github.io/go-pixeldrain/img/android-chrome-192x192.png" sizes="192x192" />
-  
-
-  
-  <link href="https://jkawamoto.github.io/go-pixeldrain/css/bootstrap.min.css" rel="stylesheet" />
-
-  
-  <link href="https://jkawamoto.github.io/go-pixeldrain/css/landing-page.css" rel="stylesheet" />
-
-  
-  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
-
-  <style>
-    .navbar {
-    border-color: #e7e7e7;
-}
-
-.content-section-a,
-footer,
-.navbar {
-  background-color: #f8f8f8;
-  color: #333;
-}
-
-.navbar a:link,
-.navbar-default .navbar-nav>li>a {
-  color: #777;
-}
-
-.navbar a:hover,
-.navbar-default .navbar-nav>li>a:hover {
-  color: rgb(51, 51, 51);
-}
-
-.content-section-b {
-  background-color: white;
-  color: #333;
-}
-
-body {
-  color: rgb(51, 51, 51);
-}
-
-.header-container h1,
-.header-container h2,
-.header-container h3,
-.header-container h4 {
-  color: rgb(51, 51, 51);
-}
-
-  </style>
-</head>
-
-  <body>
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="index, follow"><link rel="icon shortcut" href=/go-pixeldrain/favicon.ico sizes=32x32><link rel=icon href=/go-pixeldrain/favicon.svg type=image/svg+xml id=favicon-svg><link rel=icon href=/go-pixeldrain/favicon-16x16.png type=image/png sizes=16x16><link rel=icon href=/go-pixeldrain/favicon-32x32.png type=image/png sizes=32x32><link rel=apple-touch-icon href=/go-pixeldrain/apple-touch-icon.png sizes=180x180><link fetchpriority=low href=/go-pixeldrain/site.webmanifest rel=manifest><title>go-pixeldrain</title><meta name=description content><link rel=canonical href=https://jkawamoto.github.io/go-pixeldrain/ itemprop=url><meta property="og:title" content="pd (Pixeldrain CLI & MCP Server)"><meta property="og:description" content="
     
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({
-        google_ad_client: "ca-pub-4734862314145555",
-        enable_page_level_ads: true
-      });
-    </script>
+      
     
-    <!-- Navigation -->
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header page-scroll">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="page-scroll navbar-brand" href="#intro">A PixelDrain Client</a>
-    </div>
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-        
-        <li><a class="page-scroll" href=https://github.com/jkawamoto/go-pixeldrain>Github</a></li>
-        
-        
-        <li>
-          <a class="page-scroll" href=https://www.jkawamoto.info/>
-            Junpei Kawamoto
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-    
-    
-
-<section id="intro">
-	<!-- Header -->
-	<div class="intro-header">
-		<div class="container header-container">
-			<div class="row">
-				<div class="intro-image col-md-offset-1 col-md-4" style="background-image:url(img/pd.png)"></div>
-				<div class="intro-message col-md-6">
-					<h1>A PixelDrain Client</h1>
-					
-					<h3>share files with decentralized cloud storage.</h3>
-					
-
-					
-					
-					
-					<iframe class="github-btn"
-					 	src="https://ghbtns.com/github-btn.html?user=jkawamoto&amp;repo=go-pixeldrain&amp;type=star&amp;count=true&amp;size=large"
-					 	frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-					<iframe class="github-btn"
-					 	src="https://ghbtns.com/github-btn.html?user=jkawamoto&amp;repo=go-pixeldrain&amp;type=fork&amp;count=true&amp;size=large"
-						 	frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-					
-					<hr class="intro-divider">
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
-
-    <section>
-        <div class="container">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-4734862314145555"
-                 data-ad-slot="4875187824"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-    </section>
-    <section id="services">
-  <!-- Page Content -->
-  
-    
-    <div class="content-section-a">
-    
-      <div class="container">
-        <div class="row">
-          <div>
-          <hr class="section-heading-spacer"/>
-          <div class="clearfix"></div>
-            <h2 class="section-heading">A PixelDrain Client</h2>
-            
-
-<p><a href="./info/licenses/"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="MIT License" /></a>
-<a href="https://travis-ci.org/jkawamoto/go-pixeldrain"><img src="https://travis-ci.org/jkawamoto/go-pixeldrain.svg?branch=master" alt="Build Status" /></a>
-<a href="https://github.com/jkawamoto/go-pixeldrain/releases/tag/v0.3.0"><img src="https://img.shields.io/badge/release-0.3.0-brightgreen.svg" alt="Release" /></a></p>
-
-<h2 id="usage">Usage</h2>
-
-<h3 id="upload-a-file">Upload a file</h3>
-
-<p><code>upload</code> command uploads a file to Pixeldrain and shows a URL to it.</p>
-
-<pre><code class="language-shell">$ pd upload &lt;file path&gt;
-</code></pre>
-
-<p>The uploaded file has the same name as the given file.
-<code>-n</code> and <code>--name</code> options overwrite the file names.</p>
-
-<p>If uploading file is given via STDIN, use <code>-</code> instead of a file path.
-In this case either <code>-n</code> or <code>--name</code> option is mandatory.</p>
-
-<p>For example, this command reads <code>file1.txt</code> and uploads it with name <code>uploaded.txt</code>:</p>
-
-<pre><code class="language-shell">$ cat file1.txt | pd upload --name uploaded.txt -
-</code></pre>
-
-<h3 id="download-a-file">Download a file</h3>
-
-<p><code>download</code> command downloads a file from Pixeldrain and writes it to STDOUT.</p>
-
-<pre><code class="language-shell">$ pd download &lt;file ID | URL&gt;
-</code></pre>
-
-<p>If <code>-o</code> option is given with a directory path, the downloaded file is stored in
-the directory instead of writing to STDOUT.</p>
-
-<p>For example, this command downloads a file <code>abcdefg</code> in <code>~/Download</code>:</p>
-
-<pre><code class="language-shell">$ pd download abcdefg -o ~/Download
-</code></pre>
-
-<h3 id="upload-download-a-directory">Upload/Download a directory</h3>
-
-<p>This application supports uploading a file from STDIN and downloading a file to STDOUT.
-With <code>tar</code> command, it&rsquo;s also able to upload/download directories.
-For example, this command uploads <code>~/Documents</code> directory:</p>
-
-<pre><code class="language-shell">$ tar zcf - ~/Documents | pd upload -n documents.tar.gz -
-</code></pre>
-
-<p>and this command downloads the file:</p>
-
-<pre><code class="language-shell">$ pd download &lt;file id&gt; | tar zxf - -C ~/Downloads
-</code></pre>
-
-<h2 id="installation">Installation</h2>
-
-<p>If you&rsquo;re a Homebrew or Linuxbrew user, you can install this app by the following commands:</p>
-
-<pre><code>$ brew tap jkawamoto/pixeldrain
-$ brew install pixeldrain
-</code></pre>
-
-<p>To build the newest version, use go get command:</p>
-
-<pre><code>$ go get github.com/jkawamoto/go-pixeldrain
-</code></pre>
-
-<p>Otherwise, compiled binaries are also available in <a href="https://github.com/jkawamoto/go-pixeldrain/releases">Github</a>.</p>
-
-<h2 id="license">License</h2>
-
-<p>This software is released under the MIT License, see <a href="./info/licenses/">LICENSE</a>.</p>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  
-</section>
-
-
-    <!-- Footer -->
-<footer>
-  
-<div class="container">
-  <ins class="adsbygoogle"
-       style="display:inline-block;width:336px;height:280px"
-       data-ad-client="ca-pub-4734862314145555"
-       data-ad-slot="4875187824"></ins>
-  <script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-  <ins class="adsbygoogle"
-       style="display:inline-block;width:336px;height:280px"
-       data-ad-client="ca-pub-4734862314145555"
-       data-ad-slot="4875187824"></ins>
-  <script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-</div>
-
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-        <p class="copyright text-muted small">
-          Copyright &copy; Junpei Kawamoto All Rights Reserved.
-        </p>
-      </div>
-      <div class="col-md-4">
-        Built with <a href="http://gohugo.io">Hugo</a> and the
-        <a href="https://github.com/jkawamoto/github-project-landing-page">Github project Page</a>
-        theme.
-      </div>
-    </div>
-  </div>
-</footer>
-
-    <!-- jQuery CDN -->
-<script src="js/jquery-2.2.0.min.js"></script>
-
-<!-- Plugin JavaScript -->
-<script src="js/jquery.easing-1.3.min.js"></script>
-
-<!-- Bootstrap Core JavaScript -->
-<script src="js/bootstrap.min.js"></script>
-
-<!-- Custom Theme JavaScript -->
-<script src="js/landing-page.js"></script>
-
-
-<!-- Google Analytics -->
-<script>
- (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new
-   Date();a=s.createElement(o),
-   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
- })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
- ga('create', 'UA-82315630-1', 'auto');
- ga('send', 'pageview');
-</script>
-
-
-
-<!-- highlight.js Configuration -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/agate.min.css" type="text/css" />
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  
-<script>hljs.initHighlightingOnLoad();</script>
-
-
-
-<!-- AddThis Configuration -->
-<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-57f529147128b1fb"></script>
-
-
-  </body>
-</html>
+  "><meta property="og:type" content="
+    website
+  "><meta property="og:url" content="https://jkawamoto.github.io/go-pixeldrain/"><meta itemprop=name content="pd (Pixeldrain CLI & MCP Server)"><meta itemprop=description content="PixelDrain CLI & MCP Server Latest Release v0.9.0 · MCP Ready Upload, download, and share files, media, and albums directly from your terminal, shell scripts, pipelines, and AI workflows without opening a browser. Get Started"><meta itemprop=wordCount content="202"><meta name=twitter:card content="summary"><meta name=twitter:title content="pd (Pixeldrain CLI & MCP Server)"><meta name=twitter:description content="PixelDrain CLI & MCP Server Latest Release v0.9.0 · MCP Ready Upload, download, and share files, media, and albums directly from your terminal, shell scripts, pipelines, and AI workflows without opening a browser. Get Started"><link rel=preload href=/go-pixeldrain/css/compiled/main.min.26ed97589d66173a38ca24df6948703372c4585672cf24387ef4a197805a63d8.css as=style integrity="sha256-Ju2XWJ1mFzo4yiTfaUhwM3LEWFZyzyQ4fvShl4BaY9g="><link href=/go-pixeldrain/css/compiled/main.min.26ed97589d66173a38ca24df6948703372c4585672cf24387ef4a197805a63d8.css rel=stylesheet integrity="sha256-Ju2XWJ1mFzo4yiTfaUhwM3LEWFZyzyQ4fvShl4BaY9g="><script src=/go-pixeldrain/js/main-head.min.bbb353731723c08eaf67b231610392e3665384806ddb6bee51d4a965494c762e.js integrity="sha256-u7NTcxcjwI6vZ7IxYQOS42ZThIBt22vuUdSpZUlMdi4="></script><meta name=generator content="Hugo 0.169.0"></head><body><a href=#content class="hx:sr-only hx:focus-visible:not-sr-only hx:focus-visible:fixed hx:focus-visible:z-50 hx:focus-visible:top-2 hx:focus-visible:left-2 hx:focus-visible:bg-primary-500 hx:focus-visible:text-white hx:focus-visible:px-4 hx:focus-visible:py-2 hx:focus-visible:rounded-md hx:focus-visible:text-sm hx:focus-visible:font-medium">Skip to content</a><div class="hextra-nav-container hx:sticky hx:top-0 hx:z-20 hx:w-full hx:bg-transparent hx:print:hidden"><div class="hextra-nav-container-blur hx:pointer-events-none hx:absolute hx:z-[-1] hx:h-full hx:w-full hx:bg-white hx:dark:bg-dark hx:shadow-[0_2px_4px_rgba(0,0,0,.02),0_1px_0_rgba(0,0,0,.06)] hx:contrast-more:shadow-[0_0_0_1px_#000] hx:dark:shadow-[0_-1px_0_rgba(255,255,255,.1)_inset] hx:contrast-more:dark:shadow-[0_0_0_1px_#fff]"></div><nav class="hextra-max-navbar-width hx:mx-auto hx:flex hx:items-center hx:justify-end hx:gap-1 hx:md:gap-2 hx:h-[var(--hextra-navbar-height)] hx:px-6"><a class="hx:flex hx:items-center hx:hover:opacity-75 hx:ltr:mr-auto hx:rtl:ml-auto" href=/go-pixeldrain/><img class="hx:mr-2 hx:block hx:dark:hidden" src=/go-pixeldrain/images/pd.png alt=Logo height=24 width=24>
+<img class="hx:mr-2 hx:hidden hx:dark:block" src=/go-pixeldrain/images/pd.png alt="Dark Logo" height=24 width=24>
+<span class="hx:mr-2 hx:font-extrabold hx:inline hx:select-none">go-pixeldrain</span>
+</a><a title href=/go-pixeldrain/docs class="hx:text-sm hx:contrast-more:text-gray-700 hx:contrast-more:dark:text-gray-100 hx:relative hx:-ml-2 hx:hidden hx:whitespace-nowrap hx:p-2 hx:md:inline-flex hx:items-center hx:gap-1 hx:text-gray-600 hx:hover:text-gray-800 hx:dark:text-gray-400 hx:dark:hover:text-gray-200"><span class=hx:text-center>Docs</span>
+</a><button type=button class=hextra-search-trigger data-search-open aria-haspopup=dialog aria-controls=hextra-search-dialog aria-label=Search...><svg class="hextra-search-trigger-icon" focusable="false" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5A7 7 0 113 10a7 7 0 0114 0z"/></svg><span class=hextra-search-trigger-label>Search...</span>
+<kbd class=hextra-search-trigger-kbd>CTRL K</kbd>
+</button>
+<a class="hx:p-1 hx:md:p-2 hx:text-current" target=_blank rel=noreferrer href=https://github.com/jkawamoto/go-pixeldrain title=GitHub><svg height="24" fill="currentColor" viewBox="3 3 18 18"><path d="M12 3C7.0275 3 3 7.12937 3 12.2276c0 4.0833 2.57625 7.5321 6.15374 8.7548C9.60374 21.0631 9.77249 20.7863 9.77249 20.5441 9.77249 20.3249 9.76125 19.5982 9.76125 18.8254 7.5 19.2522 6.915 18.2602 6.735 17.7412 6.63375 17.4759 6.19499 16.6569 5.8125 16.4378 5.4975 16.2647 5.0475 15.838 5.80124 15.8264 6.51 15.8149 7.01625 16.4954 7.18499 16.7723 7.99499 18.1679 9.28875 17.7758 9.80625 17.5335 9.885 16.9337 10.1212 16.53 10.38 16.2993 8.3775 16.0687 6.285 15.2728 6.285 11.7432c0-1.0035.34875-1.834.92249-2.47994C7.1175 9.03257 6.8025 8.08674 7.2975 6.81794c0 0 .753749999999999-.24223 2.47499.94583.72001-.20762 1.48501-.31143 2.25001-.31143C12.7875 7.45234 13.5525 7.55615 14.2725 7.76377c1.7212-1.19959 2.475-.94583 2.475-.94583C17.2424 8.08674 16.9275 9.03257 16.8375 9.26326 17.4113 9.9092 17.76 10.7281 17.76 11.7432c0 3.5411-2.1037 4.3255-4.1063 4.5561C13.98 16.5877 14.2613 17.1414 14.2613 18.0065 14.2613 19.2407 14.25 20.2326 14.25 20.5441 14.25 20.7863 14.4188 21.0746 14.8688 20.9824 16.6554 20.364 18.2079 19.1866 19.3078 17.6162c1.0999-1.5705 1.6917-3.4551 1.6922-5.3886C21 7.12937 16.9725 3 12 3z"/></svg>
+<span class=hx:sr-only>GitHub</span>
+</a><button type=button aria-label=Menu aria-expanded=false class="hextra-hamburger-menu hx:cursor-pointer hx:-mr-1 hx:rounded-sm hx:p-1 hx:active:bg-gray-400/20 hx:md:hidden hx:hextra-focus-visible-inset"><svg height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><g><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8H20"/></g><g><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16H20"/></g></svg></button></nav></div><div class="hx:mx-auto hx:flex hextra-max-page-width"><aside class="hextra-sidebar-container hx:flex hx:flex-col hx:print:hidden hx:md:top-[var(--hextra-navbar-height)] hx:md:shrink-0 hx:md:w-64 hx:md:self-start hx:max-md:[transform:translate3d(0,-100%,0)] hx:md:hidden"><div class="hextra-scrollbar hx:overflow-y-auto hx:overflow-x-hidden hx:p-4 hx:grow hx:md:h-[calc(100vh-var(--hextra-navbar-height)-var(--menu-height))]"><ul class="hx:flex hx:flex-col hx:gap-1 hx:md:hidden"><li><div class="hextra-sidebar-item hx:group hx:relative hx:flex hx:items-center" data-active=false><a class="hx:flex hx:items-center hx:justify-between hx:gap-2 hx:grow hx:cursor-pointer hx:rounded-sm hx:px-2 hx:py-1.5 hx:text-sm hx:transition-colors [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] hx:hextra-focus-visible-inset hx:ltr:pr-8 hx:rtl:pl-8 hx:text-gray-500 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:contrast-more:border hx:contrast-more:border-transparent hx:contrast-more:text-gray-900 hx:contrast-more:hover:border-gray-900 hx:dark:text-neutral-400 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:contrast-more:dark:text-gray-50 hx:contrast-more:dark:hover:border-gray-50" href=/go-pixeldrain/docs/><span class="hx:min-w-0 [word-break:break-word]">Docs</span>
+</a><button type=button class="hextra-sidebar-collapsible-button hx:absolute hx:top-1/2 hx:-translate-y-1/2 hx:ltr:right-2 hx:rtl:left-2 hx:shrink-0 hx:cursor-pointer hx:p-0 hx:text-gray-500 hx:dark:text-neutral-400 hx:group-hover:text-gray-900 hx:dark:group-hover:text-gray-50 hx:group-data-[active=true]:text-primary-800 hx:group-data-[active=true]:dark:text-primary-600 hx:hextra-focus-visible-inset" aria-label="Toggle section" aria-expanded=false><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false" class="hx:h-[18px] hx:min-w-[18px] hx:rounded-xs hx:p-0.5 hx:hover:bg-gray-800/5 hx:dark:hover:bg-gray-100/5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" class="hx:origin-center hx:transition-transform hx:rtl:-rotate-180"/></svg></button></div><div class="hextra-sidebar-children hx:ltr:pr-0 hx:rtl:pl-0 hx:overflow-hidden"><ul class='hx:relative hx:flex hx:flex-col hx:gap-1 hx:before:absolute hx:before:inset-y-1 hx:before:w-px hx:before:bg-gray-200 hx:before:content-[""] hx:ltr:ml-3 hx:ltr:pl-3 hx:ltr:before:left-0 hx:rtl:mr-3 hx:rtl:pr-3 hx:rtl:before:right-0 hx:dark:before:bg-neutral-800'><li class="hx:flex hx:flex-col"><div class="hextra-sidebar-item hx:group hx:relative hx:flex hx:items-center" data-active=false><a class="hx:flex hx:items-center hx:justify-between hx:gap-2 hx:grow hx:cursor-pointer hx:rounded-sm hx:px-2 hx:py-1.5 hx:text-sm hx:transition-colors [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] hx:hextra-focus-visible-inset hx:text-gray-500 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:contrast-more:border hx:contrast-more:border-transparent hx:contrast-more:text-gray-900 hx:contrast-more:hover:border-gray-900 hx:dark:text-neutral-400 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:contrast-more:dark:text-gray-50 hx:contrast-more:dark:hover:border-gray-50" href=/go-pixeldrain/docs/quickstart/><span class="hx:min-w-0 [word-break:break-word]">Quick Start & CLI</span></a></div></li><li class="hx:flex hx:flex-col"><div class="hextra-sidebar-item hx:group hx:relative hx:flex hx:items-center" data-active=false><a class="hx:flex hx:items-center hx:justify-between hx:gap-2 hx:grow hx:cursor-pointer hx:rounded-sm hx:px-2 hx:py-1.5 hx:text-sm hx:transition-colors [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] hx:hextra-focus-visible-inset hx:text-gray-500 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:contrast-more:border hx:contrast-more:border-transparent hx:contrast-more:text-gray-900 hx:contrast-more:hover:border-gray-900 hx:dark:text-neutral-400 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:contrast-more:dark:text-gray-50 hx:contrast-more:dark:hover:border-gray-50" href=/go-pixeldrain/docs/mcp/><span class="hx:min-w-0 [word-break:break-word]">MCP Server (AI Integration)</span></a></div></li><li class="hx:flex hx:flex-col"><div class="hextra-sidebar-item hx:group hx:relative hx:flex hx:items-center" data-active=false><a class="hx:flex hx:items-center hx:justify-between hx:gap-2 hx:grow hx:cursor-pointer hx:rounded-sm hx:px-2 hx:py-1.5 hx:text-sm hx:transition-colors [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] hx:hextra-focus-visible-inset hx:text-gray-500 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:contrast-more:border hx:contrast-more:border-transparent hx:contrast-more:text-gray-900 hx:contrast-more:hover:border-gray-900 hx:dark:text-neutral-400 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:contrast-more:dark:text-gray-50 hx:contrast-more:dark:hover:border-gray-50" href=/go-pixeldrain/docs/encryption/><span class="hx:min-w-0 [word-break:break-word]">End-to-End Encryption</span></a></div></li><li class="hx:flex hx:flex-col"><div class="hextra-sidebar-item hx:group hx:relative hx:flex hx:items-center" data-active=false><a class="hx:flex hx:items-center hx:justify-between hx:gap-2 hx:grow hx:cursor-pointer hx:rounded-sm hx:px-2 hx:py-1.5 hx:text-sm hx:transition-colors [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] hx:hextra-focus-visible-inset hx:text-gray-500 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:contrast-more:border hx:contrast-more:border-transparent hx:contrast-more:text-gray-900 hx:contrast-more:hover:border-gray-900 hx:dark:text-neutral-400 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:contrast-more:dark:text-gray-50 hx:contrast-more:dark:hover:border-gray-50" href=/go-pixeldrain/docs/sdk/><span class="hx:min-w-0 [word-break:break-word]">Go SDK</span></a></div></li></ul></div></li></ul></div><div class="hx:md:hidden hx:sticky hx:bottom-0 hx:max-h-(--menu-height) hx:bg-white hx:dark:bg-dark hx:mx-4 hx:py-4 hx:shadow-[0_-12px_16px_#fff] hx:flex hx:items-center hx:gap-2 hx:border-gray-200 hx:dark:border-neutral-800 hx:dark:shadow-[0_-12px_16px_#111] hx:contrast-more:border-neutral-400 hx:contrast-more:shadow-none hx:contrast-more:dark:shadow-none hx:border-t" data-toggle-animation=show><div class="hx:flex hx:grow hx:flex-col"><div class="hx:flex hx:justify-items-start hx:group" data-theme=light><button title="Change theme" data-state=closed data-location=bottom class="hextra-theme-toggle hx:cursor-pointer hx:rounded-md hx:text-left hx:font-medium hx:h-7 hx:px-2 hx:text-xs hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:font-medium hx:text-gray-600 hx:transition-colors hx:dark:text-gray-400 hx:grow" type=button aria-label="Change theme" aria-expanded=false aria-haspopup=menu><div class="hx:flex hx:items-center hx:gap-2 hx:capitalize"><svg height="12" class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364-.707-.707M6.343 6.343l-.707-.707m12.728.0-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden">Light</span><svg height="12" class="hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003.0 0012 21a9.003 9.003.0 008.354-5.646z"/></svg><span class="hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden">Dark</span><svg height="12" class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M11.996094 2C6.4986225 2.0192368 2.03125 6.5024993 2.03125 12c0 5.497501 4.4673725 9.980763 9.964844 10H12 12.0039c5.497471-.01924 9.964844-4.502499 9.964844-10 0-5.4975007-4.467373-9.9807632-9.964844-10H12zM12 4c4.417218.017598 7.96875 3.5822356 7.96875 8 0 4.417764-3.551532 7.982402-7.96875 8z"/></svg>
+<span class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden">System</span></div></button><ul class="hextra-theme-toggle-options hx:hidden hx:z-20 hx:max-h-64 hx:overflow-auto hx:rounded-lg hx:border hx:border-gray-200 hx:bg-white hx:p-1 hx:text-sm hx:shadow-lg hx:dark:border-neutral-700 hx:dark:bg-neutral-900" style="position:fixed;inset:auto auto 0 0;margin:0;min-width:100px" data-theme=light role=menu><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=true tabindex=-1 data-item=light class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+Light
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=false tabindex=-1 data-item=dark class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+Dark
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=false tabindex=-1 data-item=system class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+System
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li></ul></div></div></div></aside><main id=content class="hx:w-full hx:break-words hx:min-h-[calc(100vh-var(--hextra-navbar-height))] hx:min-w-0 hx:pb-8 hx:pt-8 hx:md:pt-12 hx:pl-[max(env(safe-area-inset-left),1.5rem)] hx:pr-[max(env(safe-area-inset-right),1.5rem)]"><div class="hx:flex hx:flex-col hx:items-start"><div class="hx-text-center hx-w-full"><div class="hx-mt-6 hx-mb-6"><h1 class="not-prose hx:text-4xl hx:font-bold hx:leading-none hx:tracking-tighter hx:md:text-5xl hx:py-2 hx:bg-clip-text hx:text-transparent hx:bg-gradient-to-r hx:from-gray-900 hx:to-gray-600 hx:dark:from-gray-100 hx:dark:to-gray-400">PixelDrain CLI & MCP Server</h1></div><div class=hx-mb-6><a href=https://github.com/jkawamoto/go-pixeldrain/releases class="not-prose hx:inline-flex hx:items-center hx:rounded-full hx:gap-2 hx:px-3 hx:py-1 hx:text-xs hx:text-gray-600 hx:dark:text-gray-400 hx:bg-gray-100 hx:dark:bg-neutral-800 hx:border-gray-200 hx:dark:border-neutral-800 hx:border hx:hover:border-gray-400 hx:dark:hover:text-gray-50 hx:dark:hover:border-gray-600 hx:transition-all hx:ease-in hx:duration-200" target=_blank rel=noreferrer><div class="hx-w-2 hx-h-2 hx-rounded-full hx-bg-primary-400"></div><span>Latest Release v0.9.0 &#183; MCP Ready</span>
+<span class="hx:inline-block hx:align-text-bottom hextra-icon"><svg height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 9l3 3m0 0-3 3m3-3H8m13 0A9 9 0 113 12a9 9 0 0118 0z"/></svg></span></a></div><div class=hx-mb-16><p class="not-prose hx:text-xl hx:text-gray-600 hx:dark:text-gray-400 hx:sm:text-xl">Upload, download, and share files, media, and albums directly from your terminal, <br class="sm:block hidden">shell scripts, pipelines, and AI workflows without opening a browser.</p></div><div class=hx-mb-16><a href=docs class="not-prose hx:font-medium hx:cursor-pointer hx:px-6 hx:py-3 hx:rounded-full hx:text-center hx:text-white hx:inline-block hx:bg-primary-600 hx:hover:bg-primary-700 hx:hextra-focus-visible hx:dark:bg-primary-600 hx:dark:hover:bg-primary-700 hx:transition-all hx:ease-in hx:duration-200">Get Started</a></div></div><div class=hx-mb-12><img src=images/pd-banner.jpg alt="pd - Pixeldrain CLI & MCP tool" class="hx-w-full hx-rounded-xl hx-shadow-lg"></div><div class="hextra-feature-grid hx:grid hx:sm:max-lg:grid-cols-2 hx:max-sm:grid-cols-1 hx:gap-4 hx:w-full not-prose" style=--hextra-feature-grid-cols:3><a href=docs/quickstart class="hextra-feature-card not-prose hx:block hx:relative hx:overflow-hidden hx:rounded-3xl hx:border hx:border-gray-200 hx:hover:border-gray-300 hx:dark:border-neutral-800 hx:dark:hover:border-neutral-700 hx:before:pointer-events-none hx:before:absolute hx:before:inset-0 hx:before:bg-glass-gradient"><div class="hx:relative hx:w-full hx:p-6"><h3 class="hx:text-2xl hx:font-medium hx:leading-6 hx:mb-2 hx:flex hx:items-center"><span class=hx:pr-2><svg height="1.5rem" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+<span>Instant File Sharing</span></h3><p class="hx:text-gray-500 hx:dark:text-gray-400 hx:text-sm hx:leading-6">Upload files, screenshots, or generated images from the CLI and get a shareable Pixeldrain link instantly.</p></div></a><a href=docs/mcp class="hextra-feature-card not-prose hx:block hx:relative hx:overflow-hidden hx:rounded-3xl hx:border hx:border-gray-200 hx:hover:border-gray-300 hx:dark:border-neutral-800 hx:dark:hover:border-neutral-700 hx:before:pointer-events-none hx:before:absolute hx:before:inset-0 hx:before:bg-glass-gradient"><div class="hx:relative hx:w-full hx:p-6"><h3 class="hx:text-2xl hx:font-medium hx:leading-6 hx:mb-2 hx:flex hx:items-center"><span class=hx:pr-2><svg height="1.5rem" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7A2 2 0 005 7v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg></span>
+<span>AI & MCP Integration</span></h3><p class="hx:text-gray-500 hx:dark:text-gray-400 hx:text-sm hx:leading-6">Built-in Model Context Protocol server (<code>pd mcp</code>) enabling Claude Desktop, Cursor, and agents to transfer files directly.</p></div></a><a href=docs/quickstart class="hextra-feature-card not-prose hx:block hx:relative hx:overflow-hidden hx:rounded-3xl hx:border hx:border-gray-200 hx:hover:border-gray-300 hx:dark:border-neutral-800 hx:dark:hover:border-neutral-700 hx:before:pointer-events-none hx:before:absolute hx:before:inset-0 hx:before:bg-glass-gradient"><div class="hx:relative hx:w-full hx:p-6"><h3 class="hx:text-2xl hx:font-medium hx:leading-6 hx:mb-2 hx:flex hx:items-center"><span class=hx:pr-2><svg height="1.5rem" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5A2 2 0 003 7z"/></svg></span>
+<span>Album & Pipeline Friendly</span></h3><p class="hx:text-gray-500 hx:dark:text-gray-400 hx:text-sm hx:leading-6">Bundle multiple files into albums with <code>&ndash;album</code>, pipe from <code>stdin</code>, or stream directory archives with <code>tar</code>.</p></div></a><a href=docs/encryption class="hextra-feature-card not-prose hx:block hx:relative hx:overflow-hidden hx:rounded-3xl hx:border hx:border-gray-200 hx:hover:border-gray-300 hx:dark:border-neutral-800 hx:dark:hover:border-neutral-700 hx:before:pointer-events-none hx:before:absolute hx:before:inset-0 hx:before:bg-glass-gradient"><div class="hx:relative hx:w-full hx:p-6"><h3 class="hx:text-2xl hx:font-medium hx:leading-6 hx:mb-2 hx:flex hx:items-center"><span class=hx:pr-2><svg height="1.5rem" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955.0 0112 2.944a11.955 11.955.0 01-8.618 3.04A12.02 12.02.0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622.0-1.042-.133-2.052-.382-3.016z"/></svg></span>
+<span>End-to-End Encryption</span></h3><p class="hx:text-gray-500 hx:dark:text-gray-400 hx:text-sm hx:leading-6">Client-side file encryption with age or SSH public keys before uploading, ensuring maximum privacy.</p></div></a></div><div class=hx-mt-16></div><h2 data-hextra-search-id=quick-installation>Quick Installation<span class="hx:absolute hx:-mt-20" id=quick-installation></span>
+<a href=#quick-installation class=subheading-anchor aria-label="Permalink for this section"></a></h2><h3 data-hextra-search-id=homebrew-macos--linux>Homebrew (macOS & Linux)<span class="hx:absolute hx:-mt-20" id=homebrew-macos--linux></span>
+<a href=#homebrew-macos--linux class=subheading-anchor aria-label="Permalink for this section"></a></h3><div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"><div><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>brew tap jkawamoto/pixeldrain
+</span></span><span class=line><span class=cl>brew install pixeldrain</span></span></code></pre></div></div><div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"><button class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50" title="Copy code" aria-label="Copy code" data-copied-label=Copied!><div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"></div><div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"></div></button></div></div><h3 data-hextra-search-id=go-install>Go Install<span class="hx:absolute hx:-mt-20" id=go-install></span>
+<a href=#go-install class=subheading-anchor aria-label="Permalink for this section"></a></h3><div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"><div><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>go install github.com/jkawamoto/go-pixeldrain/cmd/pd@latest</span></span></code></pre></div></div><div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"><button class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50" title="Copy code" aria-label="Copy code" data-copied-label=Copied!><div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"></div><div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"></div></button></div></div><p>Pre-compiled binaries for macOS, Linux, and Windows are also available on <a href=https://github.com/jkawamoto/go-pixeldrain/releases target=_blank rel=noopener>GitHub Releases</a>.</p><div class=hx-mt-12></div><h2 data-hextra-search-id=quick-start-in-30-seconds>Quick Start in 30 Seconds<span class="hx:absolute hx:-mt-20" id=quick-start-in-30-seconds></span>
+<a href=#quick-start-in-30-seconds class=subheading-anchor aria-label="Permalink for this section"></a></h2><div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"><div><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># Upload a file and get a shareable link</span>
+</span></span><span class=line><span class=cl>pd upload artwork.png
+</span></span><span class=line><span class=cl><span class=c1># =&gt; https://pixeldrain.com/u/xxxxxx</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Upload multiple files as a single album</span>
+</span></span><span class=line><span class=cl>pd upload --album <span class=s2>&#34;My Project&#34;</span> screenshot1.png screenshot2.png
+</span></span><span class=line><span class=cl><span class=c1># =&gt; https://pixeldrain.com/l/xxxxxx</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Download a file or full album</span>
+</span></span><span class=line><span class=cl>pd download https://pixeldrain.com/u/xxxxxx
+</span></span><span class=line><span class=cl>pd download --all https://pixeldrain.com/l/xxxxxx
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Start MCP server for AI tools</span>
+</span></span><span class=line><span class=cl>pd mcp</span></span></code></pre></div></div><div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"><button class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50" title="Copy code" aria-label="Copy code" data-copied-label=Copied!><div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"></div><div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"></div></button></div></div></div></main></div><footer class="hextra-footer hx:bg-gray-100 hx:pb-[env(safe-area-inset-bottom)] hx:dark:bg-neutral-900 hx:print:bg-transparent"><div class="hx:mx-auto hx:flex hx:gap-2 hx:py-2 hx:px-4 hextra-max-footer-width"><div class="hx:flex hx:justify-items-start hx:group" data-theme=light><button title="Change theme" data-state=closed data-location=bottom class="hextra-theme-toggle hx:cursor-pointer hx:rounded-md hx:text-left hx:font-medium hx:h-7 hx:px-2 hx:text-xs hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-primary-100/5 hx:dark:hover:text-gray-50 hx:font-medium hx:text-gray-600 hx:transition-colors hx:dark:text-gray-400 hx:grow" type=button aria-label="Change theme" aria-expanded=false aria-haspopup=menu><div class="hx:flex hx:items-center hx:gap-2 hx:capitalize"><svg height="12" class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364-.707-.707M6.343 6.343l-.707-.707m12.728.0-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden">Light</span><svg height="12" class="hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003.0 0012 21a9.003 9.003.0 008.354-5.646z"/></svg><span class="hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden">Dark</span><svg height="12" class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M11.996094 2C6.4986225 2.0192368 2.03125 6.5024993 2.03125 12c0 5.497501 4.4673725 9.980763 9.964844 10H12 12.0039c5.497471-.01924 9.964844-4.502499 9.964844-10 0-5.4975007-4.467373-9.9807632-9.964844-10H12zM12 4c4.417218.017598 7.96875 3.5822356 7.96875 8 0 4.417764-3.551532 7.982402-7.96875 8z"/></svg>
+<span class="hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden">System</span></div></button><ul class="hextra-theme-toggle-options hx:hidden hx:z-20 hx:max-h-64 hx:overflow-auto hx:rounded-lg hx:border hx:border-gray-200 hx:bg-white hx:p-1 hx:text-sm hx:shadow-lg hx:dark:border-neutral-700 hx:dark:bg-neutral-900" style="position:fixed;inset:auto auto 0 0;margin:0;min-width:100px" data-theme=light role=menu><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=true tabindex=-1 data-item=light class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+Light
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=dark]:hidden hx:group-data-[theme=system]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=false tabindex=-1 data-item=dark class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+Dark
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=light]:hidden hx:group-data-[theme=system]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li><li role=none class="hx:flex hx:flex-col"><button type=button role=menuitemradio aria-checked=false tabindex=-1 data-item=system class="hx:text-gray-700 hx:dark:text-gray-300 hx:hover:bg-gray-100 hx:hover:text-gray-900 hx:dark:hover:bg-neutral-800 hx:dark:hover:text-gray-100 hx:relative hx:cursor-pointer hx:whitespace-nowrap hx:rounded-sm hx:py-1.5 hx:transition-colors hx:ltr:pl-3 hx:ltr:pr-9 hx:rtl:pr-3 hx:rtl:pl-9 hx:text-left hx:w-full hx:bg-transparent hx:border-0">
+System
+<span class="hx:absolute hx:inset-y-0 hx:flex hx:items-center hx:ltr:right-3 hx:rtl:left-3 hx:group-data-[theme=dark]:hidden hx:group-data-[theme=light]:hidden"><svg height="1em" width="1em" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span></button></li></ul></div></div><hr class="hx:border-gray-200 hx:dark:border-neutral-800"><div class="hextra-custom-footer hextra-max-footer-width hx:mx-auto hx:pl-[max(env(safe-area-inset-left),1.5rem)] hx:pr-[max(env(safe-area-inset-right),1.5rem)] hx:text-gray-600 hx:dark:text-gray-400"></div><div class="hextra-max-footer-width hx:mx-auto hx:flex hx:justify-center hx:py-12 hx:pl-[max(env(safe-area-inset-left),1.5rem)] hx:pr-[max(env(safe-area-inset-right),1.5rem)] hx:text-gray-600 hx:dark:text-gray-400 hx:md:justify-start"><div class="hx:flex hx:w-full hx:flex-col hx:items-center hx:sm:items-start"><div class=hx:font-semibold><a class="hx:flex hx:text-sm hx:items-center hx:gap-1 hx:text-current" target=_blank rel="noopener noreferrer" title="Hextra GitHub Homepage" href=https://github.com/imfing/hextra><span>Powered by Hextra<svg height="1em" class="hx:inline-block hx:ltr:ml-1 hx:rtl:mr-1 hx:align-[-2.5px]" viewBox="0 0 180 180" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="m105.50024 22.224647c-9.59169-5.537563-21.40871-5.537563-31.000093.0L39.054693 42.689119C29.463353 48.226675 23.55484 58.460531 23.55484 69.535642v40.928918c0 11.07542 5.908513 21.3092 15.499853 26.84652l35.445453 20.46446c9.591313 5.53732 21.408404 5.53732 31.000094.0l35.44507-20.46446c9.59131-5.53732 15.49985-15.7711 15.49985-26.84652V69.535642c0-11.075111-5.90854-21.308967-15.49985-26.846523zM34.112797 85.737639c-1.384445 2.397827-1.384445 5.352099.0 7.749927l24.781554 42.922974c1.38437 2.39783 3.942853 3.87496 6.711592 3.87496h49.563107c2.76905.0 5.3273-1.47713 6.71144-3.87496l24.78194-42.922974c1.38414-2.397828 1.38414-5.3521.0-7.749927L121.88049 42.814746c-1.38414-2.397828-3.94239-3.874964-6.71144-3.874964H65.605944c-2.768739.0-5.327223 1.477059-6.711592 3.874964z" style="stroke-width:.774993"/></svg></span></a></div><div class="hx:mt-6 hx:text-xs">© 2026 Hextra Project.</div></div></div></footer><dialog id=hextra-search-dialog class=hextra-search-dialog aria-label=Search...><div class=hextra-search><div class=hextra-search-input-wrapper><svg class="hextra-search-input-icon" focusable="false" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5A7 7 0 113 10a7 7 0 0114 0z"/></svg><input class=hextra-search-input type=search role=combobox autocomplete=off autocorrect=off autocapitalize=off spellcheck=false placeholder=Search... aria-label=Search... aria-controls=hextra-search-results aria-expanded=false><button type=button class=hextra-search-input-kbd data-search-close aria-label=Close>ESC</button></div><div class=hextra-search-results-viewport data-search-viewport><div class="hextra-search-results-inner hextra-scrollbar" data-search-inner><ul id=hextra-search-results class=hextra-search-results role=listbox aria-label="Search results"></ul><div class=hextra-search-empty data-search-empty hidden>No results found.</div></div></div><div class="hextra-search-status hx:sr-only" aria-live=polite role=status></div></div></dialog><script defer src=/go-pixeldrain/js/main.min.0c8b46adfacca93f08460c07c32df4ef14516b8d5c9228206ce16cae29482898.js integrity="sha256-DItGrfrMqT8IRgwHwy307xRRa41ckiggbOFsrilIKJg="></script><script defer src=/go-pixeldrain/js/flexsearch.433e941a8a573ebb9931fc16fc75266ab6b93f569ac2fb4f3dc66882e0416f4c.js integrity="sha256-Qz6UGopXPruZMfwW/HUmara5P1aawvtPPcZoguBBb0w=" crossorigin=anonymous></script><script defer src=/go-pixeldrain/en.search.min.1ca84219fe2731e0c572e09083800bc74584d83ee2a3967e426771d5d44b72b6.js integrity="sha256-HKhCGf4nMeDFcuCQg4ALx0WE2D7io5Z+Qmdx1dRLcrY="></script><script defer src=/go-pixeldrain/en.search-dialog.min.fda123910557b5b3a328696105af51f85abc3cfc6784387c49b11b5b857b256f.js integrity="sha256-/aEjkQVXtbOjKGlhBa9R+Fq8PPxnhDh8SbEbW4V7JW8="></script></body></html>
