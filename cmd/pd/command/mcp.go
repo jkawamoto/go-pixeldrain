@@ -126,8 +126,9 @@ func CmdMCP(c *cli.Context) error {
 }
 
 func uploadMCP(ctx context.Context, name string, r io.Reader, authInfo runtime.ClientAuthInfoWriter) (string, error) {
-	res, err := pixeldrain.Default.File.UploadFile(
-		file.NewUploadFileParamsWithContext(ctx).WithFile(runtime.NamedReader(name, io.NopCloser(r))),
+	res, err := pixeldrain.Default.File.PutFileContext(
+		ctx,
+		file.NewPutFileParams().WithName(name).WithFile(io.NopCloser(r)),
 		authInfo,
 	)
 	if err != nil {

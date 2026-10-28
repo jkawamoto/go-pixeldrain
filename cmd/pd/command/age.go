@@ -17,7 +17,10 @@ import (
 	"filippo.io/age"
 )
 
-const AgeExt = ".age"
+const (
+	AgeExt     = ".age"
+	BufferSize = 1024 * 1024 // 1 MiB
+)
 
 // waitReadCloser is an io.ReadCloser that calls the given wait function when it's closed.
 type waitReadCloser struct {
@@ -67,7 +70,8 @@ func Encrypt(src io.ReadCloser, recipients []age.Recipient) io.ReadCloser {
 			err = errors.Join(err, ew.Close())
 		}()
 
-		_, err = io.Copy(ew, src)
+		buf := make([]byte, BufferSize)
+		_, err = io.CopyBuffer(ew, src, buf)
 	}()
 
 	return waitReadCloser{
@@ -97,7 +101,8 @@ func Decrypt(dest io.WriteCloser, identity []age.Identity) io.WriteCloser {
 			return
 		}
 
-		_, err = io.Copy(dest, dr)
+		buf := make([]byte, BufferSize)
+		_, err = io.CopyBuffer(dest, dr, buf)
 	}()
 
 	return waitWriteCloser{

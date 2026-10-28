@@ -68,15 +68,16 @@ func TestUpload(t *testing.T) {
 				}
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
-						if name := params.File.Name(); name != "doc.go" {
+						if name := params.Name; name != "doc.go" {
 							t.Errorf("expect %v, got %v", "doc.go", name)
 						}
 						data, err := io.ReadAll(params.File)
@@ -89,7 +90,7 @@ func TestUpload(t *testing.T) {
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
 								ID:      swag.String("123"),
 								Success: swag.Bool(true),
@@ -110,15 +111,16 @@ func TestUpload(t *testing.T) {
 				}
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
-						if name := params.File.Name(); name != "manual" {
+						if name := params.Name; name != "manual" {
 							t.Errorf("expect %v, got %v", "manual", name)
 						}
 						data, err := io.ReadAll(params.File)
@@ -132,7 +134,7 @@ func TestUpload(t *testing.T) {
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
 								ID:      swag.String("123"),
 								Success: swag.Bool(true),
@@ -151,15 +153,16 @@ func TestUpload(t *testing.T) {
 				expect := []byte("test data")
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
-						if name := params.File.Name(); name != "manual" {
+						if name := params.Name; name != "manual" {
 							t.Errorf("expect %v, got %v", "manual", name)
 						}
 						data, err := io.ReadAll(params.File)
@@ -172,7 +175,7 @@ func TestUpload(t *testing.T) {
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
 								ID:      swag.String("123"),
 								Success: swag.Bool(true),
@@ -190,12 +193,13 @@ func TestUpload(t *testing.T) {
 				t.Helper()
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
@@ -206,16 +210,16 @@ func TestUpload(t *testing.T) {
 							t.Fatal(err)
 						}
 
-						expect, err := os.ReadFile(params.File.Name())
+						expect, err := os.ReadFile(params.Name)
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
-								ID:      swag.String(params.File.Name()),
+								ID:      &params.Name,
 								Success: swag.Bool(true),
 							},
 						}, nil
@@ -259,12 +263,13 @@ func TestUpload(t *testing.T) {
 				t.Helper()
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						data, err := io.ReadAll(params.File)
@@ -275,16 +280,16 @@ func TestUpload(t *testing.T) {
 							t.Fatal(err)
 						}
 
-						expect, err := os.ReadFile(params.File.Name())
+						expect, err := os.ReadFile(params.Name)
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
-								ID:      swag.String(params.File.Name()),
+								ID:      &params.Name,
 								Success: swag.Bool(true),
 							},
 						}, nil
@@ -318,12 +323,13 @@ func TestUpload(t *testing.T) {
 				t.Helper()
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						r, err := age.Decrypt(params.File, identity)
@@ -338,16 +344,16 @@ func TestUpload(t *testing.T) {
 							t.Fatal(err)
 						}
 
-						expect, err := os.ReadFile(strings.TrimSuffix(params.File.Name(), AgeExt))
+						expect, err := os.ReadFile(strings.TrimSuffix(params.Name, AgeExt))
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
-								ID:      swag.String(params.File.Name()),
+								ID:      &params.Name,
 								Success: swag.Bool(true),
 							},
 						}, nil
@@ -367,12 +373,13 @@ func TestUpload(t *testing.T) {
 				}
 
 				m.EXPECT().
-					UploadFile(gomock.Any(), gomock.Any()).
+					PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).
 					DoAndReturn(func(
-						params *file.UploadFileParams,
+						_ context.Context,
+						params *file.PutFileParams,
 						authInfo runtime.ClientAuthInfoWriter,
 						opts ...file.ClientOption,
-					) (*file.UploadFileCreated, error) {
+					) (*file.PutFileCreated, error) {
 						testutil.ExpectAuthInfoWritesAPIKey(t, authInfo, apiKey)
 
 						r, err := age.Decrypt(params.File, identity)
@@ -387,16 +394,16 @@ func TestUpload(t *testing.T) {
 							t.Fatal(err)
 						}
 
-						expect, err := os.ReadFile(strings.TrimSuffix(params.File.Name(), AgeExt))
+						expect, err := os.ReadFile(strings.TrimSuffix(params.Name, AgeExt))
 						if err != nil {
 							t.Fatal(err)
 						}
 						if !bytes.Equal(expect, data) {
 							t.Errorf("expect %v, got %v", expect, data)
 						}
-						return &file.UploadFileCreated{
+						return &file.PutFileCreated{
 							Payload: &models.SuccessResponse{
-								ID:      swag.String(params.File.Name()),
+								ID:      &params.Name,
 								Success: swag.Bool(true),
 							},
 						}, nil

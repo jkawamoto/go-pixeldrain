@@ -21,7 +21,6 @@ import (
 	"filippo.io/age"
 	"filippo.io/age/agessh"
 	"github.com/cheggaaa/pb/v3"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 	"github.com/urfave/cli/v2"
 
@@ -79,8 +78,9 @@ func upload(ctx *cli.Context, path, name string, recipients []age.Recipient) (_ 
 		name = name + AgeExt
 	}
 
-	res, err := pixeldrain.Default.File.UploadFile(
-		file.NewUploadFileParamsWithContext(ctx.Context).WithFile(runtime.NamedReader(name, r)),
+	res, err := pixeldrain.Default.File.PutFileContext(
+		ctx.Context,
+		file.NewPutFileParams().WithName(name).WithFile(r),
 		auth.Extract(ctx.Context),
 	)
 	if err != nil {

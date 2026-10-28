@@ -35,8 +35,9 @@ func Example_upload() {
 	}()
 
 	// Upload the file with the default client. API key can be empty.
-	res, err := pixeldrain.Default.File.UploadFile(
-		file.NewUploadFileParamsWithContext(context.Background()).WithFile(f),
+	res, err := pixeldrain.Default.File.PutFileContext(
+		context.Background(),
+		file.NewPutFileParams().WithName("example.txt").WithFile(f),
 		client.BasicAuth("", "YOUR API KEY IF NECESSARY"),
 	)
 	if err != nil {
