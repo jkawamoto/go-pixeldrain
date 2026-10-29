@@ -162,6 +162,11 @@ API keys can be generated at [pixeldrain.com/user/api_keys](https://pixeldrain.c
 brew tap jkawamoto/pixeldrain
 brew install pixeldrain
 ```
+Archlinux by aur
+
+```
+$ yay -S pixeldrain-jkawamoto-git 
+```
 
 ### Go Install
 
