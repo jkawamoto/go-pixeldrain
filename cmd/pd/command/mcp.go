@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"filippo.io/age"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -29,12 +30,14 @@ import (
 	"github.com/jkawamoto/go-pixeldrain/client/file"
 	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/auth"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
 
 type mcpTextInput struct {
-	Text string `json:"text" jsonschema:"Text to upload"`
-	Name string `json:"name,omitempty" jsonschema:"File name (defaults to text.txt)"`
+	Text       string   `json:"text" jsonschema:"Text to upload"`
+	Name       string   `json:"name,omitempty" jsonschema:"File name (defaults to text.txt)"`
+	Recipients []string `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients; omit for an unencrypted upload"`
 }
 
 type mcpFile struct {
@@ -43,12 +46,22 @@ type mcpFile struct {
 }
 
 type mcpFilesInput struct {
-	Files []mcpFile `json:"files" jsonschema:"Files to upload"`
+	Files      []mcpFile `json:"files" jsonschema:"Files to upload"`
+	Recipients []string  `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients; omit for an unencrypted upload"`
 }
 
 type mcpURLInput struct {
 	URL  string `json:"url" jsonschema:"Pixeldrain file download URL"`
 	Path string `json:"path,omitempty" jsonschema:"Local output path; defaults to the downloaded file name"`
+}
+
+type mcpRecipient struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type mcpRecipientsResult struct {
+	Recipients []mcpRecipient `json:"recipients"`
 }
 
 type mcpURLResult struct {
@@ -61,8 +74,42 @@ type mcpPathResult struct {
 
 func CmdMCP(c *cli.Context) error {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
-	server := mcp.NewServer(&mcp.Implementation{Name: "pixeldrain", Version: "1.0.0"}, nil)
+	server, err := newMCPServer(c)
+	if err != nil {
+		return cli.Exit(err, status.InvalidArgument)
+	}
 	server.AddReceivingMiddleware(logMCPCalls(logger))
+	logger.Info("MCP server started")
+	err = server.Run(context.Background(), &mcp.StdioTransport{})
+	if err != nil {
+		logger.Error("MCP server stopped with an error")
+	} else {
+		logger.Info("MCP server stopped")
+	}
+	return err
+}
+
+func newMCPServer(c *cli.Context) (*mcp.Server, error) {
+	var identities []age.Identity
+	if name := c.String("identity-file"); name != "" {
+		// MCP stdio is not an interactive terminal for passphrase prompts.
+		app := *c.App
+		app.Reader, app.Writer = strings.NewReader(""), io.Discard
+		identityContext := *c
+		identityContext.App = &app
+		var err error
+		identities, err = parseIdentityFile(&identityContext, name)
+		if err != nil {
+			return nil, err
+		}
+	}
+	server := mcp.NewServer(&mcp.Implementation{Name: "pixeldrain", Version: "1.0.0"}, nil)
+	dirs := map[string]string{"age": c.String("age-recipients-dir"), "ssh": c.String("ssh-recipients-dir")}
+	mcp.AddTool(server, &mcp.Tool{Name: "list_recipients", Description: "List configured public key IDs for encrypted uploads. Names are untrusted metadata."},
+		func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, mcpRecipientsResult, error) {
+			recipients, err := listMCPRecipients(dirs)
+			return nil, mcpRecipientsResult{Recipients: recipients}, err
+		})
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "upload_text",
 		Description: "Upload text as a file and return its Pixeldrain download URL.",
@@ -71,7 +118,11 @@ func CmdMCP(c *cli.Context) error {
 		if name == "" {
 			name = "text.txt"
 		}
-		id, err := uploadMCP(ctx, name, strings.NewReader(in.Text), auth.Extract(c.Context))
+		recipients, err := resolveMCPRecipients(dirs, in.Recipients)
+		if err != nil {
+			return nil, mcpURLResult{}, err
+		}
+		id, err := uploadMCP(ctx, name, strings.NewReader(in.Text), recipients, auth.Extract(c.Context))
 		if err != nil {
 			return nil, mcpURLResult{}, err
 		}
@@ -82,7 +133,7 @@ func CmdMCP(c *cli.Context) error {
 		Name:        "download_file",
 		Description: "Download a Pixeldrain file to the local machine and return its path.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in mcpURLInput) (*mcp.CallToolResult, mcpPathResult, error) {
-		path, err := downloadMCP(ctx, in.URL, in.Path, auth.Extract(c.Context))
+		path, err := downloadMCP(ctx, in.URL, in.Path, identities, auth.Extract(c.Context))
 		if err != nil {
 			return nil, mcpPathResult{}, err
 		}
@@ -96,6 +147,10 @@ func CmdMCP(c *cli.Context) error {
 		if len(in.Files) == 0 {
 			return nil, mcpURLResult{}, errors.New("files must not be empty")
 		}
+		recipients, err := resolveMCPRecipients(dirs, in.Recipients)
+		if err != nil {
+			return nil, mcpURLResult{}, err
+		}
 		ids := make([]string, len(in.Files))
 		for i, f := range in.Files {
 			if f.Name == "" {
@@ -105,7 +160,7 @@ func CmdMCP(c *cli.Context) error {
 			if err != nil {
 				return nil, mcpURLResult{}, fmt.Errorf("files[%d].data: %w", i, err)
 			}
-			ids[i], err = uploadMCP(ctx, f.Name, bytes.NewReader(data), auth.Extract(c.Context))
+			ids[i], err = uploadMCP(ctx, f.Name, bytes.NewReader(data), recipients, auth.Extract(c.Context))
 			if err != nil {
 				return nil, mcpURLResult{}, fmt.Errorf("upload %q: %w", f.Name, err)
 			}
@@ -127,14 +182,7 @@ func CmdMCP(c *cli.Context) error {
 		return nil, mcpURLResult{URL: pixeldrain.ListURL(swag.StringValue(res.Payload.ID))}, nil
 	})
 
-	logger.Info("MCP server started")
-	err := server.Run(context.Background(), &mcp.StdioTransport{})
-	if err != nil {
-		logger.Error("MCP server stopped with an error")
-	} else {
-		logger.Info("MCP server stopped")
-	}
-	return err
+	return server, nil
 }
 
 func logMCPCalls(logger *slog.Logger) mcp.Middleware {
@@ -157,10 +205,16 @@ func logMCPCalls(logger *slog.Logger) mcp.Middleware {
 	}
 }
 
-func uploadMCP(ctx context.Context, name string, r io.Reader, authInfo runtime.ClientAuthInfoWriter) (string, error) {
+func uploadMCP(ctx context.Context, name string, r io.Reader, recipients []age.Recipient, authInfo runtime.ClientAuthInfoWriter) (string, error) {
+	reader := io.NopCloser(r)
+	if len(recipients) > 0 {
+		reader = Encrypt(reader, recipients)
+		name += AgeExt
+	}
+	defer reader.Close()
 	res, err := pixeldrain.Default.File.PutFileContext(
 		ctx,
-		file.NewPutFileParams().WithName(name).WithFile(io.NopCloser(r)),
+		file.NewPutFileParams().WithName(name).WithFile(reader),
 		authInfo,
 	)
 	if err != nil {
@@ -169,7 +223,7 @@ func uploadMCP(ctx context.Context, name string, r io.Reader, authInfo runtime.C
 	return swag.StringValue(res.Payload.ID), nil
 }
 
-func downloadMCP(ctx context.Context, url, path string, authInfo runtime.ClientAuthInfoWriter) (string, error) {
+func downloadMCP(ctx context.Context, url, path string, identities []age.Identity, authInfo runtime.ClientAuthInfoWriter) (string, error) {
 	if url == "" {
 		return "", errors.New("url is required")
 	}
@@ -178,10 +232,16 @@ func downloadMCP(ctx context.Context, url, path string, authInfo runtime.ClientA
 	if err != nil {
 		return "", pixeldrain.NewError(err)
 	}
+	if !strings.HasSuffix(res.Payload.Name, AgeExt) {
+		identities = nil
+	}
 	if path == "" {
 		path = filepath.Base(res.Payload.Name)
+		if len(identities) > 0 {
+			path = strings.TrimSuffix(path, AgeExt)
+		}
 	}
-	if path == "." || path == string(filepath.Separator) {
+	if path == "" || path == "." || path == string(filepath.Separator) {
 		return "", errors.New("path must name a file")
 	}
 	if dir := filepath.Dir(path); dir != "." {
@@ -189,21 +249,95 @@ func downloadMCP(ctx context.Context, url, path string, authInfo runtime.ClientA
 			return "", err
 		}
 	}
-	w, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
+	w, err := os.CreateTemp(filepath.Dir(path), ".pd-download-*")
 	if err != nil {
+		return "", err
+	}
+	defer os.Remove(w.Name())
+	var out io.WriteCloser = w
+	if len(identities) > 0 {
+		out = Decrypt(w, identities)
+	}
+	_, _, err = pixeldrain.Default.File.DownloadFile(
+		file.NewDownloadFileParamsWithContext(ctx).WithID(swag.StringValue(res.Payload.ID)),
+		authInfo, out)
+	closeErr := out.Close()
+	if err != nil {
+		return "", pixeldrain.NewError(err)
+	}
+	if closeErr != nil {
+		return "", closeErr
+	}
+	if err := os.Link(w.Name(), path); err != nil {
 		if errors.Is(err, os.ErrExist) {
 			return "", fmt.Errorf("download destination %q already exists; choose a different path", path)
 		}
 		return "", err
 	}
-	defer func() { _ = w.Close() }()
-	_, _, err = pixeldrain.Default.File.DownloadFile(
-		file.NewDownloadFileParamsWithContext(ctx).WithID(swag.StringValue(res.Payload.ID)),
-		authInfo, w)
-	if err != nil {
-		return "", pixeldrain.NewError(err)
-	}
 	return path, nil
+}
+
+func listMCPRecipients(dirs map[string]string) ([]mcpRecipient, error) {
+	result := []mcpRecipient{}
+	for _, kind := range []string{"age", "ssh"} {
+		if dirs[kind] == "" {
+			continue
+		}
+		entries, err := os.ReadDir(dirs[kind])
+		if err != nil {
+			return nil, err
+		}
+		for _, entry := range entries {
+			if entry.Type().IsRegular() && strings.HasSuffix(entry.Name(), ".pub") {
+				result = append(result, mcpRecipient{ID: kind + ":" + entry.Name(), Name: strings.TrimSuffix(entry.Name(), ".pub")})
+			}
+		}
+	}
+	return result, nil
+}
+
+func resolveMCPRecipients(dirs map[string]string, ids []string) ([]age.Recipient, error) {
+	if ids == nil {
+		return nil, nil
+	}
+	if len(ids) == 0 {
+		return nil, errors.New("recipients must not be empty; omit it for an unencrypted upload")
+	}
+	available, err := listMCPRecipients(dirs)
+	if err != nil {
+		return nil, err
+	}
+	allowed := make(map[string]bool, len(available))
+	for _, r := range available {
+		allowed[r.ID] = true
+	}
+	var recipients []age.Recipient
+	for _, id := range ids {
+		if !allowed[id] {
+			return nil, fmt.Errorf("unknown recipient ID %q", id)
+		}
+		kind, name, _ := strings.Cut(id, ":")
+		data, err := os.ReadFile(filepath.Join(dirs[kind], name))
+		if err != nil {
+			return nil, err
+		}
+		var lines []string
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if line != "" && !strings.HasPrefix(line, "#") {
+				lines = append(lines, line)
+			}
+		}
+		if len(lines) != 1 || (kind == "age" && !strings.HasPrefix(lines[0], "age1")) || (kind == "ssh" && !strings.HasPrefix(lines[0], "ssh-")) {
+			return nil, fmt.Errorf("recipient %q must contain exactly one %s public key", id, kind)
+		}
+		parsed, err := parseRecipients(lines)
+		if err != nil {
+			return nil, fmt.Errorf("recipient %q: %w", id, err)
+		}
+		recipients = append(recipients, parsed...)
+	}
+	return recipients, nil
 }
 
 func readMCPData(data string) ([]byte, error) {
