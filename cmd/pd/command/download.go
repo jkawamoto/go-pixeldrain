@@ -9,6 +9,9 @@
 package command
 
 import (
+	"bytes"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"errors"
 	"fmt"
 	"io"
@@ -17,11 +20,13 @@ import (
 	"strings"
 
 	"filippo.io/age"
+	"filippo.io/age/agessh"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cheggaaa/pb/v3"
 	"github.com/go-openapi/swag"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/jkawamoto/go-pixeldrain"
 	"github.com/jkawamoto/go-pixeldrain/client/file"
@@ -48,7 +53,7 @@ func downloadURL(ctx *cli.Context, url string) (*models.FileInfo, error) {
 	return res.Payload, nil
 }
 
-func download(ctx *cli.Context, info *models.FileInfo, dir, filename string, identities []age.Identity) error {
+func download(ctx *cli.Context, info *models.FileInfo, dir, filename string, identities []age.Identity) (err error) {
 	var encrypted bool
 	if strings.HasSuffix(info.Name, AgeExt) && len(identities) != 0 {
 		info.Name = strings.TrimSuffix(info.Name, AgeExt)
@@ -83,7 +88,7 @@ func download(ctx *cli.Context, info *models.FileInfo, dir, filename string, ide
 	}
 
 	var w io.WriteCloser
-	w, err := os.OpenFile(filePath, openFlags, 0644)
+	w, err = os.OpenFile(filePath, openFlags, 0644)
 	if err != nil {
 		return err
 	}
@@ -132,7 +137,7 @@ func CmdDownload(c *cli.Context) error {
 
 	var identities []age.Identity
 	if name := c.String(FlagIdentity); name != "" {
-		res, err := parseIdentityFile(name)
+		res, err := parseIdentityFile(c, name)
 		if err != nil {
 			return cli.Exit(err, status.InvalidArgument)
 		}
@@ -222,14 +227,53 @@ func contains(ar []string, v string) bool {
 	return false
 }
 
-func parseIdentityFile(name string) (_ []age.Identity, err error) {
+func parseIdentityFile(c *cli.Context, name string) ([]age.Identity, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		err = errors.Join(err, f.Close())
-	}()
-
-	return age.ParseIdentities(f)
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, 1<<24+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > 1<<24 {
+		return nil, errors.New("identities file is too long")
+	}
+	if !bytes.HasPrefix(data, []byte("-----BEGIN ")) {
+		return age.ParseIdentities(bytes.NewReader(data))
+	}
+	identity, err := agessh.ParseIdentity(data)
+	var missing *ssh.PassphraseMissingError
+	if errors.As(err, &missing) {
+		r, rok := c.App.Reader.(terminal.FileReader)
+		w, wok := c.App.Writer.(terminal.FileWriter)
+		if !rok || !wok {
+			return nil, errors.New("a terminal is required to enter the SSH key passphrase")
+		}
+		var passphrase string
+		if err := survey.AskOne(&survey.Password{Message: "SSH key passphrase:"}, &passphrase, survey.WithStdio(r, w, c.App.ErrWriter)); err != nil {
+			return nil, err
+		}
+		key, err := ssh.ParseRawPrivateKeyWithPassphrase(data, []byte(passphrase))
+		if err != nil {
+			return nil, err
+		}
+		switch key := key.(type) {
+		case *ed25519.PrivateKey:
+			identity, err = agessh.NewEd25519Identity(*key)
+		case ed25519.PrivateKey:
+			identity, err = agessh.NewEd25519Identity(key)
+		case *rsa.PrivateKey:
+			identity, err = agessh.NewRSAIdentity(key)
+		default:
+			return nil, fmt.Errorf("unsupported SSH identity type: %T", key)
+		}
+		if err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+	return []age.Identity{identity}, nil
 }

@@ -27,11 +27,15 @@ Uploaded files will automatically be saved with the `.age` extension appended.
 
 ### Multiple Recipients
 
-Encrypt a file for multiple recipients listed in a file (one recipient key per line):
+Encrypt a file for recipients listed in a file (one age or SSH public key per line):
 
 ```shell
 pd upload --recipient-file recipients.txt confidential.pdf
+pd upload --recipient-file ~/.ssh/id_ed25519.pub confidential.pdf
 ```
+
+Both options also accept hybrid age public keys (`age1pq1...`). Hybrid keys
+cannot be combined with non-post-quantum recipients in the same upload.
 
 ---
 
@@ -42,3 +46,6 @@ To download and decrypt the file automatically, pass your private identity file 
 ```shell
 pd download --identity ~/.ssh/id_ed25519 https://pixeldrain.com/u/xxxxxx
 ```
+
+SSH Ed25519 and RSA private keys are supported. If the key is protected by a
+passphrase, `pd` prompts for it in a terminal.
