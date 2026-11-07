@@ -1,6 +1,6 @@
 // commands.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -23,6 +23,8 @@ const (
 	FlagAll = "all"
 	// FlagContinue is the flag to continue downloading by skipping files that already exist with matching sizes.
 	FlagContinue = "continue"
+	// FlagForce is the flag to overwrite existing files.
+	FlagForce = "force"
 	// FlagRecipient is the flag to specify recipient's public key.
 	FlagRecipient = "recipient"
 	// FlagRecipientFile is the flag to specify a path to the file that contains recipients' public keys.
@@ -96,6 +98,10 @@ var Commands = []*cli.Command{
 				Name:    FlagContinue,
 				Aliases: []string{"C"},
 				Usage:   "continue downloading by skipping files that already exist with matching sizes",
+			},
+			&cli.BoolFlag{
+				Name:  FlagForce,
+				Usage: "overwrite existing files and ignore --continue when both flags are specified",
 			},
 			&cli.StringFlag{
 				Name:     FlagIdentity,

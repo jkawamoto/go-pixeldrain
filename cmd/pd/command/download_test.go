@@ -153,12 +153,13 @@ func TestCmdDownload(t *testing.T) {
 	}
 
 	cases := []struct {
-		name   string
-		init   func(*testing.T, context.Context, *mock.MockClientService, string)
-		args   func(string) []string
-		expect []string
-		output map[string]string
-		exit   int
+		name      string
+		init      func(*testing.T, context.Context, *mock.MockClientService, string)
+		args      func(string) []string
+		expect    []string
+		output    map[string]string
+		unchanged string
+		exit      int
 	}{
 		{
 			name: "not enough arguments",
@@ -284,6 +285,42 @@ func TestCmdDownload(t *testing.T) {
 			expect: []string{"doc.go"},
 		},
 		{
+			name: "existing file without force",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				if err := os.WriteFile(filepath.Join(dir, "doc.go.download"), []byte("original"), 0644); err != nil {
+					t.Fatal(err)
+				}
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+			},
+			args:      func(dir string) []string { return []string{pixeldrain.DownloadURL("doc.go")} },
+			unchanged: "original",
+			exit:      status.APIError,
+		},
+		{
+			name: "overwrite existing file with force",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				if err := os.WriteFile(filepath.Join(dir, "doc.go.download"), []byte("original"), 0644); err != nil {
+					t.Fatal(err)
+				}
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil, 0))
+			},
+			args:   func(dir string) []string { return []string{"--force", pixeldrain.DownloadURL("doc.go")} },
+			expect: []string{"doc.go"},
+		},
+		{
+			name: "overwrite existing file with force and continue",
+			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
+				if err := os.WriteFile(filepath.Join(dir, "doc.go.download"), []byte("original"), 0644); err != nil {
+					t.Fatal(err)
+				}
+				m.EXPECT().GetFileInfo(gomock.Any(), gomock.Any()).DoAndReturn(getFileInfo(ctx, false))
+				m.EXPECT().DownloadFile(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(downloadFile(ctx, nil, 0))
+			},
+			args:   func(dir string) []string { return []string{"--force", "--continue", pixeldrain.DownloadURL("doc.go")} },
+			expect: []string{"doc.go"},
+		},
+		{
 			name: "download with continue flag",
 			init: func(t *testing.T, ctx context.Context, m *mock.MockClientService, dir string) {
 				t.Helper()
@@ -337,6 +374,7 @@ func TestCmdDownload(t *testing.T) {
 			flagSet.String(FlagFilename, "", "")
 			flagSet.Bool(FlagAll, true, "")
 			flagSet.Bool(FlagContinue, false, "")
+			flagSet.Bool(FlagForce, false, "")
 			flagSet.String(FlagIdentity, "", "")
 
 			var args []string
@@ -372,6 +410,12 @@ func TestCmdDownload(t *testing.T) {
 			}
 			for source, name := range tc.output {
 				expectMatchFile(t, source, filepath.Join(dir, name))
+			}
+			if tc.unchanged != "" {
+				data, err := os.ReadFile(filepath.Join(dir, "doc.go.download"))
+				if err != nil || string(data) != tc.unchanged {
+					t.Errorf("existing file changed: %q, %v", data, err)
+				}
 			}
 		})
 	}

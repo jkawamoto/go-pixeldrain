@@ -1,8 +1,10 @@
 // mcp.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
+//
+// http://opensource.org/licenses/mit-license.php
 
 package command
 
@@ -157,8 +159,11 @@ func downloadMCP(ctx context.Context, url, path string, authInfo runtime.ClientA
 			return "", err
 		}
 	}
-	w, err := os.Create(path)
+	w, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
+		if errors.Is(err, os.ErrExist) {
+			return "", fmt.Errorf("download destination %q already exists; choose a different path", path)
+		}
 		return "", err
 	}
 	defer func() { _ = w.Close() }()

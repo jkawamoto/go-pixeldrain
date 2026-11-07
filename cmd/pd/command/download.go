@@ -1,6 +1,6 @@
 // download.go
 //
-// Copyright (c) 2018-2025 Junpei Kawamoto
+// Copyright (c) 2018-2026 Junpei Kawamoto
 //
 // This software is released under the MIT License.
 //
@@ -63,9 +63,12 @@ func download(ctx *cli.Context, info *models.FileInfo, dir, filename string, ide
 
 	var resumeFrom int64 = 0
 	var openFlags int = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+	if !ctx.Bool(FlagContinue) && !ctx.Bool(FlagForce) {
+		openFlags |= os.O_EXCL
+	}
 
 	// Handle resume logic when continue flag is set
-	if ctx.Bool(FlagContinue) {
+	if ctx.Bool(FlagContinue) && !ctx.Bool(FlagForce) {
 		if stat, err := os.Stat(filePath); err == nil {
 			if stat.Size() == info.Size {
 				// File already complete, skip
