@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +60,9 @@ type mcpPathResult struct {
 }
 
 func CmdMCP(c *cli.Context) error {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 	server := mcp.NewServer(&mcp.Implementation{Name: "pixeldrain", Version: "1.0.0"}, nil)
+	server.AddReceivingMiddleware(logMCPCalls(logger))
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "upload_text",
 		Description: "Upload text as a file and return its Pixeldrain download URL.",
@@ -124,7 +127,34 @@ func CmdMCP(c *cli.Context) error {
 		return nil, mcpURLResult{URL: pixeldrain.ListURL(swag.StringValue(res.Payload.ID))}, nil
 	})
 
-	return server.Run(context.Background(), &mcp.StdioTransport{})
+	logger.Info("MCP server started")
+	err := server.Run(context.Background(), &mcp.StdioTransport{})
+	if err != nil {
+		logger.Error("MCP server stopped with an error")
+	} else {
+		logger.Info("MCP server stopped")
+	}
+	return err
+}
+
+func logMCPCalls(logger *slog.Logger) mcp.Middleware {
+	return func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			call, ok := req.(*mcp.CallToolRequest)
+			if method != "tools/call" || !ok || call.Params == nil {
+				return next(ctx, method, req)
+			}
+			logger.Info("MCP tool started", "tool", call.Params.Name)
+			result, err := next(ctx, method, req)
+			toolResult, _ := result.(*mcp.CallToolResult)
+			if err != nil || (toolResult != nil && toolResult.IsError) {
+				logger.Error("MCP tool failed", "tool", call.Params.Name)
+			} else {
+				logger.Info("MCP tool completed", "tool", call.Params.Name)
+			}
+			return result, err
+		}
+	}
 }
 
 func uploadMCP(ctx context.Context, name string, r io.Reader, authInfo runtime.ClientAuthInfoWriter) (string, error) {
