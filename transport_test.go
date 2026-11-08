@@ -9,11 +9,74 @@
 package pixeldrain
 
 import (
+	"context"
 	"net/http"
+	"sync"
 	"testing"
 
 	"github.com/go-openapi/runtime"
 )
+
+type operationTransport struct{}
+
+func (operationTransport) Submit(op *runtime.ClientOperation) (any, error) {
+	return op, nil
+}
+
+func (operationTransport) SubmitContext(_ context.Context, op *runtime.ClientOperation) (any, error) {
+	return op, nil
+}
+
+func TestSubmitDoesNotModifyOperation(t *testing.T) {
+	base := &mockRoundTripper{Response: &http.Response{StatusCode: http.StatusOK, Header: make(http.Header)}}
+	client := &http.Client{Transport: base}
+	op := &runtime.ClientOperation{Client: client, ProducesMediaTypes: []string{runtime.JSONMime}}
+	transport := ContentTypeFixer(operationTransport{})
+
+	var wg sync.WaitGroup
+	for range 10 {
+		wg.Go(func() {
+			for _, submit := range []func(*runtime.ClientOperation) (any, error){transport.Submit, func(op *runtime.ClientOperation) (any, error) {
+				return transport.SubmitContext(context.Background(), op)
+			}} {
+				result, err := submit(op)
+				if err != nil {
+					t.Error(err)
+					continue
+				}
+				prepared := result.(*runtime.ClientOperation)
+				if prepared == op || prepared.Client == client {
+					t.Error("operation and client must be copied")
+				}
+				if wrapper, ok := prepared.Client.Transport.(*roundTripper); !ok || wrapper.upstream != base || wrapper.contentType != runtime.JSONMime {
+					t.Error("unexpected transport wrapper")
+				}
+			}
+		})
+	}
+	wg.Wait()
+	if op.Client != client || client.Transport != base {
+		t.Error("original operation or client was modified")
+	}
+}
+
+func TestSubmitWithoutMediaTypes(t *testing.T) {
+	op := &runtime.ClientOperation{}
+	result, err := ContentTypeFixer(operationTransport{}).Submit(op)
+	if err != nil {
+		t.Fatal(err)
+	}
+	prepared := result.(*runtime.ClientOperation)
+	if prepared.Client == nil || prepared.Client.Transport == nil {
+		t.Fatal("expected an initialized client and transport")
+	}
+	if _, ok := prepared.Client.Transport.(*roundTripper); ok {
+		t.Error("content type must not be overridden without media types")
+	}
+	if op.Client != nil {
+		t.Error("original operation was modified")
+	}
+}
 
 type mockRoundTripper struct {
 	Request  *http.Request

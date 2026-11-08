@@ -92,18 +92,24 @@ func optimizeTransport(upstream http.RoundTripper) http.RoundTripper {
 }
 
 // Submit sends the given operation and returns a response.
-func (t *transport) Submit(op *runtime.ClientOperation) (any, error) {
-	if op.Client == nil {
-		op.Client = &http.Client{}
+func prepareOperation(op *runtime.ClientOperation) *runtime.ClientOperation {
+	operation := *op
+	client := http.Client{}
+	if op.Client != nil {
+		client = *op.Client
 	}
-	op.Client.Transport = newRoundTripper(optimizeTransport(op.Client.Transport), op.ProducesMediaTypes[0])
-	return t.upstream.Submit(op)
+	client.Transport = optimizeTransport(client.Transport)
+	if len(op.ProducesMediaTypes) > 0 {
+		client.Transport = newRoundTripper(client.Transport, op.ProducesMediaTypes[0])
+	}
+	operation.Client = &client
+	return &operation
+}
+
+func (t *transport) Submit(op *runtime.ClientOperation) (any, error) {
+	return t.upstream.Submit(prepareOperation(op))
 }
 
 func (t *transport) SubmitContext(ctx context.Context, op *runtime.ClientOperation) (any, error) {
-	if op.Client == nil {
-		op.Client = &http.Client{}
-	}
-	op.Client.Transport = newRoundTripper(optimizeTransport(op.Client.Transport), op.ProducesMediaTypes[0])
-	return t.upstream.SubmitContext(ctx, op)
+	return t.upstream.SubmitContext(ctx, prepareOperation(op))
 }
