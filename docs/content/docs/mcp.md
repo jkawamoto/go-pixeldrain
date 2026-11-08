@@ -13,6 +13,8 @@ Start the stdio-based MCP server with:
 pd mcp
 ```
 
+The server writes lifecycle and tool execution logs to standard error. Tool arguments and results are not logged; the MCP client determines whether standard error is displayed or saved.
+
 ---
 
 ## Configuration
