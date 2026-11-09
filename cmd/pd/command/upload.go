@@ -9,6 +9,7 @@
 package command
 
 import (
+	"bufio"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"filippo.io/age"
 	"filippo.io/age/agessh"
@@ -156,24 +158,29 @@ func CmdUpload(c *cli.Context) error {
 func parseRecipients(recipients []string) ([]age.Recipient, error) {
 	res := make([]age.Recipient, len(recipients))
 	for i, s := range recipients {
-		switch {
-		case strings.HasPrefix(s, "age1"):
-			r, err := age.ParseX25519Recipient(s)
-			if err != nil {
-				return nil, err
-			}
-			res[i] = r
-		case strings.HasPrefix(s, "ssh-"):
-			r, err := agessh.ParseRecipient(s)
-			if err != nil {
-				return nil, err
-			}
-			res[i] = r
-		default:
-			return nil, ErrUnsupportedPublicKey
+		r, err := parseRecipient(s)
+		if err != nil {
+			return nil, err
 		}
+		res[i] = r
 	}
 	return res, nil
+}
+
+func parseRecipient(s string) (age.Recipient, error) {
+	if !utf8.ValidString(s) {
+		return nil, errors.New("recipient is not valid UTF-8")
+	}
+	switch {
+	case strings.HasPrefix(s, "age1pq1"):
+		return age.ParseHybridRecipient(s)
+	case strings.HasPrefix(s, "age1"):
+		return age.ParseX25519Recipient(s)
+	case strings.HasPrefix(s, "ssh-"):
+		return agessh.ParseRecipient(s)
+	default:
+		return nil, ErrUnsupportedPublicKey
+	}
 }
 
 func parseRecipientFile(name string) (_ []age.Recipient, err error) {
@@ -185,7 +192,30 @@ func parseRecipientFile(name string) (_ []age.Recipient, err error) {
 		err = errors.Join(err, f.Close())
 	}()
 
-	return age.ParseRecipients(f)
+	lr := &io.LimitedReader{R: f, N: 1<<24 + 1}
+	scanner := bufio.NewScanner(lr)
+	var recipients []age.Recipient
+	for line := 1; scanner.Scan(); line++ {
+		s := scanner.Text()
+		if s == "" || strings.HasPrefix(s, "#") {
+			continue
+		}
+		r, err := parseRecipient(s)
+		if err != nil {
+			return nil, fmt.Errorf("error at line %d: %w", line, err)
+		}
+		recipients = append(recipients, r)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	if lr.N == 0 {
+		return nil, errors.New("recipients file is too long")
+	}
+	if len(recipients) == 0 {
+		return nil, errors.New("no recipients found")
+	}
+	return recipients, nil
 }
 
 func parseArgument(arg string) (path string, name string, _ error) {

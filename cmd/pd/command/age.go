@@ -37,13 +37,12 @@ func (r waitReadCloser) Close() error {
 // waitWriteCloser is an io.WriteCloser that calls the given wait function when it's closed.
 type waitWriteCloser struct {
 	io.WriteCloser
-	wait func()
+	wait func() error
 }
 
 func (w waitWriteCloser) Close() error {
 	err := w.WriteCloser.Close()
-	w.wait()
-	return err
+	return errors.Join(err, w.wait())
 }
 
 func Encrypt(src io.ReadCloser, recipients []age.Recipient) io.ReadCloser {
@@ -84,6 +83,7 @@ func Decrypt(dest io.WriteCloser, identity []age.Identity) io.WriteCloser {
 	r, w := io.Pipe()
 
 	var wg sync.WaitGroup
+	var result error
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -93,7 +93,8 @@ func Decrypt(dest io.WriteCloser, identity []age.Identity) io.WriteCloser {
 			if reason := recover(); reason != nil {
 				err = errors.Join(err, fmt.Errorf("recovered: %v", reason))
 			}
-			_ = r.CloseWithError(errors.Join(err, dest.Close()))
+			result = errors.Join(err, dest.Close())
+			_ = r.CloseWithError(result)
 		}()
 
 		dr, err := age.Decrypt(r, identity...)
@@ -107,6 +108,9 @@ func Decrypt(dest io.WriteCloser, identity []age.Identity) io.WriteCloser {
 
 	return waitWriteCloser{
 		WriteCloser: w,
-		wait:        wg.Wait,
+		wait: func() error {
+			wg.Wait()
+			return result
+		},
 	}
 }
