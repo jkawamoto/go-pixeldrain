@@ -96,6 +96,8 @@ Add `pixeldrain` to your MCP configuration (e.g. `claude_desktop_config.json`):
 
 ### Available MCP Tools:
 - `upload_files`: Upload one or more files (images, audio, archives) and return a file or album URL. Each file uses `{name, data}`, where `data` can be a local file path, Base64, or a Base64 data URI.
+- `list_recipients`: List configured public key IDs for encrypted uploads. Start the server with `--age-recipients-dir` and/or `--ssh-recipients-dir`, each containing one public key per `.pub` file. Pass selected IDs as `recipients` to `upload_text` or `upload_files`.
+- Start `pd mcp --identity-file /path/to/key` to decrypt `.age` downloads with a local age identity or unencrypted SSH private key. MCP does not prompt for SSH key passphrases.
 - `upload_text`: Upload plain text or markdown as a file and return a download URL.
 - `download_file`: Download a file from Pixeldrain to the local machine.
 

@@ -115,5 +115,10 @@ var Commands = []*cli.Command{
 		Name:   "mcp",
 		Usage:  "Run as an MCP server",
 		Action: CmdMCP,
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "age-recipients-dir", Usage: "Directory containing age public key .pub files"},
+			&cli.StringFlag{Name: "ssh-recipients-dir", Usage: "Directory containing SSH public key .pub files"},
+			&cli.StringFlag{Name: "identity-file", Usage: "Use the age or unencrypted SSH identity file at `PATH` for downloads"},
+		},
 	},
 }
