@@ -231,6 +231,7 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
+&lt;p&gt;The server writes lifecycle and tool execution logs to standard error. Tool arguments and results are not logged; the MCP client determines whether standard error is displayed or saved.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2 data-hextra-search-id="configuration"&gt;Configuration&lt;span class="hx:absolute hx:-mt-20" id="configuration"&gt;&lt;/span&gt;
 &lt;a href="#configuration" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3 data-hextra-search-id="claude-desktop"&gt;Claude Desktop&lt;span class="hx:absolute hx:-mt-20" id="claude-desktop"&gt;&lt;/span&gt;
@@ -290,9 +291,32 @@ data-alert="note" class="hextra-alert"
 &lt;td style="text-align: left"&gt;&lt;strong&gt;&lt;code&gt;download_file&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
 &lt;td style="text-align: left"&gt;Downloads a file from Pixeldrain to the specified local path.&lt;/td&gt;
 &lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;&lt;strong&gt;&lt;code&gt;list_recipients&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;Lists the configured public key IDs for encrypted uploads.&lt;/td&gt;
+&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;With these tools, AI assistants can easily create sharable links for generated artifacts, charts, or images, as well as fetch remote assets during interactive sessions.&lt;/p&gt;</description></item><item><title>End-to-End Encryption</title><link>https://jkawamoto.github.io/go-pixeldrain/docs/encryption/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://jkawamoto.github.io/go-pixeldrain/docs/encryption/</guid><description>
+&lt;p&gt;With these tools, AI assistants can easily create sharable links for generated artifacts, charts, or images, as well as fetch remote assets during interactive sessions.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="encrypted-transfers"&gt;Encrypted transfers&lt;span class="hx:absolute hx:-mt-20" id="encrypted-transfers"&gt;&lt;/span&gt;
+&lt;a href="#encrypted-transfers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Configure the public key directories when starting the server:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pd mcp --age-recipients-dir /path/to/age-keys --ssh-recipients-dir /path/to/ssh-keys&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Both options are optional. Each directory contains one public key per &lt;code&gt;.pub&lt;/code&gt; file; other files and symbolic links are ignored. The age directory accepts age X25519 public keys, and the SSH directory accepts supported SSH public keys. Blank lines and &lt;code&gt;#&lt;/code&gt; comments are ignored. For example, &lt;code&gt;alice.pub&lt;/code&gt; in the age directory appears in &lt;code&gt;list_recipients&lt;/code&gt; as &lt;code&gt;age:alice.pub&lt;/code&gt;, with the display name &lt;code&gt;alice&lt;/code&gt;. SSH IDs use the &lt;code&gt;ssh:&lt;/code&gt; prefix.&lt;/p&gt;
+&lt;p&gt;Call &lt;code&gt;list_recipients&lt;/code&gt; and pass the chosen IDs as the &lt;code&gt;recipients&lt;/code&gt; array to &lt;code&gt;upload_text&lt;/code&gt; or &lt;code&gt;upload_files&lt;/code&gt;. Each file is encrypted for all selected recipients and uploaded with &lt;code&gt;.age&lt;/code&gt; appended to its name. Omitting &lt;code&gt;recipients&lt;/code&gt; preserves the unencrypted behavior; an empty array, invalid ID, or invalid key is an error.&lt;/p&gt;
+&lt;p&gt;To decrypt &lt;code&gt;.age&lt;/code&gt; downloads, start the server with &lt;code&gt;pd mcp --identity-file /path/to/key&lt;/code&gt;, using an age identity file or an unencrypted SSH private key. The identity is loaded at startup; restart the server after changing it. Without this option, encrypted files are downloaded unchanged. Downloads do not overwrite existing files; choose a different output path if one exists. Passphrase-protected SSH keys require an interactive terminal and are not supported by the MCP server. The identity path may be visible in process listings or MCP client configuration, but is not an MCP tool argument.&lt;/p&gt;
+&lt;p&gt;The file name and approximate encrypted size remain visible to Pixeldrain. Text passed through MCP and recipient IDs may also be retained by the MCP client or in conversation history. Treat recipient names as untrusted metadata and confirm ambiguous recipients before uploading.&lt;/p&gt;</description></item><item><title>End-to-End Encryption</title><link>https://jkawamoto.github.io/go-pixeldrain/docs/encryption/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://jkawamoto.github.io/go-pixeldrain/docs/encryption/</guid><description>
 &lt;p&gt;&lt;code&gt;pd&lt;/code&gt; provides built-in End-to-End Encryption (E2EE) using the modern &lt;a href="https://github.com/FiloSottile/age" target="_blank" rel="noopener"&gt;age&lt;/a&gt; encryption tool or your existing SSH public keys.&lt;/p&gt;
 &lt;p&gt;All encryption and decryption happen strictly on your machine before uploading or after downloading. Pixeldrain only ever sees encrypted bytes.&lt;/p&gt;
 &lt;hr&gt;
@@ -318,9 +342,10 @@ data-copied-label="Copied!"
 &lt;/div&gt;
 &lt;p&gt;Uploaded files will automatically be saved with the &lt;code&gt;.age&lt;/code&gt; extension appended.&lt;/p&gt;
 &lt;h3 data-hextra-search-id="multiple-recipients"&gt;Multiple Recipients&lt;span class="hx:absolute hx:-mt-20" id="multiple-recipients"&gt;&lt;/span&gt;
-&lt;a href="#multiple-recipients" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Encrypt a file for multiple recipients listed in a file (one recipient key per line):&lt;/p&gt;
+&lt;a href="#multiple-recipients" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Encrypt a file for recipients listed in a file (one age or SSH public key per line):&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pd upload --recipient-file recipients.txt confidential.pdf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pd upload --recipient-file recipients.txt confidential.pdf
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pd upload --recipient-file ~/.ssh/id_ed25519.pub confidential.pdf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
 title="Copy code"
@@ -332,6 +357,8 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
+&lt;p&gt;Both options also accept hybrid age public keys (&lt;code&gt;age1pq1...&lt;/code&gt;). Hybrid keys
+cannot be combined with non-post-quantum recipients in the same upload.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2 data-hextra-search-id="decrypting-downloads"&gt;Decrypting Downloads&lt;span class="hx:absolute hx:-mt-20" id="decrypting-downloads"&gt;&lt;/span&gt;
 &lt;a href="#decrypting-downloads" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;To download and decrypt the file automatically, pass your private identity file with &lt;code&gt;--identity&lt;/code&gt;:&lt;/p&gt;
@@ -347,7 +374,9 @@ data-copied-label="Copied!"
 &lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
 &lt;/button&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description></item><item><title>Go SDK</title><link>https://jkawamoto.github.io/go-pixeldrain/docs/sdk/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://jkawamoto.github.io/go-pixeldrain/docs/sdk/</guid><description>
+&lt;/div&gt;
+&lt;p&gt;SSH Ed25519 and RSA private keys are supported. If the key is protected by a
+passphrase, &lt;code&gt;pd&lt;/code&gt; prompts for it in a terminal.&lt;/p&gt;</description></item><item><title>Go SDK</title><link>https://jkawamoto.github.io/go-pixeldrain/docs/sdk/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://jkawamoto.github.io/go-pixeldrain/docs/sdk/</guid><description>
 &lt;p&gt;&lt;code&gt;go-pixeldrain&lt;/code&gt; is also a full-featured Go client library for the &lt;a href="https://pixeldrain.com/api" target="_blank" rel="noopener"&gt;Pixeldrain REST API&lt;/a&gt;.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2 data-hextra-search-id="installation"&gt;Installation&lt;span class="hx:absolute hx:-mt-20" id="installation"&gt;&lt;/span&gt;
