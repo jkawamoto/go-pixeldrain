@@ -1,3 +1,5 @@
+English | [日本語](README.ja.md)
+
 # pd (Pixeldrain CLI & MCP Server)
 [![Go application](https://github.com/jkawamoto/go-pixeldrain/actions/workflows/ci.yaml/badge.svg)](https://github.com/jkawamoto/go-pixeldrain/actions/workflows/ci.yaml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jkawamoto/go-pixeldrain.svg)](https://pkg.go.dev/github.com/jkawamoto/go-pixeldrain)
@@ -8,9 +10,9 @@
 
 It provides an easy way to upload, download, and share files or albums directly from your terminal, shell scripts, and AI workflows without needing to open a browser.
 
-<div align="center">
-<img src="./assets/pd-banner.jpg" alt="pd - Pixeldrain CLI & MCP tool" width="100%" />
-</div>
+![pd - Pixeldrain CLI & MCP tool](./assets/header.png)
+
+The header image was generated with Muse (Muse Image).
 
 ## Features
 

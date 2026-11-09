@@ -33,7 +33,8 @@ Upload, download, and share files, media, and albums directly from your terminal
 </div>
 
 <div class="hx-mb-12">
-  <img src="images/pd-banner.jpg" alt="pd - Pixeldrain CLI & MCP tool" class="hx-w-full hx-rounded-xl hx-shadow-lg" />
+  <img src="images/header.png" alt="pd - Pixeldrain CLI & MCP tool" class="hx-w-full hx-rounded-xl hx-shadow-lg" />
+  <small>The header image was generated with Muse (Muse Image).</small>
 </div>
 
 {{< hextra/feature-grid >}}
