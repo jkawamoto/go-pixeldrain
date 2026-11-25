@@ -65,10 +65,87 @@ func TestLogMCPCalls(t *testing.T) {
 }
 
 func TestMCPToolSchemas(t *testing.T) {
-	server := mcp.NewServer(&mcp.Implementation{Name: "test"}, nil)
-	mcp.AddTool(server, &mcp.Tool{Name: "upload_text"}, func(context.Context, *mcp.CallToolRequest, mcpTextInput) (*mcp.CallToolResult, mcpURLResult, error) {
-		return nil, mcpURLResult{}, nil
-	})
+	flags := flag.NewFlagSet("mcp", flag.ContinueOnError)
+	flags.String("age-recipients-dir", "", "")
+	flags.String("ssh-recipients-dir", "", "")
+	c := cli.NewContext(cli.NewApp(), flags, nil)
+	server, err := newMCPServer(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	clientTransport, serverTransport := mcp.NewInMemoryTransports()
+	serverSession, err := server.Connect(ctx, serverTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer serverSession.Close()
+	client, err := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "1"}, nil).Connect(ctx, clientTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+
+	result, err := client.ListTools(ctx, &mcp.ListToolsParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	tools := make(map[string]*mcp.Tool, len(result.Tools))
+	for _, tool := range result.Tools {
+		tools[tool.Name] = tool
+	}
+	for _, name := range []string{"list_recipients", "upload_text", "upload_files"} {
+		if tools[name] == nil {
+			t.Fatalf("tools/list did not return %q", name)
+		}
+	}
+	for _, phrase := range []string{"github:USERNAME", "not listed", "untrusted metadata"} {
+		if !strings.Contains(tools["list_recipients"].Description, phrase) {
+			t.Errorf("list_recipients description %q does not contain %q", tools["list_recipients"].Description, phrase)
+		}
+	}
+	for _, name := range []string{"upload_text", "upload_files"} {
+		t.Run(name, func(t *testing.T) {
+			tool := tools[name]
+			for _, phrase := range []string{"github:octocat", "do not appear", "matching private key", "trusted channel", "never falls back to plaintext", "warnings"} {
+				if !strings.Contains(tool.Description, phrase) {
+					t.Errorf("description %q does not contain %q", tool.Description, phrase)
+				}
+			}
+			recipientsDescription := schemaPropertyDescription(t, tool.InputSchema, "recipients")
+			for _, phrase := range []string{"github:octocat", "empty array is an error", "plaintext fallback", "trusted channel", "warnings"} {
+				if !strings.Contains(recipientsDescription, phrase) {
+					t.Errorf("recipients schema description %q does not contain %q", recipientsDescription, phrase)
+				}
+			}
+			for _, property := range []string{"url", "warnings"} {
+				if description := schemaPropertyDescription(t, tool.OutputSchema, property); description == "" {
+					t.Errorf("output schema property %q has no description", property)
+				}
+			}
+		})
+	}
+	if description := schemaPropertyDescription(t, tools["list_recipients"].OutputSchema, "recipients"); description == "" {
+		t.Error("list_recipients output schema does not describe recipients")
+	}
+}
+
+func schemaPropertyDescription(t *testing.T, schema any, property string) string {
+	t.Helper()
+	schemaMap, ok := schema.(map[string]any)
+	if !ok {
+		t.Fatalf("schema has type %T, want map[string]any", schema)
+	}
+	properties, ok := schemaMap["properties"].(map[string]any)
+	if !ok {
+		t.Fatalf("schema properties have type %T, want map[string]any", schemaMap["properties"])
+	}
+	propertySchema, ok := properties[property].(map[string]any)
+	if !ok {
+		t.Fatalf("schema property %q has type %T, want map[string]any", property, properties[property])
+	}
+	description, _ := propertySchema["description"].(string)
+	return description
 }
 
 func TestMCPRecipientTools(t *testing.T) {
