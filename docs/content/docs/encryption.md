@@ -21,7 +21,17 @@ pd upload --recipient "age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqm
 
 # Encrypt with an SSH public key
 pd upload --recipient "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@example.com" confidential.pdf
+
+# Encrypt to all supported SSH keys published by a GitHub user
+pd upload --recipient "github:user-id" confidential.pdf
 ```
+
+GitHub recipients are fetched from `https://github.com/<user-id>.keys` over HTTPS.
+Supported Ed25519 and RSA keys are all added as recipients, so anyone holding a
+matching private key can decrypt the upload. Unsupported key types are skipped
+with a warning; the command fails if there are no supported keys. Verify the
+GitHub account and its public keys through a trusted channel before uploading
+sensitive data.
 
 Uploaded files will automatically be saved with the `.age` extension appended.
 

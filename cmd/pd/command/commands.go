@@ -43,10 +43,12 @@ var Commands = []*cli.Command{
 			"If recipients are specified by --recipient and/or --recipient-file flags, " +
 			"files will be encrypted before being uploaded.\n\n" +
 			"A recipient can be an age public key (\"age1...\" or \"age1pq1...\") " +
-			"or an SSH public key (\"ssh-ed25519 AAAA...\", \"ssh-rsa AAAA...\"). \n\n" +
+			"or an SSH public key (\"ssh-ed25519 AAAA...\", \"ssh-rsa AAAA...\"), " +
+			"or a GitHub username prefixed with \"github:\". All supported SSH keys from the GitHub user are used.\n\n" +
 			"A recipient file contains one or more recipients, one per line. " +
 			"Empty lines and lines starting with \"#\" are ignored as comments. " +
-			"Hybrid age keys cannot be combined with non-post-quantum recipients.",
+			"Hybrid age keys cannot be combined with non-post-quantum recipients. " +
+			"GitHub keys are fetched from github.com over HTTPS; verify recipients out of band.",
 		ArgsUsage: "<path[:name]>...",
 		Action:    CmdUpload,
 		Flags: []cli.Flag{
@@ -59,7 +61,7 @@ var Commands = []*cli.Command{
 				Name:     FlagRecipient,
 				Aliases:  []string{"r"},
 				Category: "End-to-end encryption",
-				Usage:    "Encrypt to the specified `RECIPIENT`. Can be repeated.",
+				Usage:    "Encrypt to `RECIPIENT` (age/SSH public key or github:USER). Can be repeated.",
 			},
 			&cli.StringFlag{
 				Name:     FlagRecipientFile,

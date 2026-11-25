@@ -10,10 +10,12 @@ package command
 
 import (
 	"bufio"
+	"context"
 	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -97,7 +99,7 @@ func CmdUpload(c *cli.Context) error {
 		return cli.Exit(fmt.Sprintf("expected at least 1 argument but %d given", c.NArg()), status.InvalidArgument)
 	}
 
-	recipients, err := parseRecipients(c.StringSlice(FlagRecipient))
+	recipients, err := parseUploadRecipients(c.Context, c.StringSlice(FlagRecipient), nil, c.App.ErrWriter)
 	if err != nil {
 		return cli.Exit(err, status.InvalidArgument)
 	}
@@ -107,6 +109,9 @@ func CmdUpload(c *cli.Context) error {
 			return cli.Exit(err, status.InvalidArgument)
 		}
 		recipients = append(recipients, rs...)
+	}
+	if err := validateRecipientMix(recipients); err != nil {
+		return cli.Exit(err, status.InvalidArgument)
 	}
 
 	var ids []string
@@ -165,6 +170,45 @@ func parseRecipients(recipients []string) ([]age.Recipient, error) {
 		res[i] = r
 	}
 	return res, nil
+}
+
+func parseUploadRecipients(ctx context.Context, recipients []string, client *http.Client, warnings io.Writer) ([]age.Recipient, error) {
+	var res []age.Recipient
+	for _, recipient := range recipients {
+		if username, ok := strings.CutPrefix(recipient, "github:"); ok {
+			rs, err := resolveGitHubRecipients(ctx, username, client, warnings)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, rs...)
+			continue
+		}
+		r, err := parseRecipient(recipient)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	return res, nil
+}
+
+func validateRecipientMix(recipients []age.Recipient) error {
+	if len(recipients) < 2 {
+		return nil
+	}
+	containsHybrid := false
+	containsOther := false
+	for _, recipient := range recipients {
+		if _, ok := recipient.(*age.HybridRecipient); ok {
+			containsHybrid = true
+		} else {
+			containsOther = true
+		}
+	}
+	if containsHybrid && containsOther {
+		return errors.New("hybrid age keys cannot be combined with non-post-quantum recipients")
+	}
+	return nil
 }
 
 func parseRecipient(s string) (age.Recipient, error) {

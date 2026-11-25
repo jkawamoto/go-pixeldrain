@@ -2,6 +2,9 @@ package command
 
 import (
 	"bytes"
+	"context"
+	"errors"
+	"flag"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,6 +12,8 @@ import (
 	"testing"
 
 	"filippo.io/age"
+	"github.com/jkawamoto/go-pixeldrain/cmd/pd/status"
+	"github.com/urfave/cli/v2"
 )
 
 func TestHybridRecipients(t *testing.T) {
@@ -83,11 +88,48 @@ func TestHybridCannotMixWithOtherRecipients(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	recipients, err := parseRecipients([]string{hybrid.Recipient().String(), classic.Recipient().String()})
+	if err := validateRecipientMix([]age.Recipient{hybrid.Recipient(), classic.Recipient()}); err == nil {
+		t.Fatal("expected incompatible recipients to be rejected")
+	}
+}
+
+func TestCmdUploadRejectsHybridRecipientMixBeforeUpload(t *testing.T) {
+	hybrid, err := age.GenerateHybridIdentity()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := age.Encrypt(io.Discard, recipients...); err == nil {
-		t.Fatal("expected incompatible recipients to be rejected")
+	classic, err := age.GenerateX25519Identity()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, recipientFile := range []bool{false, true} {
+		t.Run(map[bool]string{false: "arguments", true: "recipient file"}[recipientFile], func(t *testing.T) {
+			args := []string{"--" + FlagRecipient, hybrid.Recipient().String()}
+			if recipientFile {
+				path := filepath.Join(t.TempDir(), "recipients")
+				if err := os.WriteFile(path, []byte(classic.Recipient().String()), 0600); err != nil {
+					t.Fatal(err)
+				}
+				args = append(args, "--"+FlagRecipientFile, path)
+			} else {
+				args = append(args, "--"+FlagRecipient, classic.Recipient().String())
+			}
+			args = append(args, "missing-file")
+			flagSet := flag.NewFlagSet("upload", flag.PanicOnError)
+			flagSet.Var(&cli.StringSlice{}, FlagRecipient, "")
+			flagSet.String(FlagRecipientFile, "", "")
+			if err := flagSet.Parse(args); err != nil {
+				t.Fatal(err)
+			}
+			ctx := cli.NewContext(cli.NewApp(), flagSet, nil)
+			ctx.App.Reader = strings.NewReader("")
+			ctx.App.Writer = io.Discard
+			ctx.Context = context.Background()
+			err := CmdUpload(ctx)
+			var exit cli.ExitCoder
+			if !errors.As(err, &exit) || exit.ExitCode() != status.InvalidArgument || !strings.Contains(err.Error(), "hybrid age keys") {
+				t.Fatalf("expected pre-upload invalid-argument error, got %v", err)
+			}
+		})
 	}
 }
