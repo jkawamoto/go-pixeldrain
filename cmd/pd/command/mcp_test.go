@@ -3,12 +3,17 @@ package command
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"flag"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -16,6 +21,7 @@ import (
 	"testing"
 
 	"filippo.io/age"
+	"filippo.io/age/agessh"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 	"github.com/golang/mock/gomock"
@@ -24,6 +30,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/jkawamoto/go-pixeldrain/client/file"
+	"github.com/jkawamoto/go-pixeldrain/client/list"
 	"github.com/jkawamoto/go-pixeldrain/cmd/pd/command/mock"
 	"github.com/jkawamoto/go-pixeldrain/models"
 )
@@ -237,6 +244,219 @@ func TestMCPRecipients(t *testing.T) {
 	if _, err := resolveMCPRecipients(dirs, []string{"age:alice.pub"}); err == nil {
 		t.Fatal("accepted invalid key")
 	}
+}
+
+func TestMCPGitHubRecipients(t *testing.T) {
+	localIdentity, err := age.GenerateX25519Identity()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sshPublic, sshPrivate, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sshPublicKey, err := ssh.NewPublicKey(sshPublic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sshIdentity, err := agessh.NewEd25519Identity(sshPrivate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ecdsaKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	unsupportedKey, err := ssh.NewPublicKey(&ecdsaKey.PublicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	githubKeys := string(ssh.MarshalAuthorizedKey(sshPublicKey)) + string(ssh.MarshalAuthorizedKey(unsupportedKey))
+	githubRequests := 0
+	httpClient := &http.Client{Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
+		githubRequests++
+		if request.URL.String() != "https://github.com/octocat.keys" {
+			t.Errorf("unexpected GitHub request URL: %s", request.URL)
+		}
+		return githubResponse(http.StatusOK, githubKeys), nil
+	})}
+
+	ageDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(ageDir, "alice.pub"), []byte(localIdentity.Recipient().String()), 0600); err != nil {
+		t.Fatal(err)
+	}
+	flags := flag.NewFlagSet("mcp", flag.ContinueOnError)
+	flags.String("age-recipients-dir", ageDir, "")
+	flags.String("ssh-recipients-dir", "", "")
+	c := cli.NewContext(cli.NewApp(), flags, nil)
+	ctx := context.Background()
+	clientTransport, serverTransport := mcp.NewInMemoryTransports()
+	server, err := newMCPServerWithHTTPClient(c, httpClient)
+	if err != nil {
+		t.Fatal(err)
+	}
+	serverSession, err := server.Connect(ctx, serverTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer serverSession.Close()
+	client, err := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "1"}, nil).Connect(ctx, clientTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+
+	m := mock.NewMockClientService(gomock.NewController(t))
+	RegisterMock(t, m)
+	wantPlaintext := map[string]string{"text.txt.age": "secret", "first.txt.age": "first", "second.txt.age": "second"}
+	m.EXPECT().PutFileContext(gomock.Any(), gomock.Any(), gomock.Any()).Times(3).DoAndReturn(
+		func(_ context.Context, params *file.PutFileParams, _ runtime.ClientAuthInfoWriter, _ ...file.ClientOption) (*file.PutFileCreated, error) {
+			if !strings.HasSuffix(params.Name, AgeExt) {
+				t.Errorf("uploaded name = %q, want .age suffix", params.Name)
+			}
+			ciphertext, err := io.ReadAll(params.File)
+			if err != nil {
+				return nil, err
+			}
+			for _, identity := range []age.Identity{localIdentity, sshIdentity} {
+				reader, err := age.Decrypt(bytes.NewReader(ciphertext), identity)
+				if err != nil {
+					t.Errorf("decrypt with recipient identity: %v", err)
+					continue
+				}
+				plaintext, err := io.ReadAll(reader)
+				if err != nil || string(plaintext) != wantPlaintext[params.Name] {
+					t.Errorf("decrypted %q = %q, %v", params.Name, plaintext, err)
+				}
+			}
+			return &file.PutFileCreated{Payload: &models.SuccessResponse{ID: swag.String("uploaded")}}, nil
+		})
+	m.EXPECT().CreateFileList(gomock.Any(), gomock.Any(), gomock.Any()).Return(
+		&list.CreateFileListCreated{Payload: &models.SuccessResponse{ID: swag.String("album")}}, nil)
+
+	recipients := []string{"github:octocat", "age:alice.pub"}
+	result, err := client.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "upload_text",
+		Arguments: map[string]any{"text": "secret", "recipients": recipients},
+	})
+	if err != nil || result.IsError {
+		t.Fatalf("upload_text: %v %v", result, err)
+	}
+	gotText := decodeMCPURLResult(t, result)
+	if len(gotText.Warnings) != 1 || !strings.Contains(gotText.Warnings[0], "unsupported SSH key type") {
+		t.Fatalf("upload_text warnings = %v", gotText.Warnings)
+	}
+
+	result, err = client.CallTool(ctx, &mcp.CallToolParams{
+		Name: "upload_files",
+		Arguments: map[string]any{
+			"recipients": recipients,
+			"files": []map[string]string{
+				{"name": "first.txt", "data": base64.StdEncoding.EncodeToString([]byte("first"))},
+				{"name": "second.txt", "data": base64.StdEncoding.EncodeToString([]byte("second"))},
+			},
+		},
+	})
+	if err != nil || result.IsError {
+		t.Fatalf("upload_files: %v %v", result, err)
+	}
+	gotFiles := decodeMCPURLResult(t, result)
+	if len(gotFiles.Warnings) != 1 || githubRequests != 2 {
+		t.Fatalf("upload_files warnings = %v; GitHub requests = %d", gotFiles.Warnings, githubRequests)
+	}
+}
+
+func TestMCPGitHubRecipientFailuresDoNotUpload(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		status    int
+		body      string
+		identity  string
+		wantError string
+	}{
+		{name: "GitHub fetch failure", status: http.StatusNotFound, wantError: "HTTP status 404"},
+		{name: "hybrid mix", status: http.StatusOK, body: "", identity: "hybrid", wantError: "hybrid age keys"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ageDir := t.TempDir()
+			if tc.identity == "hybrid" {
+				identity, err := age.GenerateHybridIdentity()
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := os.WriteFile(filepath.Join(ageDir, "hybrid.pub"), []byte(identity.Recipient().String()), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			flags := flag.NewFlagSet("mcp", flag.ContinueOnError)
+			flags.String("age-recipients-dir", ageDir, "")
+			flags.String("ssh-recipients-dir", "", "")
+			c := cli.NewContext(cli.NewApp(), flags, nil)
+			httpClient := githubClient(tc.status, tc.body, nil)
+			if tc.identity == "hybrid" {
+				publicKey, _, err := ed25519.GenerateKey(rand.Reader)
+				if err != nil {
+					t.Fatal(err)
+				}
+				sshPublicKey, err := ssh.NewPublicKey(publicKey)
+				if err != nil {
+					t.Fatal(err)
+				}
+				httpClient = githubClient(tc.status, string(ssh.MarshalAuthorizedKey(sshPublicKey)), nil)
+			}
+			server, err := newMCPServerWithHTTPClient(c, httpClient)
+			if err != nil {
+				t.Fatal(err)
+			}
+			ctx := context.Background()
+			clientTransport, serverTransport := mcp.NewInMemoryTransports()
+			serverSession, err := server.Connect(ctx, serverTransport, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer serverSession.Close()
+			client, err := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "1"}, nil).Connect(ctx, clientTransport, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer client.Close()
+
+			RegisterMock(t, mock.NewMockClientService(gomock.NewController(t)))
+			recipients := []string{"github:octocat"}
+			if tc.identity == "hybrid" {
+				recipients = append(recipients, "age:hybrid.pub")
+			}
+			result, err := client.CallTool(ctx, &mcp.CallToolParams{
+				Name:      "upload_text",
+				Arguments: map[string]any{"text": "secret", "recipients": recipients},
+			})
+			if err != nil || !result.IsError || !mcpResultContains(result, tc.wantError) {
+				t.Fatalf("expected error containing %q, got result=%v err=%v", tc.wantError, result, err)
+			}
+		})
+	}
+}
+
+func decodeMCPURLResult(t *testing.T, result *mcp.CallToolResult) mcpURLResult {
+	t.Helper()
+	data, err := json.Marshal(result.StructuredContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded mcpURLResult
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	return decoded
+}
+
+func mcpResultContains(result *mcp.CallToolResult, text string) bool {
+	for _, content := range result.Content {
+		if textContent, ok := content.(*mcp.TextContent); ok && strings.Contains(textContent.Text, text) {
+			return true
+		}
+	}
+	return false
 }
 
 func TestMCPEncryptedTransfer(t *testing.T) {

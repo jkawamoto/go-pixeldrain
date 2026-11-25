@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +38,7 @@ import (
 type mcpTextInput struct {
 	Text       string   `json:"text" jsonschema:"Text to upload"`
 	Name       string   `json:"name,omitempty" jsonschema:"File name (defaults to text.txt)"`
-	Recipients []string `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients; omit for an unencrypted upload"`
+	Recipients []string `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients or github:USERNAME; omit for an unencrypted upload"`
 }
 
 type mcpFile struct {
@@ -47,7 +48,7 @@ type mcpFile struct {
 
 type mcpFilesInput struct {
 	Files      []mcpFile `json:"files" jsonschema:"Files to upload"`
-	Recipients []string  `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients; omit for an unencrypted upload"`
+	Recipients []string  `json:"recipients,omitempty" jsonschema:"Recipient IDs from list_recipients or github:USERNAME; omit for an unencrypted upload"`
 }
 
 type mcpURLInput struct {
@@ -65,7 +66,8 @@ type mcpRecipientsResult struct {
 }
 
 type mcpURLResult struct {
-	URL string `json:"url"`
+	URL      string   `json:"url"`
+	Warnings []string `json:"warnings,omitempty"`
 }
 
 type mcpPathResult struct {
@@ -90,6 +92,10 @@ func CmdMCP(c *cli.Context) error {
 }
 
 func newMCPServer(c *cli.Context) (*mcp.Server, error) {
+	return newMCPServerWithHTTPClient(c, nil)
+}
+
+func newMCPServerWithHTTPClient(c *cli.Context, githubClient *http.Client) (*mcp.Server, error) {
 	var identities []age.Identity
 	if name := c.String("identity-file"); name != "" {
 		// MCP stdio is not an interactive terminal for passphrase prompts.
@@ -112,13 +118,13 @@ func newMCPServer(c *cli.Context) (*mcp.Server, error) {
 		})
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "upload_text",
-		Description: "Upload text as a file and return its Pixeldrain download URL.",
+		Description: "Upload text as a file and return its Pixeldrain download URL. Encrypt by passing configured recipient IDs from list_recipients or github:USERNAME; all supported GitHub SSH keys are used, and warnings are returned when keys are skipped.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in mcpTextInput) (*mcp.CallToolResult, mcpURLResult, error) {
 		name := in.Name
 		if name == "" {
 			name = "text.txt"
 		}
-		recipients, err := resolveMCPRecipients(dirs, in.Recipients)
+		recipients, warnings, err := resolveMCPRecipientsWithGitHub(ctx, dirs, in.Recipients, githubClient)
 		if err != nil {
 			return nil, mcpURLResult{}, err
 		}
@@ -126,7 +132,7 @@ func newMCPServer(c *cli.Context) (*mcp.Server, error) {
 		if err != nil {
 			return nil, mcpURLResult{}, err
 		}
-		return nil, mcpURLResult{URL: pixeldrain.DownloadURL(id)}, nil
+		return nil, mcpURLResult{URL: pixeldrain.DownloadURL(id), Warnings: warnings}, nil
 	})
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -142,12 +148,12 @@ func newMCPServer(c *cli.Context) (*mcp.Server, error) {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "upload_files",
-		Description: "Upload one or more base64-encoded files. Return a file URL, or a Pixeldrain list URL for multiple files.",
+		Description: "Upload one or more base64-encoded files. Return a file URL, or a Pixeldrain list URL for multiple files. Encrypt by passing configured recipient IDs from list_recipients or github:USERNAME; all supported GitHub SSH keys are used, and warnings are returned when keys are skipped.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in mcpFilesInput) (*mcp.CallToolResult, mcpURLResult, error) {
 		if len(in.Files) == 0 {
 			return nil, mcpURLResult{}, errors.New("files must not be empty")
 		}
-		recipients, err := resolveMCPRecipients(dirs, in.Recipients)
+		recipients, warnings, err := resolveMCPRecipientsWithGitHub(ctx, dirs, in.Recipients, githubClient)
 		if err != nil {
 			return nil, mcpURLResult{}, err
 		}
@@ -166,7 +172,7 @@ func newMCPServer(c *cli.Context) (*mcp.Server, error) {
 			}
 		}
 		if len(ids) == 1 {
-			return nil, mcpURLResult{URL: pixeldrain.DownloadURL(ids[0])}, nil
+			return nil, mcpURLResult{URL: pixeldrain.DownloadURL(ids[0]), Warnings: warnings}, nil
 		}
 		items := make([]*models.ListItem, len(ids))
 		for i, id := range ids {
@@ -179,7 +185,7 @@ func newMCPServer(c *cli.Context) (*mcp.Server, error) {
 		if err != nil {
 			return nil, mcpURLResult{}, pixeldrain.NewError(err)
 		}
-		return nil, mcpURLResult{URL: pixeldrain.ListURL(swag.StringValue(res.Payload.ID))}, nil
+		return nil, mcpURLResult{URL: pixeldrain.ListURL(swag.StringValue(res.Payload.ID)), Warnings: warnings}, nil
 	})
 
 	return server, nil
@@ -297,29 +303,50 @@ func listMCPRecipients(dirs map[string]string) ([]mcpRecipient, error) {
 }
 
 func resolveMCPRecipients(dirs map[string]string, ids []string) ([]age.Recipient, error) {
+	recipients, _, err := resolveMCPRecipientsWithGitHub(context.Background(), dirs, ids, nil)
+	return recipients, err
+}
+
+func resolveMCPRecipientsWithGitHub(ctx context.Context, dirs map[string]string, ids []string, githubClient *http.Client) ([]age.Recipient, []string, error) {
 	if ids == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if len(ids) == 0 {
-		return nil, errors.New("recipients must not be empty; omit it for an unencrypted upload")
+		return nil, nil, errors.New("recipients must not be empty; omit it for an unencrypted upload")
 	}
-	available, err := listMCPRecipients(dirs)
-	if err != nil {
-		return nil, err
+	var available []mcpRecipient
+	for _, id := range ids {
+		if !strings.HasPrefix(id, "github:") {
+			var err error
+			available, err = listMCPRecipients(dirs)
+			if err != nil {
+				return nil, nil, err
+			}
+			break
+		}
 	}
 	allowed := make(map[string]bool, len(available))
 	for _, r := range available {
 		allowed[r.ID] = true
 	}
 	var recipients []age.Recipient
+	var warningOutput bytes.Buffer
 	for _, id := range ids {
+		if username, ok := strings.CutPrefix(id, "github:"); ok {
+			resolved, err := resolveGitHubRecipients(ctx, username, githubClient, &warningOutput)
+			if err != nil {
+				return nil, nil, err
+			}
+			recipients = append(recipients, resolved...)
+			continue
+		}
 		if !allowed[id] {
-			return nil, fmt.Errorf("unknown recipient ID %q", id)
+			return nil, nil, fmt.Errorf("unknown recipient ID %q", id)
 		}
 		kind, name, _ := strings.Cut(id, ":")
 		data, err := os.ReadFile(filepath.Join(dirs[kind], name))
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		var lines []string
 		for _, line := range strings.Split(string(data), "\n") {
@@ -329,15 +356,22 @@ func resolveMCPRecipients(dirs map[string]string, ids []string) ([]age.Recipient
 			}
 		}
 		if len(lines) != 1 || (kind == "age" && !strings.HasPrefix(lines[0], "age1")) || (kind == "ssh" && !strings.HasPrefix(lines[0], "ssh-")) {
-			return nil, fmt.Errorf("recipient %q must contain exactly one %s public key", id, kind)
+			return nil, nil, fmt.Errorf("recipient %q must contain exactly one %s public key", id, kind)
 		}
 		parsed, err := parseRecipients(lines)
 		if err != nil {
-			return nil, fmt.Errorf("recipient %q: %w", id, err)
+			return nil, nil, fmt.Errorf("recipient %q: %w", id, err)
 		}
 		recipients = append(recipients, parsed...)
 	}
-	return recipients, nil
+	if err := validateRecipientMix(recipients); err != nil {
+		return nil, nil, err
+	}
+	var warnings []string
+	if warningOutput.Len() > 0 {
+		warnings = strings.Split(strings.TrimSpace(warningOutput.String()), "\n")
+	}
+	return recipients, warnings, nil
 }
 
 func readMCPData(data string) ([]byte, error) {
