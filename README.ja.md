@@ -101,10 +101,18 @@ MCP の設定ファイル（`claude_desktop_config.json` など）に `pixeldrai
 ### 利用できる MCP ツール
 
 - `upload_files`: 一つ以上のファイル（画像、音声、アーカイブ）をアップロードし、ファイルまたはアルバムの URL を返します。各ファイルは `{name, data}` で指定し、`data` にはローカルファイルのパス、Base64、または Base64 データ URI を使用できます。
-- `list_recipients`: 暗号化アップロード用に設定された公開鍵 ID を一覧表示します。`--age-recipients-dir` または `--ssh-recipients-dir`、あるいは両方を指定してサーバーを起動します。各ディレクトリには、一つの `.pub` ファイルにつき一つの公開鍵を置きます。選択した ID は、`upload_text` または `upload_files` の `recipients` に渡します。
+- `list_recipients`: 暗号化アップロード用に設定されたローカル公開鍵 ID を一覧表示します。`--age-recipients-dir` または `--ssh-recipients-dir`、あるいは両方を指定してサーバーを起動します。各ディレクトリには、一つの `.pub` ファイルにつき一つの公開鍵を置きます。選択した ID は、`upload_text` または `upload_files` の `recipients` に渡します。GitHub ユーザーは一覧に表示されず、`github:` 接頭辞を付けて直接指定できます。
 - `pd mcp --identity-file /path/to/key` でサーバーを起動すると、ローカルの age 秘密鍵または暗号化されていない SSH 秘密鍵を使って、ダウンロードした `.age` ファイルを復号できます。MCP は SSH 鍵のパスフレーズを入力するプロンプトを表示しません。
 - `upload_text`: プレーンテキストまたは Markdown をファイルとしてアップロードし、ダウンロード URL を返します。
 - `download_file`: Pixeldrain からローカルマシンにファイルをダウンロードします。
+
+MCP で暗号化してアップロードするには、`recipients` に GitHub ユーザー名を直接指定できます。`list_recipients` のローカル ID と組み合わせることもできます。
+
+```json
+{"text":"秘密のメモ", "recipients":["github:octocat", "age:alice.pub"]}
+```
+
+GitHub の SSH 公開鍵は HTTPS 経由で取得されます。対応する Ed25519 鍵と RSA 鍵はすべて受信者となるため、一致する秘密鍵を持つ人は誰でも復号できます。機密情報を送る前に、信頼できる別の経路でアカウントと鍵のフィンガープリントを確認してください。非対応鍵は除外され、`warnings` に報告されます。`recipients` を省略すると暗号化されずにアップロードされます。空配列、鍵の取得失敗、対応鍵がない場合はエラーとなり、暗号化なしでのアップロードには切り替わりません。
 
 ## 応用的な使い方
 
@@ -136,10 +144,12 @@ tar zcf - ~/Projects/my-app | pd upload -- -:my-app.tar.gz
 # age の公開鍵または SSH 鍵で暗号化
 pd upload --recipient "age1..." secret.pdf
 pd upload --recipient "ssh-ed25519 AAAA..." secret.pdf
+pd upload --recipient "github:octocat" secret.pdf
 
 # ファイルを使って複数の受信者向けに暗号化
 pd upload --recipient-file recipients.txt secret.pdf
 ```
+GitHub の受信者には `https://github.com/<username>.keys` で公開されている SSH 鍵を使います。対応する Ed25519 鍵と RSA 鍵はすべて含まれるため、一致する秘密鍵を持つ人は誰でも復号できます。信頼できる別の経路で GitHub アカウントと鍵のフィンガープリントを確認してください。非対応の鍵種別は警告付きで除外され、対応鍵がない場合はアップロードに失敗します。
 
 アップロードされるファイルには、自動的に `.age` 拡張子が付きます。
 

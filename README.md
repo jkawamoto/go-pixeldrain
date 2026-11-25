@@ -98,10 +98,18 @@ Add `pixeldrain` to your MCP configuration (e.g. `claude_desktop_config.json`):
 
 ### Available MCP Tools:
 - `upload_files`: Upload one or more files (images, audio, archives) and return a file or album URL. Each file uses `{name, data}`, where `data` can be a local file path, Base64, or a Base64 data URI.
-- `list_recipients`: List configured public key IDs for encrypted uploads. Start the server with `--age-recipients-dir` and/or `--ssh-recipients-dir`, each containing one public key per `.pub` file. Pass selected IDs as `recipients` to `upload_text` or `upload_files`.
+- `list_recipients`: List configured local public key IDs for encrypted uploads. Start the server with `--age-recipients-dir` and/or `--ssh-recipients-dir`, each containing one public key per `.pub` file. Pass selected IDs as `recipients` to `upload_text` or `upload_files`; GitHub users are not listed and can be specified directly with the `github:` prefix.
 - Start `pd mcp --identity-file /path/to/key` to decrypt `.age` downloads with a local age identity or unencrypted SSH private key. MCP does not prompt for SSH key passphrases.
 - `upload_text`: Upload plain text or markdown as a file and return a download URL.
 - `download_file`: Download a file from Pixeldrain to the local machine.
+
+For encrypted MCP uploads, pass GitHub usernames directly in `recipients`, optionally alongside local IDs from `list_recipients`:
+
+```json
+{"text":"Confidential notes", "recipients":["github:octocat", "age:alice.pub"]}
+```
+
+GitHub SSH keys are fetched over HTTPS. All supported Ed25519 and RSA keys are used, so anyone holding a matching private key can decrypt the upload; verify the account and key fingerprints through a trusted channel. Unsupported keys are skipped and reported in `warnings`. Omitting `recipients` uploads without encryption; an empty array, lookup failure, or no supported GitHub keys is an error and does not fall back to plaintext.
 
 ## Advanced Usage
 
@@ -133,10 +141,12 @@ Encrypt files locally before uploading with [age](https://github.com/FiloSottile
 # Encrypt with an age public key or SSH key
 pd upload --recipient "age1..." secret.pdf
 pd upload --recipient "ssh-ed25519 AAAA..." secret.pdf
+pd upload --recipient "github:octocat" secret.pdf
 
 # Encrypt for multiple recipients using a file
 pd upload --recipient-file recipients.txt secret.pdf
 ```
+GitHub recipients use the SSH public keys published at `https://github.com/<username>.keys`. All supported Ed25519 and RSA keys are included, so anyone holding a matching private key can decrypt the file. Verify the GitHub account and key fingerprints through a trusted channel; unsupported key types are skipped with a warning, and the upload fails if no supported keys are available.
 *(Uploaded files will automatically have the `.age` extension).*
 
 To decrypt upon download, provide your private key with `--identity`:
